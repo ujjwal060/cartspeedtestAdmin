@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 const Sidebar = () => {
@@ -31,7 +33,9 @@ const Sidebar = () => {
 
   const menuItems = [
     { text: 'Dashboard', link: '/dashboard', icon: <DashboardIcon /> },
-    { text: 'User', link: '/user', icon: <PeopleIcon /> },
+    { text: 'Users', link: '/users', icon: <PeopleIcon /> },
+    { text: 'Videos', link: '/videos', icon: <VideoLibraryIcon /> },
+    { text: 'Tests', link: '/tests', icon: <AssignmentIcon /> },
   ];
 
   return (
@@ -107,7 +111,6 @@ const Sidebar = () => {
           <ListItemIcon><LogoutIcon /></ListItemIcon>
           <ListItemText primary="Logout" />
         </ListItem>
-
       </List>
     </Drawer>
   );
