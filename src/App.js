@@ -1,30 +1,20 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import React, { useEffect,useState } from 'react';
-import Sidebar from './components/Sidebar';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import ProtectedRoute from './components/ProtectedRoute';
+import React, { Suspense,lazy } from 'react';
 import { Box } from "@mui/material";
 import { ToastContainer } from 'react-toastify';
 import Watermark from './components/Watermark';
-import ForgotPassword from './pages/ForgotPassword';
-import VerifyOTP from './pages/VerifyOTP';
-import SetNewPassword from './pages/SetNewPassword';
 import Loader from './components/Loader';
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Login = lazy(() => import('./pages/Login'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const VerifyOTP = lazy(() => import('./pages/VerifyOTP'));
+const SetNewPassword = lazy(() => import('./pages/SetNewPassword'));
+const Sidebar = lazy(() => import('./components/Sidebar'));
+const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+
+
 
 function App() {
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
-    return <Loader />;
-  }
-
   return (
     <Router>
       <Box
@@ -36,9 +26,8 @@ function App() {
         }}
       >
         <Watermark />
-        {/* {loading && <Loader />} */}
-
         <Box sx={{ position: "relative", zIndex: 1 }}>
+           <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -57,6 +46,7 @@ function App() {
               </ProtectedRoute>
             } />
           </Routes>
+          </Suspense>
         </Box>
       </Box>
       <ToastContainer />
