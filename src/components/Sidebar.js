@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Drawer,
   List,
@@ -19,6 +19,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const user = {
     role: 'Admin',
@@ -28,7 +29,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   const menuItems = [
@@ -49,6 +50,7 @@ const Sidebar = () => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
+          background: "linear-gradient(to right, #3f87a6, #ebf8e1)",
         },
       }}
       variant="permanent"
@@ -78,10 +80,10 @@ const Sidebar = () => {
                 component={Link}
                 to={item.link}
                 sx={{
-                  backgroundColor: isSelected ? '#1976d2' : 'transparent',
+                  backgroundColor: isSelected ? 'rgba(0, 0, 0, 0.2)' : 'transparent',
                   color: isSelected ? '#fff' : 'inherit',
                   '&:hover': {
-                    backgroundColor: isSelected ? '#1565c0' : '#f0f0f0',
+                    backgroundColor: isSelected ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)',
                   },
                   '& .MuiListItemIcon-root': {
                     color: isSelected ? '#fff' : 'inherit',
