@@ -6,6 +6,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Box } from "@mui/material";
 import { ToastContainer } from 'react-toastify';
 import Watermark from './components/Watermark';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyOTP from './pages/VerifyOTP';
+import SetNewPassword from './pages/SetNewPassword';
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
         <Box sx={{ position: "relative", zIndex: 1 }}>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-otp" element={<VerifyOTP />} />
+            <Route path="/set-password" element={<SetNewPassword />} />
             <Route path="/*" element={
               <ProtectedRoute>
                 <div style={{ display: 'flex' }}>

@@ -11,7 +11,7 @@ const Watermark = () => {
         top: "50%",
         left: "50%",
         width: 200,
-        opacity: 0.2,
+        opacity: 0.1,
         transform: "translate(-50%, -50%)",
         pointerEvents: "none",
         zIndex: 999,

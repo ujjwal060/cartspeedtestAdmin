@@ -3,7 +3,7 @@ import {
   InputAdornment, IconButton,
 } from "@mui/material";
 import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
 import { toast } from 'react-toastify';
@@ -14,21 +14,42 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear errors on field change
+    if (e.target.name === 'email') {
+      setEmailError("");
+    }
+    if (e.target.name === 'password') {
+      setPasswordError("");
+    }
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    if (!formData.email) {
+      setEmailError("Email is required");
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setEmailError("Invalid email address");
+      isValid = false;
+    }
+
+    if (!formData.password) {
+      setPasswordError("Password is required");
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   const handleLogin = async () => {
+    if (!validateForm()) return;
     setLoading(true);
     setError("");
     try {
@@ -93,6 +114,8 @@ const Login = () => {
               "&.Mui-focused fieldset": { borderColor: "#000" },
             },
           }}
+          error={!!emailError}
+          helperText={emailError}
         />
 
         <TextField
@@ -127,6 +150,8 @@ const Login = () => {
               "&.Mui-focused fieldset": { borderColor: "#000" },
             },
           }}
+          error={!!passwordError}
+          helperText={passwordError}
         />
 
         <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -134,7 +159,10 @@ const Login = () => {
             control={<Checkbox sx={{ color: "#000" }} checked={keepLoggedIn} onChange={handleKeepLoggedInChange} />}
             label={<Typography sx={{ fontSize: 14 }}>Keep me logged in</Typography>}
           />
-          <Typography component="a" href="#" sx={{ fontSize: 14, textDecoration: "underline" }}>
+          <Typography
+            sx={{ fontSize: 14, textDecoration: "underline", cursor: "pointer",color: "#1976d2" }}
+            onClick={() => navigate("/forgot-password")}
+          >
             Forgot password?
           </Typography>
         </Box>
