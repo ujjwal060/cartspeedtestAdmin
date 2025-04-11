@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect,useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -9,8 +10,21 @@ import Watermark from './components/Watermark';
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyOTP from './pages/VerifyOTP';
 import SetNewPassword from './pages/SetNewPassword';
+import Loader from './components/Loader';
 
 function App() {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <Router>
       <Box
@@ -22,6 +36,7 @@ function App() {
         }}
       >
         <Watermark />
+        {/* {loading && <Loader />} */}
 
         <Box sx={{ position: "relative", zIndex: 1 }}>
           <Routes>

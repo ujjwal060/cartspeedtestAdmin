@@ -19,3 +19,12 @@ export const resetPassword = async (data) => {
   const response = await axios.post("/admin/setPass", data);
   return response.data;
 };
+
+export const getProfile = async (id, token) => {
+  const response = await axios.get(`/admin/profile/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data;
+};
