@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import React, { Suspense, lazy } from 'react';
 import { Box } from "@mui/material";
 import { ToastContainer } from 'react-toastify';
@@ -42,6 +42,7 @@ function App() {
                       <Navbar />
                       <Box sx={{ marginTop: 8, padding: 2 }}>
                         <Routes>
+                          <Route path="/" element={<Navigate to="/dashboard" replace />} />
                           <Route path="/dashboard" element={<Dashboard />} />
                         </Routes>
                       </Box>
