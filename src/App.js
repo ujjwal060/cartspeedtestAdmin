@@ -12,6 +12,7 @@ const VerifyOTP = lazy(() => import('./pages/VerifyOTP'));
 const SetNewPassword = lazy(() => import('./pages/SetNewPassword'));
 const Users = lazy(() => import('./pages/Users'));
 const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+const VideoDashboard=lazy(()=>import('./pages/VideoDashboard'));
 
 
 
@@ -39,6 +40,7 @@ function App() {
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
+                <Route path="/Videos" element={<VideoDashboard />} />
               </Route>
             </Routes>
           </Suspense>
