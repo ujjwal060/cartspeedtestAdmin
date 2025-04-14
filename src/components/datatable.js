@@ -40,7 +40,6 @@ export default function DataTable() {
       columns={columns}
       initialState={{ pagination: { paginationModel } }}
       pageSizeOptions={[10, 20]}
-      checkboxSelection
       className="data-table-changes"
     />
   );
