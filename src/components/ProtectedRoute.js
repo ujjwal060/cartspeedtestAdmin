@@ -8,8 +8,6 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const checkToken = async () => {
-    debugger
-
       const token = localStorage.getItem('token');
       const refreshToken = localStorage.getItem('refreshToken');
       const keepLogin = localStorage.getItem('keepLogin');
