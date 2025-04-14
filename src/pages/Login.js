@@ -21,7 +21,6 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear errors on field change
     if (e.target.name === 'email') {
       setEmailError("");
     }
@@ -56,12 +55,7 @@ const Login = () => {
       const res = await loginUser(formData);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userId", res.data.id);
-
-      if (keepLoggedIn) {
-        localStorage.setItem("keepLoggedIn", "true");
-      }else{
-        localStorage.setItem("keepLoggedIn", "false");
-      }
+      localStorage.setItem('keepLogin', keepLoggedIn ? 'true' : 'false');
 
       toast.success('Login successful!', {
         autoClose: 3000,
@@ -162,7 +156,7 @@ const Login = () => {
             label={<Typography sx={{ fontSize: 14 }}>Keep me logged in</Typography>}
           />
           <Typography
-            sx={{ fontSize: 14, textDecoration: "underline", cursor: "pointer",color: "#1976d2" }}
+            sx={{ fontSize: 14, textDecoration: "underline", cursor: "pointer", color: "#1976d2" }}
             onClick={() => navigate("/forgot-password")}
           >
             Forgot password?
