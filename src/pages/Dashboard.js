@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Grid,
   Card,
@@ -8,7 +8,6 @@ import {
   Box,
 } from "@mui/material";
 import CardActionArea from "@mui/material/CardActionArea";
-
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -110,59 +109,57 @@ const Dashboard = () => {
           </Grid>
         </div>
         <div className="col-lg-4">
-          <Grid size={{ xs: 4 }}>
-            <Grid size={{ xs: 12 }} style={{ marginBottom: "10px" }}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Tests Overview
-                  </Typography>
-                  <Typography variant="body1">
-                    Total Tests: {data.totalTests}
-                  </Typography>
-                  <Typography variant="body1">
-                    Passed: {data.passedTests}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+          <Grid size={{ xs: 12 }} className="mb-2">
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Tests Overview
+                </Typography>
+                <Typography variant="body1">
+                  Total Tests: {data.totalTests}
+                </Typography>
+                <Typography variant="body1">
+                  Passed: {data.passedTests}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-            {/* Certificates Issued */}
-            <Grid size={{ xs: 12 }} style={{ marginBottom: "10px" }}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">Certificates Issued</Typography>
-                  <Typography variant="body1">
-                    Total Certificates: {data.certificatesIssued}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    href="/issue-certificate"
-                    sx={{ mt: 2 }}
-                  >
-                    Issue Certificate
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
+          {/* Certificates Issued */}
+          <Grid size={{ xs: 12 }} className="mb-2">
+            <Card>
+              <CardContent>
+                <Typography variant="h6">Certificates Issued</Typography>
+                <Typography variant="body1">
+                  Total Certificates: {data.certificatesIssued}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  href="/issue-certificate"
+                  className="mt-2 w-100"
+                >
+                  Issue Certificate
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
 
-            {/* Manage Videos */}
-            <Grid size={{ xs: 12 }}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">Manage Training Videos</Typography>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    href="/videos"
-                    sx={{ mt: 2 }}
-                  >
-                    View Videos
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
+          {/* Manage Videos */}
+          <Grid size={{ xs: 12 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">Manage Training Videos</Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  href="/videos"
+                  className="mt-2 w-100"
+                >
+                  View Videos
+                </Button>
+              </CardContent>
+            </Card>
           </Grid>
         </div>
       </div>
