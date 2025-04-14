@@ -1,5 +1,6 @@
-import React from 'react';
-import { Typography, Paper, Box } from '@mui/material';
+import React from "react";
+import { Typography, Paper, Box } from "@mui/material";
+import DataTable from "../components/datatable";
 
 const Users = () => {
   return (
@@ -8,8 +9,9 @@ const Users = () => {
         Users
       </Typography>
       <Box>
-        {/* Yahan aap user list ya table laga sakte ho */}
-        <Typography>This is the Users page.</Typography>
+        <Paper className="w-100 table-responsive">
+          <DataTable />
+        </Paper>
       </Box>
     </Paper>
   );

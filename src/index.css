@@ -1,13 +1,28 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+.data-table-changes .MuiDataGrid-footerContainer p {
+  margin: 0 !important;
+}
+@media screen and (min-width: 800px) {
+  .content-open {
+    width: calc(100% - 240px) !important;
+    margin-left: auto !important;
+  }
+}
+@media screen and (max-width: 800px) {
+  .css-dkbq3b-MuiDrawer-docked .MuiDrawer-paper {
+    z-index: 9999;
+    width: calc(100% - 10%) !important;
+  }
 }
