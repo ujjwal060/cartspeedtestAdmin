@@ -54,6 +54,7 @@ const Login = () => {
     try {
       const res = await loginUser(formData);
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
       localStorage.setItem("userId", res.data.id);
       localStorage.setItem('keepLogin', keepLoggedIn ? 'true' : 'false');
 
@@ -62,7 +63,7 @@ const Login = () => {
       });
       navigate("/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed", {
+      toast.error(err.response?.data?.message[0] || "Login failed", {
         autoClose: 3000,
       });
     } finally {

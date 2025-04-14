@@ -1,5 +1,25 @@
 import axios from "./axios";
 
+
+export const authenticateUser = (token) => {
+  return axios.post(
+    '/admin/auth/verifyToken', 
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }
+  );
+};
+
+export const refreashToken = (refreshToken) => {
+  return axios.post(
+    '/admin/auth/refreshToken',
+    { refreshToken },
+  );
+};
+
 export const loginUser = async (credentials) => {
   const response = await axios.post("/admin/login", credentials);
   return response.data;
