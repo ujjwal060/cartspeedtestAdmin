@@ -59,6 +59,8 @@ const Login = () => {
 
       if (keepLoggedIn) {
         localStorage.setItem("keepLoggedIn", "true");
+      }else{
+        localStorage.setItem("keepLoggedIn", "false");
       }
 
       toast.success('Login successful!', {
