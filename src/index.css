@@ -14,3 +14,15 @@ code {
 .data-table-changes .MuiDataGrid-footerContainer p {
   margin: 0 !important;
 }
+@media screen and (min-width: 800px) {
+  .content-open {
+    width: calc(100% - 240px) !important;
+    margin-left: auto !important;
+  }
+}
+@media screen and (max-width: 800px) {
+  .css-dkbq3b-MuiDrawer-docked .MuiDrawer-paper {
+    z-index: 9999;
+    width: calc(100% - 10%) !important;
+  }
+}
