@@ -123,6 +123,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             cursor: "pointer",
             "&:hover": {
               backgroundColor: "#600b0b",
+              color: "#fff",
             },
           }}
         >
