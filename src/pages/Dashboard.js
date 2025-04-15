@@ -44,126 +44,128 @@ const Dashboard = () => {
   };
 
   return (
-    <Box sx={{ padding: "24px" }}>
-      <Typography variant="h4" gutterBottom>
-        Admin Dashboard
-      </Typography>
+    <div className="container-fluid">
+      <Box sx={{ padding: "24px" }}>
+        <Typography variant="h4" gutterBottom>
+          Admin Dashboard
+        </Typography>
 
-      {/* Top Summary Cards */}
-      <Grid container spacing={3} sx={{ marginBottom: 2 }}>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ backgroundColor: "#f0f4ff" }}>
-            <CardActionArea>
-              <CardContent>
-                <Typography variant="subtitle2" color="textSecondary">
-                  Total Users
-                </Typography>
-                <Typography variant="h5" style={{ marginTop: "30px" }}>
-                  {data.totalUsers}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ backgroundColor: "#e3fce3" }}>
-            <CardActionArea>
-              <CardContent>
-                <Typography variant="subtitle2" color="textSecondary">
-                  New This Month
-                </Typography>
-                <Typography variant="h5" style={{ marginTop: "30px" }}>
-                  {data.newUsersThisMonth}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card sx={{ backgroundColor: "#fff4e5" }}>
-            <CardActionArea>
-              <CardContent>
-                <Typography variant="subtitle2" color="textSecondary">
-                  Active Users
-                </Typography>
-                <Typography variant="h5" style={{ marginTop: "30px" }}>
-                  {data.activeUsers}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <div className="row gy-4">
-        <div className="col-lg-8">
-          <Grid size={{ xs: 8 }}>
-            <Card style={{ height: "100%" }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Location-wise Activity
-                </Typography>
-                <Bar data={chartData} />
-              </CardContent>
+        {/* Top Summary Cards */}
+        <Grid container spacing={3} sx={{ marginBottom: 2 }}>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Card sx={{ backgroundColor: "#f0f4ff" }}>
+              <CardActionArea>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    Total Users
+                  </Typography>
+                  <Typography variant="h5" style={{ marginTop: "30px" }}>
+                    {data.totalUsers}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
             </Card>
           </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Card sx={{ backgroundColor: "#e3fce3" }}>
+              <CardActionArea>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    New This Month
+                  </Typography>
+                  <Typography variant="h5" style={{ marginTop: "30px" }}>
+                    {data.newUsersThisMonth}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Card sx={{ backgroundColor: "#fff4e5" }}>
+              <CardActionArea>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    Active Users
+                  </Typography>
+                  <Typography variant="h5" style={{ marginTop: "30px" }}>
+                    {data.activeUsers}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <div className="row gy-4">
+          <div className="col-lg-8">
+            <Grid size={{ xs: 8 }}>
+              <Card style={{ height: "100%" }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Location-wise Activity
+                  </Typography>
+                  <Bar data={chartData} />
+                </CardContent>
+              </Card>
+            </Grid>
+          </div>
+          <div className="col-lg-4">
+            <Grid size={{ xs: 12 }} className="mb-2">
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Tests Overview
+                  </Typography>
+                  <Typography variant="body1">
+                    Total Tests: {data.totalTests}
+                  </Typography>
+                  <Typography variant="body1">
+                    Passed: {data.passedTests}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Certificates Issued */}
+            <Grid size={{ xs: 12 }} className="mb-2">
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Certificates Issued</Typography>
+                  <Typography variant="body1">
+                    Total Certificates: {data.certificatesIssued}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    href="/issue-certificate"
+                    className="mt-2 w-100"
+                  >
+                    Issue Certificate
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Manage Videos */}
+            <Grid size={{ xs: 12 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Manage Training Videos</Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    href="/videos"
+                    className="mt-2 w-100"
+                  >
+                    View Videos
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          </div>
         </div>
-        <div className="col-lg-4">
-          <Grid size={{ xs: 12 }} className="mb-2">
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Tests Overview
-                </Typography>
-                <Typography variant="body1">
-                  Total Tests: {data.totalTests}
-                </Typography>
-                <Typography variant="body1">
-                  Passed: {data.passedTests}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Certificates Issued */}
-          <Grid size={{ xs: 12 }} className="mb-2">
-            <Card>
-              <CardContent>
-                <Typography variant="h6">Certificates Issued</Typography>
-                <Typography variant="body1">
-                  Total Certificates: {data.certificatesIssued}
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  href="/issue-certificate"
-                  className="mt-2 w-100"
-                >
-                  Issue Certificate
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Manage Videos */}
-          <Grid size={{ xs: 12 }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">Manage Training Videos</Typography>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  href="/videos"
-                  className="mt-2 w-100"
-                >
-                  View Videos
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        </div>
-      </div>
-    </Box>
+      </Box>
+    </div>
   );
 };
 
