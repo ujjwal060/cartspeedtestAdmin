@@ -376,10 +376,9 @@ const VideoDashboard = () => {
 
   const deleteUploadedVideo = (id) => {
     if (window.confirm("Delete this video?")) {
-      setVideoFiles((prev) => prev.filter((v) => v.id !== id));
+      setSelectedVideos((prev) => prev.filter((v) => v.id !== id));
     }
   };
-
   // Filter videos based on search term
   const filteredVideos = dummyVideos.filter((video) => {
     return (
