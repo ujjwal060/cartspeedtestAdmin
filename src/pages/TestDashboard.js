@@ -106,7 +106,7 @@ const TestDashboard = () => {
             className="mb-3 "
             onClick={handleShow}
           >
-            Add Your Test
+            Add Test
           </Button>
         </div>
 
@@ -222,32 +222,37 @@ const TestDashboard = () => {
             )}
           />
           <div className="row gy-4 mt-4">
-            <div className="col-lg-8 me-auto">
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Select Level
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={age}
-                  label="Select Level"
-                  onChange={handleChange}
-                >
-                  <MenuItem value={"1"}>Level 1</MenuItem>
-                  <MenuItem value={"2"}>Level 2</MenuItem>
-                  <MenuItem value={"3"}>Level 3</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-            <div className="col-lg-12">
-              <TextField
-                id="standard-basic"
-                label="Add Your Question Here"
-                variant="standard"
-                className="w-100"
-              />
-            </div>
+            {value && (
+              <div className="col-lg-6 me-auto">
+                <FormControl size="small" className="w-100">
+                  <InputLabel id="demo-simple-select-label">
+                    Select Level
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={age}
+                    label="Select Level"
+                    onChange={handleChange}
+                  >
+                    <MenuItem value={"1"}>Level 1</MenuItem>
+                    <MenuItem value={"2"}>Level 2</MenuItem>
+                    <MenuItem value={"3"}>Level 3</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+            )}
+
+            {age && (
+              <div className="col-lg-12">
+                <TextField
+                  id="standard-basic"
+                  label="Add Your Question Here"
+                  variant="standard"
+                  className="w-100"
+                />
+              </div>
+            )}
 
             {age && (
               <>

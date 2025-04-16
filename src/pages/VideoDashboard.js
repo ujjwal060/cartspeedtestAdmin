@@ -15,10 +15,10 @@ import {
   Checkbox,
   Tooltip,
 } from "@mui/material";
+import Offcanvas from "react-bootstrap/Offcanvas";
 import ReactPlayer from "react-player";
 import Autocomplete from "@mui/material/Autocomplete";
 import Pagination from "react-bootstrap/Pagination";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import Table from "@mui/material/Table";
@@ -500,175 +500,161 @@ const VideoDashboard = () => {
             ))}
         </Box>
 
-        <Dialog
-          open={open}
-          TransitionComponent={Transition}
-          keepMounted
-          onClose={handleClose}
-          maxWidth="sm"
-          fullWidth
-        >
-          <form onSubmit={handleVideoUpload}>
-            <DialogTitle>Add Video</DialogTitle>
-            <DialogContent>
+        <Offcanvas show={open} onHide={handleClose} placement={"end"}>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Add Video</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <form onSubmit={handleVideoUpload}>
               <div className="fileupload-view">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="kb-data-box">
-                      <form onSubmit={handleVideoUpload}>
-                        <div className="kb-file-upload">
-                          <div className="file-upload-box">
-                            <input
-                              type="file"
-                              accept="video/*"
-                              id="fileupload"
-                              className="file-upload-input"
-                              onChange={handleVideoInput}
-                              multiple
-                            />
-                            <span>
-                              Drag and drop or{" "}
-                              <span className="file-link">
-                                Choose your files
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                        <div className="kb-attach-box mb-3">
-                          {selectedVideos.map((vid) => (
-                            <div className="file-atc-box" key={vid.id}>
-                              <div className="file-image">
-                                <video
-                                  width="100"
-                                  height="60"
-                                  controls
-                                  src={vid.fileurl}
-                                ></video>
-                              </div>
-                              <div className="file-detail">
-                                <h6>{vid.filename}</h6>
-                                <p>
-                                  <span>Size : {vid.filesize}</span>
-                                  <span className="ml-2">
-                                    Modified Time : {vid.datetime}
-                                  </span>
-                                </p>
-                                <div className="file-actions">
-                                  <button
-                                    type="button"
-                                    className="file-action-btn"
-                                    onClick={() => deleteUploadedVideo(vid.id)}
-                                  >
-                                    Delete
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="row gy-4 mb-4">
-                          <div className="col-lg-6">
-                            <TextField
-                              variant="outlined"
-                              size="small"
-                              className="h-outline-test"
-                              placeholder="Enter video title.."
-                            />
-                          </div>
-                          <div className="col-lg-6">
-                            <Autocomplete
-                              id="controlled-demo"
-                              value={value}
-                              options={[
-                                "Option A",
-                                "Option B",
-                                "Option C",
-                                "Option D",
-                                "Option E",
-                              ]}
-                              onChange={(event, newValue) => {
-                                setValue(newValue);
-                              }}
-                              renderInput={(params) => (
-                                <TextField {...params} label="Add Your State" />
-                              )}
-                            />
-                          </div>
-                          <div className="col-lg-12">
-                            <TextField
-                              variant="outlined"
-                              size="small"
-                              placeholder="Enter video title.."
-                              className="w-100"
-                            />
-                          </div>
-                        </div>
-                        <div className="kb-buttons-box d-flex justify-content-center gap-2">
-                          <Button
-                            onClick={handleClose}
-                            color="error"
-                            variant="contained"
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="submit"
-                            color="success"
-                            variant="contained"
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      </form>
-
-                      {videoFiles.length > 0 && (
-                        <div className="kb-attach-box">
-                          <hr />
-                          {videoFiles.map((vid) => (
-                            <div className="file-atc-box" key={vid.id}>
-                              <div className="file-image">
-                                <video
-                                  width="100"
-                                  height="60"
-                                  controls
-                                  src={vid.fileurl}
-                                ></video>
-                              </div>
-                              <div className="file-detail">
-                                <h6>{vid.filename}</h6>
-                                <p>
-                                  <span>Size : {vid.filesize}</span>
-                                  <span className="ml-3">
-                                    Modified Time : {vid.datetime}
-                                  </span>
-                                </p>
-                                <div className="file-actions">
-                                  <button
-                                    className="file-action-btn"
-                                    onClick={() => deleteUploadedVideo(vid.id)}
-                                  >
-                                    Delete
-                                  </button>
-                                  <a
-                                    href={vid.fileurl}
-                                    className="file-action-btn"
-                                    download={vid.filename}
-                                  >
-                                    Download
-                                  </a>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                <div className="kb-data-box">
+                  <form onSubmit={handleVideoUpload}>
+                    <div className="kb-file-upload">
+                      <div className="file-upload-box">
+                        <input
+                          type="file"
+                          accept="video/*"
+                          id="fileupload"
+                          className="file-upload-input"
+                          onChange={handleVideoInput}
+                          multiple
+                        />
+                        <span>
+                          Drag and drop or{" "}
+                          <span className="file-link">Choose your files</span>
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                    <div className="kb-attach-box mb-3">
+                      {selectedVideos.map((vid) => (
+                        <div className="file-atc-box" key={vid.id}>
+                          <div className="file-image">
+                            <video
+                              width="100"
+                              height="60"
+                              controls
+                              src={vid.fileurl}
+                            ></video>
+                          </div>
+                          <div className="file-detail">
+                            <h6>{vid.filename}</h6>
+                            <p>
+                              <span>Size : {vid.filesize}</span>
+                              <span className="ml-2">
+                                Modified Time : {vid.datetime}
+                              </span>
+                            </p>
+                            <div className="file-actions">
+                              <button
+                                type="button"
+                                className="file-action-btn"
+                                onClick={() => deleteUploadedVideo(vid.id)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="row gy-4 mb-4">
+                      <div className="col-lg-12">
+                        <TextField
+                          variant="outlined"
+                          size="small"
+                          className="w-100"
+                          placeholder="Enter video title.."
+                        />
+                      </div>
+                      <div className="col-lg-12">
+                        <Autocomplete
+                          id="controlled-demo"
+                          size="small"
+                          value={value}
+                          options={[
+                            "Option A",
+                            "Option B",
+                            "Option C",
+                            "Option D",
+                            "Option E",
+                          ]}
+                          onChange={(event, newValue) => {
+                            setValue(newValue);
+                          }}
+                          renderInput={(params) => (
+                            <TextField {...params} label="Add Your State" />
+                          )}
+                        />
+                      </div>
+                      <div className="col-lg-12">
+                        <TextField
+                          variant="outlined"
+                          size="small"
+                          placeholder="Enter video title.."
+                          className="w-100"
+                        />
+                      </div>
+                    </div>
+                    <div className="kb-buttons-box d-flex justify-content-center gap-2">
+                      <Button
+                        onClick={handleClose}
+                        color="error"
+                        variant="contained"
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" color="success" variant="contained">
+                        Save
+                      </Button>
+                    </div>
+                  </form>
+
+                  {videoFiles.length > 0 && (
+                    <div className="kb-attach-box">
+                      <hr />
+                      {videoFiles.map((vid) => (
+                        <div className="file-atc-box" key={vid.id}>
+                          <div className="file-image">
+                            <video
+                              width="100"
+                              height="60"
+                              controls
+                              src={vid.fileurl}
+                            ></video>
+                          </div>
+                          <div className="file-detail">
+                            <h6>{vid.filename}</h6>
+                            <p>
+                              <span>Size : {vid.filesize}</span>
+                              <span className="ml-3">
+                                Modified Time : {vid.datetime}
+                              </span>
+                            </p>
+                            <div className="file-actions">
+                              <button
+                                className="file-action-btn"
+                                onClick={() => deleteUploadedVideo(vid.id)}
+                              >
+                                Delete
+                              </button>
+                              <a
+                                href={vid.fileurl}
+                                className="file-action-btn"
+                                download={vid.filename}
+                              >
+                                Download
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-            </DialogContent>
-          </form>
-        </Dialog>
+            </form>
+          </Offcanvas.Body>
+        </Offcanvas>
 
         <Dialog
           open={playOpen}
