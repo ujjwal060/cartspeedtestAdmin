@@ -206,7 +206,6 @@ const filesizes = (bytes, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 };
 
-// Sorting functions
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
