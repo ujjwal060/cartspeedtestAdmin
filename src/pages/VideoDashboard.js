@@ -396,12 +396,22 @@ const VideoDashboard = () => {
   return (
     <Box p={4}>
       <Box>
-        <div className="d-flex justify-content-end gap-2 align-items-center mb-3">
+        <div className="d-flex justify-content-end gap-2 align-items-center mb-3 pad-root">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={["DateRangePicker"]}>
               <DateRangePicker
                 localeText={{ start: "Start Date", end: "End Date" }}
                 sx={{ width: "300px" }}
+                className="date-range-picker-custom"
+                slotProps={{
+                  textField: {
+                    sx: {
+                      "& .MuiInputBase-root": {
+                        height: "40px",
+                      },
+                    },
+                  },
+                }}
               />
             </DemoContainer>
           </LocalizationProvider>

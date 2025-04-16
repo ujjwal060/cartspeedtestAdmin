@@ -9,6 +9,10 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import PropTypes from "prop-types";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers-pro/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers-pro/AdapterDayjs";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 
 // Constants
 const ROWS_PER_PAGE = 10;
@@ -176,45 +180,67 @@ const Users = () => {
   );
 
   return (
-    <Paper elevation={3} sx={{ padding: 3, width: "100%", overflow: "hidden" }}>
+    <>
       <Box>
-        <TableContainer sx={{ maxHeight: 440 }}>
-          <Table stickyHeader aria-label="sticky table" size="medium">
-            <EnhancedTableHead
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-            />
-            <TableBody>
-              {visibleRows.map((row) => (
-                <TableRow hover key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.email}</TableCell>
-                  <TableCell>{row.phone}</TableCell>
-                  <TableCell>{row.address}</TableCell>
-                </TableRow>
-              ))}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={headCells.length} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-          component="div"
-          count={DUMMY_DATA.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          className="paginated-custom"
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <div className="d-flex justify-content-end gap-2 align-items-center mb-3 pad-root">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={["DateRangePicker"]}>
+              <DateRangePicker
+                localeText={{ start: "Start Date", end: "End Date" }}
+                sx={{ width: "300px" }}
+                className="date-range-picker-custom"
+                slotProps={{
+                  textField: {
+                    sx: {
+                      "& .MuiInputBase-root": {
+                        height: "40px",
+                      },
+                    },
+                  },
+                }}
+              />
+            </DemoContainer>
+          </LocalizationProvider>
+        </div>
+        <Paper>
+          <TableContainer>
+            <Table>
+              <EnhancedTableHead
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+              />
+              <TableBody>
+                {visibleRows.map((row) => (
+                  <TableRow hover key={row.id}>
+                    <TableCell>{row.id}</TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.email}</TableCell>
+                    <TableCell>{row.phone}</TableCell>
+                    <TableCell>{row.address}</TableCell>
+                  </TableRow>
+                ))}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: 53 * emptyRows }}>
+                    <TableCell colSpan={headCells.length} />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+            component="div"
+            count={DUMMY_DATA.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            className="paginated-custom"
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
       </Box>
-    </Paper>
+    </>
   );
 };
 

@@ -11,6 +11,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+.pad-root .MuiStack-root {
+  padding-top: 0 !important;
+  overflow: visible;
+  height: 40px;
+}
+.date-range-picker-custom label {
+  top: -6px !important;
+}
+.date-range-picker-custom label.MuiInputLabel-shrink {
+  top: 2px !important;
+}
 .h-outline-test,
 .h-outline-test div {
   height: 100%;
