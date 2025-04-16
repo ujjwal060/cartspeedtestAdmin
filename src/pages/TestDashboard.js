@@ -9,8 +9,12 @@ import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
+
 const dummyVideos = [
   {
     id: 1,
@@ -33,37 +37,69 @@ const dummyVideos = [
 ];
 
 const TestDashboard = () => {
-  const [selectedVideo, setSelectedVideo] = useState(dummyVideos[0]);
   const [show, setShow] = useState(false);
-  const [addAnswer, setAddAnswer] = useState(false);
-  const [correctAnswer, setCorrectAnswer] = useState("");
-  const [optionsList, setOptionsList] = useState([]);
   const [showOptionInput, setShowOptionInput] = useState(false);
   const [newOption, setNewOption] = useState("");
   const [value, setValue] = React.useState(null);
+  const [answerValue, setAnswerValue] = React.useState(null);
+  const [filterLevel, setFilterLevel] = React.useState(null);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const handleAddOption = () => {
-    setShowOptionInput(true);
+  const [age, setAge] = React.useState("");
+  const [options, setOptions] = useState({
+    option1: "",
+    option2: "",
+    option3: "",
+    option4: "",
+  });
+
+  const handleChange = (event) => {
+    setAge(event.target.value);
   };
 
-  const handleSaveOption = () => {
-    if (newOption.trim()) {
-      setOptionsList((prev) => [...prev, newOption.trim()]);
-      setNewOption("");
-      setShowOptionInput(false);
-    }
+  const handleOptionChange = (e) => {
+    const { id, value } = e.target;
+    setOptions((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
   };
 
-  const handleAddAnswer = () => {
-    setAddAnswer(true);
+  const allOptionsFilled = () => {
+    return (
+      options.option1 && options.option2 && options.option3 && options.option4
+    );
   };
+
+  const answerOptions = [
+    options.option1,
+    options.option2,
+    options.option3,
+    options.option4,
+  ].filter((opt) => opt); // Filter out empty options
 
   return (
     <Box p={4}>
       {/* Table */}
       <Box>
-        <div className="d-flex justify-content-end">
+        <div className="d-flex justify-content-end gap-2">
+          <FormControl sx={{ width: "200px" }} size="small">
+            <InputLabel id="demo-simple-select-label">
+              Filter By Level
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filterLevel}
+              label="Filter By Level"
+              onChange={(e) => setFilterLevel(e.target.value)}
+              sx={{ height: "40px" }}
+            >
+              <MenuItem value={1}>Level 1</MenuItem>
+              <MenuItem value={2}>Level 2</MenuItem>
+              <MenuItem value={3}>Level 3</MenuItem>
+            </Select>
+          </FormControl>
           <Button
             variant="contained"
             color="primary"
@@ -80,12 +116,12 @@ const TestDashboard = () => {
           flush
         >
           <Accordion.Item eventKey="0">
-            <Accordion.Header>#1 Lorem Ipsum</Accordion.Header>
+            <Accordion.Header>Q1 Lorem Ipsum</Accordion.Header>
             <Accordion.Body>
               <div className="row align-items-start">
                 <div className="col-lg-3">
                   <Typography className="text-start" variant="h6">
-                    Your Options
+                    Level: 1
                   </Typography>
                 </div>
                 <div className="col-lg-9">
@@ -119,12 +155,12 @@ const TestDashboard = () => {
             </Accordion.Body>
           </Accordion.Item>
           <Accordion.Item eventKey="1">
-            <Accordion.Header>#2 Lorem Ipsum</Accordion.Header>
+            <Accordion.Header>Q2 Lorem Ipsum</Accordion.Header>
             <Accordion.Body>
               <div className="row align-items-start">
                 <div className="col-lg-3">
                   <Typography className="text-start" variant="h6">
-                    Your Options
+                    Level: 1
                   </Typography>
                 </div>
                 <div className="col-lg-9">
@@ -186,6 +222,24 @@ const TestDashboard = () => {
             )}
           />
           <div className="row gy-4 mt-4">
+            <div className="col-lg-8 me-auto">
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Select Level
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={age}
+                  label="Select Level"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={"1"}>Level 1</MenuItem>
+                  <MenuItem value={"2"}>Level 2</MenuItem>
+                  <MenuItem value={"3"}>Level 3</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
             <div className="col-lg-12">
               <TextField
                 id="standard-basic"
@@ -193,69 +247,74 @@ const TestDashboard = () => {
                 variant="standard"
                 className="w-100"
               />
-              {showOptionInput && (
-                <div className="mt-3">
-                  <TextField
-                    label="New Option"
-                    variant="standard"
-                    value={newOption}
-                    onChange={(e) => setNewOption(e.target.value)}
-                    className="flex-grow-1"
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={handleSaveOption}
-                    color="success"
-                  >
-                    Save
-                  </Button>
-                </div>
-              )}
+            </div>
 
-              <Button
-                variant="contained"
-                color="success"
-                className="mt-3 "
-                onClick={handleAddOption}
-              >
-                Add Your options +
-              </Button>
-              {optionsList.length > 0 && (
-                <ul className="mt-4">
-                  {optionsList.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              )}
-              {optionsList.length > 0 && (
-                <Button
-                  variant="contained"
-                  color="info"
-                  className="mt-3 "
-                  onClick={handleAddAnswer}
-                >
-                  Add Your Correct Answer
-                </Button>
-              )}
-              {addAnswer && (
+            {age && (
+              <>
+                <div className="col-lg-6">
+                  <TextField
+                    id="option1"
+                    label="Option 1"
+                    variant="standard"
+                    className="w-100"
+                    value={options.option1}
+                    onChange={handleOptionChange}
+                  />
+                </div>
+                <div className="col-lg-6">
+                  <TextField
+                    id="option2"
+                    label="Option 2"
+                    variant="standard"
+                    className="w-100"
+                    value={options.option2}
+                    onChange={handleOptionChange}
+                  />
+                </div>
+
+                <div className="col-lg-6">
+                  <TextField
+                    id="option3"
+                    label="Option 3"
+                    variant="standard"
+                    className="w-100"
+                    value={options.option3}
+                    onChange={handleOptionChange}
+                  />
+                </div>
+                <div className="col-lg-6">
+                  <TextField
+                    id="option4"
+                    label="Option 4"
+                    variant="standard"
+                    className="w-100"
+                    value={options.option4}
+                    onChange={handleOptionChange}
+                  />
+                </div>
+              </>
+            )}
+
+            {age && (
+              <div className="col-lg-12">
                 <Autocomplete
-                  id="controlled-demo"
-                  className="mt-4"
-                  value={correctAnswer}
-                  options={optionsList}
+                  id="answer-select"
+                  value={answerValue}
+                  options={answerOptions}
+                  disabled={!allOptionsFilled()}
                   onChange={(event, newValue) => {
-                    setCorrectAnswer(newValue);
+                    setAnswerValue(newValue);
                   }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Add Your Correct Answer"
+                      label="Add Your Answer"
                       variant="standard"
                     />
                   )}
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
           <div className="row gy-4 mt-2">
             <div className="col-lg-6">

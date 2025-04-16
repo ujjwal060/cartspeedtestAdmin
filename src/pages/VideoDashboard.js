@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import ReactPlayer from "react-player";
-
+import Autocomplete from "@mui/material/Autocomplete";
 import Pagination from "react-bootstrap/Pagination";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -321,6 +321,7 @@ function EnhancedTableHead(props) {
 
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [value, setValue] = React.useState(null);
   const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
@@ -565,6 +566,43 @@ const VideoDashboard = () => {
                             </div>
                           ))}
                         </div>
+                        <div className="row gy-4 mb-4">
+                          <div className="col-lg-6">
+                            <TextField
+                              variant="outlined"
+                              size="small"
+                              className="h-outline-test"
+                              placeholder="Enter video title.."
+                            />
+                          </div>
+                          <div className="col-lg-6">
+                            <Autocomplete
+                              id="controlled-demo"
+                              value={value}
+                              options={[
+                                "Option A",
+                                "Option B",
+                                "Option C",
+                                "Option D",
+                                "Option E",
+                              ]}
+                              onChange={(event, newValue) => {
+                                setValue(newValue);
+                              }}
+                              renderInput={(params) => (
+                                <TextField {...params} label="Add Your State" />
+                              )}
+                            />
+                          </div>
+                          <div className="col-lg-12">
+                            <TextField
+                              variant="outlined"
+                              size="small"
+                              placeholder="Enter video title.."
+                              className="w-100"
+                            />
+                          </div>
+                        </div>
                         <div className="kb-buttons-box d-flex justify-content-center gap-2">
                           <Button
                             onClick={handleClose}
@@ -582,6 +620,7 @@ const VideoDashboard = () => {
                           </Button>
                         </div>
                       </form>
+
                       {videoFiles.length > 0 && (
                         <div className="kb-attach-box">
                           <hr />
@@ -652,7 +691,12 @@ const VideoDashboard = () => {
               className="object-fit-cover"
               width="100%"
             />
-            <button onClick={handlePlayClose} className="btn btn-danger mt-4 px-5">Close</button>
+            <button
+              onClick={handlePlayClose}
+              className="btn btn-danger mt-4 px-5"
+            >
+              Close
+            </button>
           </DialogContent>
         </Dialog>
       </Box>
