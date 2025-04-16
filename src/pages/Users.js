@@ -10,9 +10,10 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import PropTypes from "prop-types";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers-pro/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers-pro/AdapterDayjs";
-import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 // Constants
 const ROWS_PER_PAGE = 10;
@@ -150,7 +151,41 @@ const Users = () => {
   const [orderBy, setOrderBy] = useState("id");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
+  const DateRangePicker = ({ value, onChange }) => {
+    const [startDate, endDate] = value || [null, null];
+
+    return (
+      <Box display="flex" gap={2}>
+        <DatePicker
+          label="Start Date"
+          value={startDate}
+          sx={{ width: "200px" }}
+          size="small"
+          onChange={(newStartDate) => {
+            if (newStartDate && endDate && newStartDate.isAfter(endDate)) {
+              onChange([newStartDate, null]);
+            } else {
+              onChange([newStartDate, endDate]);
+            }
+          }}
+        />
+        <DatePicker
+          label="End Date"
+          value={endDate}
+          sx={{ width: "200px" }}
+          size="small"
+          onChange={(newEndDate) => {
+            onChange([startDate, newEndDate]);
+          }}
+          minDate={startDate ? startDate.add(1, "day") : dayjs().add(1, "day")}
+          disabled={!startDate}
+        />
+      </Box>
+    );
+  };
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -165,6 +200,7 @@ const Users = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const today = dayjs().startOf("day");
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -181,23 +217,36 @@ const Users = () => {
 
   return (
     <>
-      <Box>
+      <Box p={4}>
         <div className="d-flex justify-content-end gap-2 align-items-center mb-3 pad-root">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={["DateRangePicker"]}>
-              <DateRangePicker
-                localeText={{ start: "Start Date", end: "End Date" }}
-                sx={{ width: "300px" }}
-                className="date-range-picker-custom"
-                slotProps={{
-                  textField: {
-                    sx: {
-                      "& .MuiInputBase-root": {
-                        height: "40px",
-                      },
-                    },
-                  },
+            <DemoContainer
+              components={["DateRangePicker"]}
+              className="d-flex flex-row gap-3"
+            >
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                sx={{ width: "200px" }}
+                size="small"
+                onChange={(newValue) => {
+                  setStartDate(newValue);
+                  if (endDate && newValue && newValue.isAfter(endDate)) {
+                    setEndDate(null); // Reset end date if it's before new start
+                  }
                 }}
+                minDate={today}
+              />
+
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                sx={{ width: "200px" }}
+                size="small"
+                onChange={setEndDate}
+                minDate={
+                  startDate ? startDate.add(1, "day") : today.add(1, "day")
+                }
               />
             </DemoContainer>
           </LocalizationProvider>

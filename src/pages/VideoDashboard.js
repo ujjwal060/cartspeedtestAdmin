@@ -24,9 +24,10 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers-pro/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers-pro/AdapterDayjs";
-import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -317,6 +318,8 @@ function EnhancedTableHead(props) {
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [value, setValue] = React.useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
@@ -325,6 +328,7 @@ const VideoDashboard = () => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("id");
   const [selected, setSelected] = useState([]);
+  const today = dayjs().startOf("day");
 
   const uniqueId = useId();
   const handleClickOpen = () => setOpen(true);
@@ -396,25 +400,39 @@ const VideoDashboard = () => {
   return (
     <Box p={4}>
       <Box>
-        <div className="d-flex justify-content-end gap-2 align-items-center mb-3 pad-root">
+        <div className="d-flex justify-content-between gap-2 align-items-center pad-root">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={["DateRangePicker"]}>
-              <DateRangePicker
-                localeText={{ start: "Start Date", end: "End Date" }}
-                sx={{ width: "300px" }}
-                className="date-range-picker-custom"
-                slotProps={{
-                  textField: {
-                    sx: {
-                      "& .MuiInputBase-root": {
-                        height: "40px",
-                      },
-                    },
-                  },
+            <DemoContainer
+              components={["DateRangePicker"]}
+              className="d-flex flex-row gap-3"
+            >
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                sx={{ width: "200px" }}
+                size="small"
+                onChange={(newValue) => {
+                  setStartDate(newValue);
+                  if (endDate && newValue && newValue.isAfter(endDate)) {
+                    setEndDate(null); // Reset end date if it's before new start
+                  }
                 }}
+                minDate={today}
+              />
+
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                sx={{ width: "200px" }}
+                size="small"
+                onChange={setEndDate}
+                minDate={
+                  startDate ? startDate.add(1, "day") : today.add(1, "day")
+                }
               />
             </DemoContainer>
           </LocalizationProvider>
+          <div className="d-flex justify-content-end gap-2 align-items-center">
           <TextField
             variant="outlined"
             size="small"
@@ -433,8 +451,10 @@ const VideoDashboard = () => {
           <Button variant="contained" color="primary" onClick={handleClickOpen}>
             Add Video
           </Button>
+          </div>
+        
         </div>
-        <Paper elevation={3}>
+        <Paper elevation={3} className="mt-3">
           <TableContainer>
             <Table>
               <EnhancedTableHead

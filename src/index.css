@@ -12,9 +12,13 @@ code {
     monospace;
 }
 .pad-root .MuiStack-root {
-  padding-top: 0 !important;
-  overflow: visible;
-  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.pad-root .MuiFormControl-root {
+  margin-top: 0 !important;
 }
 .date-range-picker-custom label {
   top: -6px !important;
