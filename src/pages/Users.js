@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { Typography, Paper, Box } from "@mui/material";
+import { Paper, Box } from "@mui/material";
 import Table from "react-bootstrap/Table";
 import Pagination from "react-bootstrap/Pagination";
-import { Button } from "@mui/material";
-import Offcanvas from "react-bootstrap/Offcanvas";
+
 const mockUsers = [
   {
     id: 1,
@@ -18,10 +17,6 @@ const rowsPerPage = 5;
 
 const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
   const totalPages = Math.ceil(mockUsers.length / rowsPerPage);
 
   const handlePageChange = (page) => {
@@ -36,16 +31,7 @@ const Users = () => {
   return (
     <Paper elevation={3} sx={{ padding: 3 }}>
       <Box>
-        <div className="d-flex justify-content-end">
-          <Button
-            variant="contained"
-            color="primary"
-            className="mb-3 "
-            onClick={handleShow}
-          >
-            Add User
-          </Button>
-        </div>
+        <div className="d-flex justify-content-end"></div>
         <Paper className="w-100 table-responsive">
           <Table striped hover>
             <thead>
@@ -87,14 +73,7 @@ const Users = () => {
             </tfoot>
           </Table>
         </Paper>
-        <Offcanvas show={show} onHide={handleClose} placement={"end"}>
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Add Your Data</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            Enter your code here
-          </Offcanvas.Body>
-        </Offcanvas>
+       
       </Box>
     </Paper>
   );
