@@ -1,10 +1,6 @@
 import React, { useState } from "react";
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
-import Table from "react-bootstrap/Table";
-import Pagination from "react-bootstrap/Pagination";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
@@ -15,31 +11,9 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
 
-const dummyVideos = [
-  {
-    id: 1,
-    title: "Video 1",
-    url: "https://www.w3schools.com/html/mov_bbb.mp4",
-    views: 0.1,
-  },
-  {
-    id: 2,
-    title: "Video 2",
-    url: "https://www.w3schools.com/html/movie.mp4",
-    views: 1.0,
-  },
-  {
-    id: 3,
-    title: "Video 3",
-    url: "https://www.w3schools.com/html/mov_bbb.mp4",
-    views: 0.2,
-  },
-];
-
 const TestDashboard = () => {
   const [show, setShow] = useState(false);
-  const [showOptionInput, setShowOptionInput] = useState(false);
-  const [newOption, setNewOption] = useState("");
+
   const [value, setValue] = React.useState(null);
   const [answerValue, setAnswerValue] = React.useState(null);
   const [filterLevel, setFilterLevel] = React.useState(null);

@@ -4,21 +4,14 @@ import {
   Paper,
   Button,
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
   Slide,
   TextField,
   InputAdornment,
-  IconButton,
-  Checkbox,
-  Tooltip,
 } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import ReactPlayer from "react-player";
 import Autocomplete from "@mui/material/Autocomplete";
-import Pagination from "react-bootstrap/Pagination";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import Table from "@mui/material/Table";
@@ -29,9 +22,11 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers-pro/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers-pro/AdapterDayjs";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -401,7 +396,15 @@ const VideoDashboard = () => {
   return (
     <Box p={4}>
       <Box>
-        <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="d-flex justify-content-end gap-2 align-items-center mb-3">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={["DateRangePicker"]}>
+              <DateRangePicker
+                localeText={{ start: "Start Date", end: "End Date" }}
+                sx={{ width: "300px" }}
+              />
+            </DemoContainer>
+          </LocalizationProvider>
           <TextField
             variant="outlined"
             size="small"
@@ -415,7 +418,7 @@ const VideoDashboard = () => {
                 </InputAdornment>
               ),
             }}
-            sx={{ width: "300px" }}
+            sx={{ width: "200px" }}
           />
           <Button variant="contained" color="primary" onClick={handleClickOpen}>
             Add Video
