@@ -17,6 +17,17 @@ code {
   align-items: center;
   gap: 10px;
 }
+.custom-input {
+  border-bottom: 1px solid #b6bed1 !important;
+  border-right: 0 !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+}
+.custom-input:focus {
+  border-color: none !important;
+
+  box-shadow: none !important;
+}
 .pad-root .MuiFormControl-root {
   margin-top: 0 !important;
 }

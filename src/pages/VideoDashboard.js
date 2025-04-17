@@ -474,7 +474,11 @@ const VideoDashboard = () => {
           </LocalizationProvider>
           <div className="d-flex justify-content-end gap-3 align-items-center">
             <Tooltip title="filter">
-              <FilterListIcon onClick={handeOpenFilter} />
+              <FilterListIcon
+                onClick={handeOpenFilter}
+                className="text-primary"
+                style={{ cursor: "pointer" }}
+              />
             </Tooltip>
 
             <Button
@@ -546,6 +550,7 @@ const VideoDashboard = () => {
                         placeholder="Title"
                         // variant="outlined"
                         value={filters.title}
+                        className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("title", e.target.value)
                         }
@@ -557,6 +562,7 @@ const VideoDashboard = () => {
                         placeholder="Description"
                         // variant="outlined"
                         value={filters.description}
+                        className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("description", e.target.value)
                         }
@@ -568,6 +574,7 @@ const VideoDashboard = () => {
                         placeholder="Location"
                         // variant="outlined"
                         value={filters.location}
+                        className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("location", e.target.value)
                         }
@@ -579,6 +586,7 @@ const VideoDashboard = () => {
                         placeholder="Uploaded By"
                         // variant="outlined"
                         value={filters.uploadedBy}
+                        className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("uploadedBy", e.target.value)
                         }
@@ -590,6 +598,7 @@ const VideoDashboard = () => {
                         placeholder="Uploaded Date"
                         // variant="outlined"
                         value={filters.uploadedDate}
+                        className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("uploadedDate", e.target.value)
                         }
@@ -599,6 +608,7 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-views"
                         placeholder="Views"
+                        className="rounded-0 custom-input"
                         // variant="outlined"
                         value={filters.views}
                         onChange={(e) =>
