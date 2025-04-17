@@ -1,4 +1,4 @@
-import React, { useState, useId } from "react";
+import React, { useEffect, useState } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
@@ -29,7 +29,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import Form from "react-bootstrap/Form";
-// import { getVideos, addVideos, deleteVideos } from "../api/video";
+import { getVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -37,177 +37,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const rowsPerPage = 10;
-const dummyVideos = [
-  {
-    id: 1,
-    title: "Video 1",
-    description: "Lorem Ipsum",
-    location: "Los Angeles",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "24 June 2025",
-    views: 0.1,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 2,
-    title: "Video 2",
-    description: "Lorem Ipsum",
-    location: "New York",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "25 June 2025",
-    views: 1.0,
-    url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  },
-  {
-    id: 3,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 4,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 5,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.9,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 6,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 7,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 8,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 9,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 10,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 11,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 12,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 13,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 14,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 15,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 16,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-];
-
-const filesizes = (bytes, decimals = 2) => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-};
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -231,6 +60,7 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "S.No",
+    disableSort: true,
   },
   {
     id: "title",
@@ -322,16 +152,16 @@ function EnhancedTableHead(props) {
 }
 
 const VideoDashboard = () => {
-  const [currentPage, setCurrentPage] = useState(0);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [getVideo, setGetVideo] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
-  const [selectedVideos, setSelectedVideos] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("id");
+  const [totalData, setTotalData] = useState([]);
   const [selected, setSelected] = useState([]);
   const [openFilter, setOpenFilter] = useState(false);
   const [filters, setFilters] = useState({
@@ -344,11 +174,26 @@ const VideoDashboard = () => {
   });
 
   const today = dayjs().startOf("day");
-
-  const uniqueId = useId();
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const offset = (currentPage - 1) * rowsPerPage;
+    const limit = rowsPerPage;
+    const fetchVideos = async () => {
+      try {
+        const response = await getVideos(token, offset, limit);
+        if (response.status === 200) {
+          setGetVideo(response?.data);
+          setTotalData(response?.total);
+        }
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      }
+    };
+    fetchVideos();
+  }, [currentPage, filters]);
   const handlePlayOpen = (url) => {
     setSelected(url);
     setPlayOpen(true);
@@ -367,9 +212,6 @@ const VideoDashboard = () => {
 
   const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
-  const deleteUploadedVideo = (id) => {
-    setSelectedVideos((prev) => prev.filter((v) => v.id !== id));
-  };
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({
       ...prev,
@@ -378,32 +220,33 @@ const VideoDashboard = () => {
   };
 
   const filterVideos = (videos) => {
-    return videos.filter((video) => {
+    return videos?.filter((video) => {
       return (
-        video.title.toLowerCase().includes(filters.title.toLowerCase()) &&
-        video.description
+        (video?.title || "")
           .toLowerCase()
-          .includes(filters.description.toLowerCase()) &&
-        video.location.toLowerCase().includes(filters.location.toLowerCase()) &&
-        video.uploadedBy
+          .includes(filters?.title?.toLowerCase() || "") &&
+        (video?.description || "")
           .toLowerCase()
-          .includes(filters.uploadedBy.toLowerCase()) &&
-        (filters.uploadedDate === "" ||
-          video.uploadedDate.includes(filters.uploadedDate)) &&
-        (filters.views === "" || video.views.toString().includes(filters.views))
+          .includes(filters?.description?.toLowerCase() || "") &&
+        (video?.locationState || "")
+          .toLowerCase()
+          .includes(filters?.locationState?.toLowerCase() || "") &&
+        (video?.uploadedBy?.name || "")
+          .toLowerCase()
+          .includes(filters?.uploadedBy?.toLowerCase() || "") &&
+        (filters?.uploadedDate === "" ||
+          (video?.uploadDate || "").includes(filters?.uploadedDate || "")) &&
+        (filters?.views === "" ||
+          (video?.views?.toString() || "").includes(filters?.views || ""))
       );
     });
   };
 
   const sortedAndFilteredVideos = filterVideos(
-    [...dummyVideos].sort(getComparator(order, orderBy))
+    [...getVideo].sort(getComparator(order, orderBy))
   );
 
-  const paginatedUsers = sortedAndFilteredVideos.slice(
-    currentPage * rowsPerPage,
-    currentPage * rowsPerPage + rowsPerPage
-  );
-
+  console.log(orderBy, order);
   return (
     <Box p={4}>
       <Box>
@@ -461,10 +304,8 @@ const VideoDashboard = () => {
               open={open}
               handleClose={handleClose}
               selectedVideos={[]}
-              deleteUploadedVideo={(id) => {}}
               videoFiles={videoFiles}
               setVideoFiles={setVideoFiles}
-            
             />
           </div>
         </div>
@@ -596,21 +437,25 @@ const VideoDashboard = () => {
                     <TableCell></TableCell>
                   </TableRow>
                 )}
-                {paginatedUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.id}</TableCell>
+                {sortedAndFilteredVideos.map((user, index) => (
+                  <TableRow key={user._id || index}>
+                    <TableCell>{currentPage * rowsPerPage + index + 1}</TableCell>
                     <TableCell>{user.title}</TableCell>
                     <TableCell>{user.description}</TableCell>
-                    <TableCell>{user.location}</TableCell>
-                    <TableCell>{user.uploadedBy}</TableCell>
-                    <TableCell>{user.uploadedDate}</TableCell>
+                    <TableCell>{user.locationState}</TableCell>
+                    <TableCell>{user.uploadedBy?.name}</TableCell>{" "}
+                    {/* Access the name property */}
+                    <TableCell>
+                      {new Date(user.uploadDate).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>{user.views}</TableCell>
                     <TableCell>
                       <PlayArrowIcon
                         color="success"
                         onClick={() => handlePlayOpen(user.url)}
+                        style={{ cursor: "pointer" }}
                       />
-                      <DeleteIcon color="error" />
+                      <DeleteIcon color="error" style={{ cursor: "pointer" }} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -621,49 +466,12 @@ const VideoDashboard = () => {
             rowsPerPageOptions={[rowsPerPage]}
             component="div"
             className="paginated-custom"
-            count={dummyVideos.length}
+            count={totalData}
             rowsPerPage={rowsPerPage}
             page={currentPage}
             onPageChange={handleChangePage}
           />
         </Paper>
-
-        <Box mt={4}>
-          {videoFiles.length > 0 &&
-            videoFiles.map((vid) => (
-              <Box
-                key={vid.id}
-                mb={2}
-                p={2}
-                border={"1px solid #ccc"}
-                borderRadius={2}
-              >
-                <video
-                  width="100%"
-                  height="240"
-                  controls
-                  src={vid.fileurl}
-                ></video>
-                <p>
-                  <strong>{vid.filename}</strong> ({vid.filesize}) -{" "}
-                  {vid.datetime}
-                </p>
-                <Button
-                  onClick={() => deleteUploadedVideo(vid.id)}
-                  color="error"
-                >
-                  Delete
-                </Button>
-                <a
-                  href={vid.fileurl}
-                  download={vid.filename}
-                  style={{ marginLeft: 10 }}
-                >
-                  <Button color="success">Download</Button>
-                </a>
-              </Box>
-            ))}
-        </Box>
 
         <Dialog
           open={playOpen}

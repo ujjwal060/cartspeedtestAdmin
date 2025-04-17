@@ -1,13 +1,16 @@
 import axios from "./axios";
 
-export const getVideos = async (formData, token) => {
+export const getVideos = async (token, offset, limit) => {
   try {
-    const response = await axios.post("/admin/video/add", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      "/admin/video/getAll",
+      { offset, limit },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error uploading videos:", error);

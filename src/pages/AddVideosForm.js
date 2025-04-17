@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { addVideos } from "../api/video";
+import { toast } from "react-toastify";
 const AddVideoOffcanvas = ({
   open,
   handleClose,
@@ -13,6 +14,7 @@ const AddVideoOffcanvas = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
 
   const handleVideoInput = (e) => {
     const files = Array.from(e.target.files);
@@ -29,7 +31,7 @@ const AddVideoOffcanvas = ({
 
   const handleVideoUpload = async (e) => {
     e.preventDefault();
-
+    setIsSubmitting(true);
     const token = localStorage.getItem("token");
 
     const formData = new FormData();
@@ -44,12 +46,16 @@ const AddVideoOffcanvas = ({
     try {
       const response = await addVideos(formData, token);
 
-      if (response.success) {
+      if (response.status === 201) {
+        toast.success("Video Uploaded Successfully", {
+          autoClose: 3000,
+        });
         setTitle("");
         setValue("");
         setDescription("");
         setVideoFiles([]);
         handleClose();
+        setIsSubmitting(false);
       }
     } catch (err) {
       console.error("Video upload failed:", err);
@@ -175,10 +181,22 @@ const AddVideoOffcanvas = ({
               </div>
 
               <div className="kb-buttons-box d-flex justify-content-center gap-2">
-                <Button onClick={handleClose} color="error" variant="contained">
+                <Button
+                  onClick={handleClose}
+                  color="error"
+                  variant="contained"
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" color="success" variant="contained">
+                <Button
+                  type="submit"
+                  color="success"
+                  variant="contained"
+                  disabled={isSubmitting}
+                  loading={isSubmitting}
+                  loadingPosition="start"
+                >
                   Save
                 </Button>
               </div>
