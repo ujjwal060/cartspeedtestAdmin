@@ -7,15 +7,12 @@ import {
   Dialog,
   DialogContent,
   Slide,
-  TextField,
   Chip,
   Tooltip,
   Stack,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import Offcanvas from "react-bootstrap/Offcanvas";
 import ReactPlayer from "react-player";
-import Autocomplete from "@mui/material/Autocomplete";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -32,7 +29,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import Form from "react-bootstrap/Form";
-import {getVideos,addVideos,deleteVideos} from "../api/video";
+// import { getVideos, addVideos, deleteVideos } from "../api/video";
+import AddVideoOffcanvas from "./AddVideosForm"
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -394,9 +392,7 @@ const VideoDashboard = () => {
   const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const deleteUploadedVideo = (id) => {
-    if (window.confirm("Delete this video?")) {
-      setSelectedVideos((prev) => prev.filter((v) => v.id !== id));
-    }
+    setSelectedVideos((prev) => prev.filter((v) => v.id !== id));
   };
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({
@@ -431,8 +427,6 @@ const VideoDashboard = () => {
     currentPage * rowsPerPage,
     currentPage * rowsPerPage + rowsPerPage
   );
-
-  console.log(filters);
 
   return (
     <Box p={4}>
@@ -487,6 +481,16 @@ const VideoDashboard = () => {
               <AddCircleOutlineIcon />
               Add Video
             </Button>
+            <AddVideoOffcanvas
+              open={true}
+              handleClose={() => {}}
+              selectedVideos={[]}
+              deleteUploadedVideo={(id) => {}}
+              videoFiles={videoFiles}
+              setVideoFiles={setVideoFiles}
+              value={null}
+              setValue={() => {}}
+            />
           </div>
         </div>
         <Paper elevation={3} className="mt-3">
@@ -685,162 +689,6 @@ const VideoDashboard = () => {
               </Box>
             ))}
         </Box>
-
-        <Offcanvas show={open} onHide={handleClose} placement={"end"}>
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Add Video</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <form onSubmit={handleVideoUpload}>
-              <div className="fileupload-view">
-                <div className="kb-data-box">
-                  <form onSubmit={handleVideoUpload}>
-                    <div className="kb-file-upload">
-                      <div className="file-upload-box">
-                        <input
-                          type="file"
-                          accept="video/*"
-                          id="fileupload"
-                          className="file-upload-input"
-                          onChange={handleVideoInput}
-                          multiple
-                        />
-                        <span>
-                          Drag and drop or{" "}
-                          <span className="file-link">Choose your files</span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="kb-attach-box mb-3">
-                      {selectedVideos.map((vid) => (
-                        <div className="file-atc-box" key={vid.id}>
-                          <div className="file-image">
-                            <video
-                              width="100"
-                              height="60"
-                              controls
-                              src={vid.fileurl}
-                            ></video>
-                          </div>
-                          <div className="file-detail">
-                            <h6>{vid.filename}</h6>
-                            <p>
-                              <span>Size : {vid.filesize}</span>
-                              <span className="ml-2">
-                                Modified Time : {vid.datetime}
-                              </span>
-                            </p>
-                            <div className="file-actions">
-                              <button
-                                type="button"
-                                className="file-action-btn"
-                                onClick={() => deleteUploadedVideo(vid.id)}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="row gy-4 mb-4">
-                      <div className="col-lg-12">
-                        <TextField
-                          variant="outlined"
-                          size="small"
-                          className="w-100"
-                          placeholder="Enter video title.."
-                        />
-                      </div>
-                      <div className="col-lg-12">
-                        <Autocomplete
-                          id="controlled-demo"
-                          size="small"
-                          value={value}
-                          options={[
-                            "Option A",
-                            "Option B",
-                            "Option C",
-                            "Option D",
-                            "Option E",
-                          ]}
-                          onChange={(event, newValue) => {
-                            setValue(newValue);
-                          }}
-                          renderInput={(params) => (
-                            <TextField {...params} label="Add Your State" />
-                          )}
-                        />
-                      </div>
-                      <div className="col-lg-12">
-                        <TextField
-                          variant="outlined"
-                          size="small"
-                          placeholder="Enter video title.."
-                          className="w-100"
-                        />
-                      </div>
-                    </div>
-                    <div className="kb-buttons-box d-flex justify-content-center gap-2">
-                      <Button
-                        onClick={handleClose}
-                        color="error"
-                        variant="contained"
-                      >
-                        Cancel
-                      </Button>
-                      <Button type="submit" color="success" variant="contained">
-                        Save
-                      </Button>
-                    </div>
-                  </form>
-
-                  {videoFiles.length > 0 && (
-                    <div className="kb-attach-box">
-                      <hr />
-                      {videoFiles.map((vid) => (
-                        <div className="file-atc-box" key={vid.id}>
-                          <div className="file-image">
-                            <video
-                              width="100"
-                              height="60"
-                              controls
-                              src={vid.fileurl}
-                            ></video>
-                          </div>
-                          <div className="file-detail">
-                            <h6>{vid.filename}</h6>
-                            <p>
-                              <span>Size : {vid.filesize}</span>
-                              <span className="ml-3">
-                                Modified Time : {vid.datetime}
-                              </span>
-                            </p>
-                            <div className="file-actions">
-                              <button
-                                className="file-action-btn"
-                                onClick={() => deleteUploadedVideo(vid.id)}
-                              >
-                                Delete
-                              </button>
-                              <a
-                                href={vid.fileurl}
-                                className="file-action-btn"
-                                download={vid.filename}
-                              >
-                                Download
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </form>
-          </Offcanvas.Body>
-        </Offcanvas>
 
         <Dialog
           open={playOpen}
