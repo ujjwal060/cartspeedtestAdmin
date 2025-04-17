@@ -32,6 +32,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import Form from "react-bootstrap/Form";
+import {getVideos,addVideos,deleteVideos} from "../api/video";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -404,7 +405,6 @@ const VideoDashboard = () => {
     }));
   };
 
-  // Sort videos
   const filterVideos = (videos) => {
     return videos.filter((video) => {
       return (
@@ -423,12 +423,10 @@ const VideoDashboard = () => {
     });
   };
 
-  // Modify your sortedVideos to include filtering
   const sortedAndFilteredVideos = filterVideos(
     [...dummyVideos].sort(getComparator(order, orderBy))
   );
 
-  // Update paginatedUsers to use the filtered videos
   const paginatedUsers = sortedAndFilteredVideos.slice(
     currentPage * rowsPerPage,
     currentPage * rowsPerPage + rowsPerPage
