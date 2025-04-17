@@ -30,7 +30,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import Form from "react-bootstrap/Form";
 // import { getVideos, addVideos, deleteVideos } from "../api/video";
-import AddVideoOffcanvas from "./AddVideosForm"
+import AddVideoOffcanvas from "./AddVideosForm";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -323,7 +323,7 @@ function EnhancedTableHead(props) {
 
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [value, setValue] = React.useState(null);
+  
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [open, setOpen] = useState(false);
@@ -361,32 +361,8 @@ const VideoDashboard = () => {
     setOrderBy(property);
   };
 
-  const handleVideoInput = (e) => {
-    const newVideos = [];
-    for (let i = 0; i < e.target.files.length; i++) {
-      const file = e.target.files[i];
-      const url = URL.createObjectURL(file);
-      newVideos.push({
-        id: `${uniqueId}-${Date.now()}-${i}`,
-        filename: file.name,
-        filetype: file.type,
-        filesize: filesizes(file.size),
-        datetime: file.lastModifiedDate?.toLocaleString("en-IN"),
-        fileurl: url,
-      });
-    }
-    setSelectedVideos((prev) => [...prev, ...newVideos]);
-  };
   const handeOpenFilter = () => {
     setOpenFilter(!openFilter);
-  };
-
-  const handleVideoUpload = (e) => {
-    e.preventDefault();
-    setVideoFiles((prev) => [...prev, ...selectedVideos]);
-    setSelectedVideos([]);
-    e.target.reset();
-    setOpen(false);
   };
 
   const handleChangePage = (_, newPage) => setCurrentPage(newPage);
@@ -482,14 +458,13 @@ const VideoDashboard = () => {
               Add Video
             </Button>
             <AddVideoOffcanvas
-              open={true}
-              handleClose={() => {}}
+              open={open}
+              handleClose={handleClose}
               selectedVideos={[]}
               deleteUploadedVideo={(id) => {}}
               videoFiles={videoFiles}
               setVideoFiles={setVideoFiles}
-              value={null}
-              setValue={() => {}}
+            
             />
           </div>
         </div>
