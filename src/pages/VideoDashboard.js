@@ -152,7 +152,7 @@ function EnhancedTableHead(props) {
 }
 
 const VideoDashboard = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [getVideo, setGetVideo] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -179,8 +179,8 @@ const VideoDashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const offset = (currentPage - 1) * rowsPerPage;
-    const limit = rowsPerPage;
+    const offset = currentPage * rowsPerPage + 1;
+    const limit = currentPage * rowsPerPage + rowsPerPage;
     const fetchVideos = async () => {
       try {
         const response = await getVideos(token, offset, limit);
@@ -439,7 +439,7 @@ const VideoDashboard = () => {
                 )}
                 {sortedAndFilteredVideos.map((user, index) => (
                   <TableRow key={user._id || index}>
-                    <TableCell>{currentPage * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>{currentPage * rowsPerPage +index + 1}</TableCell>
                     <TableCell>{user.title}</TableCell>
                     <TableCell>{user.description}</TableCell>
                     <TableCell>{user.locationState}</TableCell>
