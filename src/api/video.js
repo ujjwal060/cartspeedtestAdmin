@@ -1,6 +1,6 @@
 import axios from "./axios";
 
-export const getVideos = async (token, offset, limit) => {
+export const getVideos = async (token, offset, limit, sortField, sortBy) => {
   try {
     const response = await axios.post(
       "/admin/video/getAll",
