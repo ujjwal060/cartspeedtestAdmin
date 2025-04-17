@@ -154,38 +154,6 @@ const Users = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const DateRangePicker = ({ value, onChange }) => {
-    const [startDate, endDate] = value || [null, null];
-
-    return (
-      <Box display="flex" gap={2}>
-        <DatePicker
-          label="Start Date"
-          value={startDate}
-          sx={{ width: "200px" }}
-          size="small"
-          onChange={(newStartDate) => {
-            if (newStartDate && endDate && newStartDate.isAfter(endDate)) {
-              onChange([newStartDate, null]);
-            } else {
-              onChange([newStartDate, endDate]);
-            }
-          }}
-        />
-        <DatePicker
-          label="End Date"
-          value={endDate}
-          sx={{ width: "200px" }}
-          size="small"
-          onChange={(newEndDate) => {
-            onChange([startDate, newEndDate]);
-          }}
-          minDate={startDate ? startDate.add(1, "day") : dayjs().add(1, "day")}
-          disabled={!startDate}
-        />
-      </Box>
-    );
-  };
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");

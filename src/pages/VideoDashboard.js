@@ -1,4 +1,5 @@
 import React, { useState, useId } from "react";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
   Paper,
@@ -7,13 +8,15 @@ import {
   DialogContent,
   Slide,
   TextField,
-  InputAdornment,
+  Chip,
+  Tooltip,
+  Stack,
 } from "@mui/material";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import ReactPlayer from "react-player";
 import Autocomplete from "@mui/material/Autocomplete";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SearchIcon from "@mui/icons-material/Search";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -28,6 +31,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
+import Form from "react-bootstrap/Form";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -234,30 +238,34 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Title",
+    disableSort: true,
   },
   {
     id: "description",
     numeric: false,
     disablePadding: false,
     label: "Description",
+    disableSort: true,
   },
   {
     id: "location",
     numeric: false,
     disablePadding: false,
     label: "Location",
+    disableSort: true,
   },
   {
     id: "uploadedBy",
     numeric: false,
     disablePadding: false,
     label: "Uploaded By",
+    disableSort: true,
   },
   {
     id: "uploadedDate",
     numeric: false,
     disablePadding: false,
-    label: "Uploaded Date",
+    label: "Date",
   },
   {
     id: "views",
@@ -289,7 +297,7 @@ function EnhancedTableHead(props) {
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            {headCell.id !== "actions" ? (
+            {!headCell.disableSort ? (
               <TableSortLabel
                 active={orderBy === headCell.id}
                 direction={orderBy === headCell.id ? order : "asc"}
@@ -323,10 +331,19 @@ const VideoDashboard = () => {
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
   const [selectedVideos, setSelectedVideos] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("id");
   const [selected, setSelected] = useState([]);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filters, setFilters] = useState({
+    title: "",
+    description: "",
+    location: "",
+    uploadedBy: "",
+    uploadedDate: "",
+    views: "",
+  });
+
   const today = dayjs().startOf("day");
 
   const uniqueId = useId();
@@ -361,6 +378,9 @@ const VideoDashboard = () => {
     }
     setSelectedVideos((prev) => [...prev, ...newVideos]);
   };
+  const handeOpenFilter = () => {
+    setOpenFilter(!openFilter);
+  };
 
   const handleVideoUpload = (e) => {
     e.preventDefault();
@@ -377,24 +397,44 @@ const VideoDashboard = () => {
       setSelectedVideos((prev) => prev.filter((v) => v.id !== id));
     }
   };
-  // Filter videos based on search term
-  const filteredVideos = dummyVideos.filter((video) => {
-    return (
-      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      video.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      video.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      video.uploadedBy.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+  const handleFilterChange = (filterName, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+  };
 
   // Sort videos
-  const sortedVideos = [...filteredVideos].sort(getComparator(order, orderBy));
+  const filterVideos = (videos) => {
+    return videos.filter((video) => {
+      return (
+        video.title.toLowerCase().includes(filters.title.toLowerCase()) &&
+        video.description
+          .toLowerCase()
+          .includes(filters.description.toLowerCase()) &&
+        video.location.toLowerCase().includes(filters.location.toLowerCase()) &&
+        video.uploadedBy
+          .toLowerCase()
+          .includes(filters.uploadedBy.toLowerCase()) &&
+        (filters.uploadedDate === "" ||
+          video.uploadedDate.includes(filters.uploadedDate)) &&
+        (filters.views === "" || video.views.toString().includes(filters.views))
+      );
+    });
+  };
 
-  // Paginate videos
-  const paginatedUsers = sortedVideos.slice(
+  // Modify your sortedVideos to include filtering
+  const sortedAndFilteredVideos = filterVideos(
+    [...dummyVideos].sort(getComparator(order, orderBy))
+  );
+
+  // Update paginatedUsers to use the filtered videos
+  const paginatedUsers = sortedAndFilteredVideos.slice(
     currentPage * rowsPerPage,
     currentPage * rowsPerPage + rowsPerPage
   );
+
+  console.log(filters);
 
   return (
     <Box p={4}>
@@ -431,30 +471,68 @@ const VideoDashboard = () => {
               />
             </DemoContainer>
           </LocalizationProvider>
-          <div className="d-flex justify-content-end gap-2 align-items-center">
-          <TextField
-            variant="outlined"
-            size="small"
-            placeholder="Search videos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ width: "200px" }}
-          />
-          <Button variant="contained" color="primary" onClick={handleClickOpen}>
-            Add Video
-          </Button>
+          <div className="d-flex justify-content-end gap-3 align-items-center">
+            <Tooltip title="filter">
+              <FilterListIcon
+                onClick={handeOpenFilter}
+                className="text-primary"
+                style={{ cursor: "pointer" }}
+              />
+            </Tooltip>
+
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleClickOpen}
+              className="rounded-4 d-flex gap-1 flex-row"
+            >
+              <AddCircleOutlineIcon />
+              Add Video
+            </Button>
           </div>
-        
         </div>
         <Paper elevation={3} className="mt-3">
           <TableContainer>
+            {
+              <Stack direction="row" spacing={1} className="p-3">
+                {filters.title && (
+                  <Chip
+                    label={filters.title}
+                    onDelete={() => handleFilterChange("title", "")}
+                  />
+                )}
+                {filters.description && (
+                  <Chip
+                    label={filters.description}
+                    onDelete={() => handleFilterChange("description", "")}
+                  />
+                )}
+                {filters.location && (
+                  <Chip
+                    label={filters.location}
+                    onDelete={() => handleFilterChange("location", "")}
+                  />
+                )}
+                {filters.uploadedBy && (
+                  <Chip
+                    label={filters.uploadedBy}
+                    onDelete={() => handleFilterChange("uploadedBy", "")}
+                  />
+                )}
+                {filters.uploadedDate && (
+                  <Chip
+                    label={filters.uploadedDate}
+                    onDelete={() => handleFilterChange("uploadedDate", "")}
+                  />
+                )}
+                {filters.views && (
+                  <Chip
+                    label={filters.views}
+                    onDelete={() => handleFilterChange("views", "")}
+                  />
+                )}
+              </Stack>
+            }
             <Table>
               <EnhancedTableHead
                 order={order}
@@ -462,6 +540,85 @@ const VideoDashboard = () => {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
+                {openFilter && (
+                  <TableRow>
+                    <TableCell></TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-title"
+                        placeholder="Title"
+                        // variant="outlined"
+                        value={filters.title}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("title", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-description"
+                        placeholder="Description"
+                        // variant="outlined"
+                        value={filters.description}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("description", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-location"
+                        placeholder="Location"
+                        // variant="outlined"
+                        value={filters.location}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("location", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-uploadedBy"
+                        placeholder="Uploaded By"
+                        // variant="outlined"
+                        value={filters.uploadedBy}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("uploadedBy", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-uploadedDate"
+                        placeholder="Uploaded Date"
+                        // variant="outlined"
+                        value={filters.uploadedDate}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("uploadedDate", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-views"
+                        placeholder="Views"
+                        className="rounded-0 custom-input"
+                        // variant="outlined"
+                        value={filters.views}
+                        onChange={(e) =>
+                          handleFilterChange("views", e.target.value)
+                        }
+                        type="number"
+                      />
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                )}
                 {paginatedUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>{user.id}</TableCell>
@@ -487,7 +644,7 @@ const VideoDashboard = () => {
             rowsPerPageOptions={[rowsPerPage]}
             component="div"
             className="paginated-custom"
-            count={filteredVideos.length}
+            count={dummyVideos.length}
             rowsPerPage={rowsPerPage}
             page={currentPage}
             onPageChange={handleChangePage}
