@@ -184,7 +184,7 @@ const VideoDashboard = () => {
       setLoading(false);
     }
   };
-
+ 
   const handlePlayOpen = (url) => {
     setSelected(url);
     setPlayOpen(true);
@@ -213,18 +213,22 @@ const VideoDashboard = () => {
 
   const debouncedUpdateFilters = useCallback(
     debounce((key, value) => {
-      setFilters((prevFilters) => {
-        const updatedFilters = { ...prevFilters, [key]: value };
-        fetchVideos(updatedFilters);
-        return updatedFilters;
-      });
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [key]: value,
+      }));
     }, 2000),
     []
   );
   
   useEffect(() => {
     fetchVideos();
-  }, [currentPage, order, orderBy, filters]);
+  }, [currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(0);
+    fetchVideos();
+  }, [filters,order, orderBy]);
 
   return (
     <Box p={4}>
