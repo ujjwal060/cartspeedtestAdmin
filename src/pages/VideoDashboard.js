@@ -57,18 +57,21 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Description",
+    disableSort: true,
   },
   {
     id: "locationState",
     numeric: false,
     disablePadding: false,
     label: "Location",
+    disableSort: true,
   },
   {
     id: "uploadedBy.name",
     numeric: false,
     disablePadding: false,
     label: "Uploaded By",
+    disableSort: true,
   },
   {
     id: "uploadDate",
@@ -98,7 +101,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead>
+    <TableHead className="tableHead-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell

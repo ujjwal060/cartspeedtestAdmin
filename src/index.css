@@ -28,6 +28,9 @@ code {
 
   box-shadow: none !important;
 }
+.tableHead-custom th span:hover {
+  cursor: all-scroll !important;
+}
 .pad-root .MuiFormControl-root {
   margin-top: 0 !important;
 }
