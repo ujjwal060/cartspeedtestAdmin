@@ -33,7 +33,11 @@ export const addVideos = async (formData, token) => {
   }
 };
 
-export const deleteVideos = async (data) => {
-  const response = await axios.post("/admin/video/deleteVideo", data);
+export const deleteVideos = async (id,token) => {
+  const response = await axios.delete(`/admin/video/deleteVideo/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
   return response.data;
 };

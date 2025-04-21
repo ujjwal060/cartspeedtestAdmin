@@ -18,6 +18,7 @@ import { debounce } from "lodash";
 import { LinearProgress } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
+import { toast } from "react-toastify"; 
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
@@ -31,7 +32,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import Form from "react-bootstrap/Form";
-import { getVideos } from "../api/video";
+import { getVideos,deleteVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -156,10 +157,9 @@ const VideoDashboard = () => {
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [loading, setLoading] = useState(false);
-
+  const token = localStorage.getItem("token");
 
   const fetchVideos = async () => {
-    const token = localStorage.getItem("token");
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
     const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
@@ -185,6 +185,16 @@ const VideoDashboard = () => {
     }
   };
  
+  const handleDelete = async (videoId) => {
+    try {
+      const res = await deleteVideos(videoId , token);
+      toast.success(res.message[0]);
+      fetchVideos();
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
+
   const handlePlayOpen = (url) => {
     setSelected(url);
     setPlayOpen(true);
@@ -432,7 +442,7 @@ const VideoDashboard = () => {
                         onClick={() => handlePlayOpen(video.url)}
                         style={{ cursor: "pointer" }}
                       />
-                      <DeleteIcon color="error" style={{ cursor: "pointer" }} />
+                      <DeleteIcon color="error" style={{ cursor: "pointer" }}  onClick={() => handleDelete(video._id)}/>
                     </TableCell>
                   </TableRow>
                 ))}
