@@ -61,7 +61,6 @@ const AddVideoOffcanvas = ({
       console.error("Video upload failed:", err);
     }
   };
-  console.log(value);
 
   return (
     <Offcanvas show={open} onHide={handleClose} placement={"end"}>
@@ -123,6 +122,7 @@ const AddVideoOffcanvas = ({
               </div>
 
               <div className="row gy-4 mb-4">
+
                 <div className="col-lg-12">
                   <TextField
                     variant="outlined"
@@ -161,7 +161,7 @@ const AddVideoOffcanvas = ({
                     variant="outlined"
                     size="small"
                     className="w-100"
-                    placeholder="Enter video title.."
+                    placeholder="Enter video state.."
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
                     required
