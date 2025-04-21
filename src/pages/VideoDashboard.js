@@ -107,6 +107,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Actions",
+    disableSort: true,
   },
 ];
 
@@ -117,7 +118,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead>
+    <TableHead className="tableHead-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
