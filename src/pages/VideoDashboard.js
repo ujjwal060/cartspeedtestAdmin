@@ -165,7 +165,6 @@ const VideoDashboard = () => {
     const token = localStorage.getItem("token");
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
-    // const [sortBy,sortField]=[order,orderBy]
     const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
     
     const fetchVideos = async () => {
