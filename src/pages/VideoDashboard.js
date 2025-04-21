@@ -38,22 +38,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const rowsPerPage = 10;
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
 const headCells = [
   {
     id: "id",
@@ -67,31 +51,27 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Title",
-    disableSort: true,
   },
   {
     id: "description",
     numeric: false,
     disablePadding: false,
     label: "Description",
-    disableSort: true,
   },
   {
-    id: "location",
+    id: "locationState",
     numeric: false,
     disablePadding: false,
     label: "Location",
-    disableSort: true,
   },
   {
-    id: "uploadedBy",
+    id: "uploadedBy.name",
     numeric: false,
     disablePadding: false,
     label: "Uploaded By",
-    disableSort: true,
   },
   {
-    id: "uploadedDate",
+    id: "uploadDate",
     numeric: false,
     disablePadding: false,
     label: "Date",
@@ -107,6 +87,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Actions",
+    disableSort: true,
   },
 ];
 
@@ -160,16 +141,16 @@ const VideoDashboard = () => {
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("id");
+  const [orderBy, setOrderBy] = useState("");
   const [totalData, setTotalData] = useState([]);
   const [selected, setSelected] = useState([]);
   const [openFilter, setOpenFilter] = useState(false);
   const [filters, setFilters] = useState({
     title: "",
     description: "",
-    location: "",
+    locationState: "",
     uploadedBy: "",
-    uploadedDate: "",
+    uploadDate: "",
     views: "",
   });
 
@@ -179,11 +160,27 @@ const VideoDashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const offset = currentPage * rowsPerPage + 1;
-    const limit = currentPage * rowsPerPage + rowsPerPage;
+    const offset = currentPage * rowsPerPage;
+    const limit = rowsPerPage;
+    // const [sortBy,sortField]=[order,orderBy]
+    const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+    
     const fetchVideos = async () => {
       try {
-        const response = await getVideos(token, offset, limit);
+        const response = await getVideos(
+          token, 
+          offset, 
+          limit,
+          sortBy,
+          sortField,
+          filters.title,
+          filters.description,
+          filters.locationState,
+          filters.uploadedBy,
+          filters.uploadDate,
+          filters.views
+        );
+        
         if (response.status === 200) {
           setGetVideo(response?.data);
           setTotalData(response?.total);
@@ -193,7 +190,8 @@ const VideoDashboard = () => {
       }
     };
     fetchVideos();
-  }, [currentPage, filters]);
+  }, [currentPage, order, orderBy, filters]);
+
   const handlePlayOpen = (url) => {
     setSelected(url);
     setPlayOpen(true);
@@ -219,34 +217,6 @@ const VideoDashboard = () => {
     }));
   };
 
-  const filterVideos = (videos) => {
-    return videos?.filter((video) => {
-      return (
-        (video?.title || "")
-          .toLowerCase()
-          .includes(filters?.title?.toLowerCase() || "") &&
-        (video?.description || "")
-          .toLowerCase()
-          .includes(filters?.description?.toLowerCase() || "") &&
-        (video?.locationState || "")
-          .toLowerCase()
-          .includes(filters?.locationState?.toLowerCase() || "") &&
-        (video?.uploadedBy?.name || "")
-          .toLowerCase()
-          .includes(filters?.uploadedBy?.toLowerCase() || "") &&
-        (filters?.uploadedDate === "" ||
-          (video?.uploadDate || "").includes(filters?.uploadedDate || "")) &&
-        (filters?.views === "" ||
-          (video?.views?.toString() || "").includes(filters?.views || ""))
-      );
-    });
-  };
-
-  const sortedAndFilteredVideos = filterVideos(
-    [...getVideo].sort(getComparator(order, orderBy))
-  );
-
-  console.log(orderBy, order);
   return (
     <Box p={4}>
       <Box>
@@ -264,7 +234,7 @@ const VideoDashboard = () => {
                 onChange={(newValue) => {
                   setStartDate(newValue);
                   if (endDate && newValue && newValue.isAfter(endDate)) {
-                    setEndDate(null); // Reset end date if it's before new start
+                    setEndDate(null);
                   }
                 }}
                 minDate={today}
@@ -315,37 +285,37 @@ const VideoDashboard = () => {
               <Stack direction="row" spacing={1} className="p-3">
                 {filters.title && (
                   <Chip
-                    label={filters.title}
+                    label={`Title: ${filters.title}`}
                     onDelete={() => handleFilterChange("title", "")}
                   />
                 )}
                 {filters.description && (
                   <Chip
-                    label={filters.description}
+                    label={`Desc: ${filters.description}`}
                     onDelete={() => handleFilterChange("description", "")}
                   />
                 )}
-                {filters.location && (
+                {filters.locationState && (
                   <Chip
-                    label={filters.location}
-                    onDelete={() => handleFilterChange("location", "")}
+                    label={`Location: ${filters.locationState}`}
+                    onDelete={() => handleFilterChange("locationState", "")}
                   />
                 )}
                 {filters.uploadedBy && (
                   <Chip
-                    label={filters.uploadedBy}
+                    label={`Uploaded By: ${filters.uploadedBy}`}
                     onDelete={() => handleFilterChange("uploadedBy", "")}
                   />
                 )}
-                {filters.uploadedDate && (
+                {filters.uploadDate && (
                   <Chip
-                    label={filters.uploadedDate}
-                    onDelete={() => handleFilterChange("uploadedDate", "")}
+                    label={`Date: ${filters.uploadDate}`}
+                    onDelete={() => handleFilterChange("uploadDate", "")}
                   />
                 )}
                 {filters.views && (
                   <Chip
-                    label={filters.views}
+                    label={`Views: ${filters.views}`}
                     onDelete={() => handleFilterChange("views", "")}
                   />
                 )}
@@ -365,7 +335,6 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-title"
                         placeholder="Title"
-                        // variant="outlined"
                         value={filters.title}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
@@ -377,7 +346,6 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-description"
                         placeholder="Description"
-                        // variant="outlined"
                         value={filters.description}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
@@ -387,13 +355,12 @@ const VideoDashboard = () => {
                     </TableCell>
                     <TableCell>
                       <Form.Control
-                        id="filter-location"
+                        id="filter-locationState"
                         placeholder="Location"
-                        // variant="outlined"
-                        value={filters.location}
+                        value={filters.locationState}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
-                          handleFilterChange("location", e.target.value)
+                          handleFilterChange("locationState", e.target.value)
                         }
                       />
                     </TableCell>
@@ -401,7 +368,6 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-uploadedBy"
                         placeholder="Uploaded By"
-                        // variant="outlined"
                         value={filters.uploadedBy}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
@@ -411,13 +377,12 @@ const VideoDashboard = () => {
                     </TableCell>
                     <TableCell>
                       <Form.Control
-                        id="filter-uploadedDate"
+                        id="filter-uploadDate"
                         placeholder="Uploaded Date"
-                        // variant="outlined"
-                        value={filters.uploadedDate}
+                        value={filters.uploadDate}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
-                          handleFilterChange("uploadedDate", e.target.value)
+                          handleFilterChange("uploadDate", e.target.value)
                         }
                       />
                     </TableCell>
@@ -426,7 +391,6 @@ const VideoDashboard = () => {
                         id="filter-views"
                         placeholder="Views"
                         className="rounded-0 custom-input"
-                        // variant="outlined"
                         value={filters.views}
                         onChange={(e) =>
                           handleFilterChange("views", e.target.value)
@@ -437,22 +401,21 @@ const VideoDashboard = () => {
                     <TableCell></TableCell>
                   </TableRow>
                 )}
-                {sortedAndFilteredVideos.map((user, index) => (
-                  <TableRow key={user._id || index}>
-                    <TableCell>{currentPage * rowsPerPage +index + 1}</TableCell>
-                    <TableCell>{user.title}</TableCell>
-                    <TableCell>{user.description}</TableCell>
-                    <TableCell>{user.locationState}</TableCell>
-                    <TableCell>{user.uploadedBy?.name}</TableCell>{" "}
-                    {/* Access the name property */}
+                {getVideo.map((video, index) => (
+                  <TableRow key={video._id || index}>
+                    <TableCell>{currentPage * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>{video.title}</TableCell>
+                    <TableCell>{video.description}</TableCell>
+                    <TableCell>{video.locationState}</TableCell>
+                    <TableCell>{video.uploadedBy?.name}</TableCell>
                     <TableCell>
-                      {new Date(user.uploadDate).toLocaleDateString()}
+                      {new Date(video.uploadDate).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>{user.views}</TableCell>
+                    <TableCell>{video.views}</TableCell>
                     <TableCell>
                       <PlayArrowIcon
                         color="success"
-                        onClick={() => handlePlayOpen(user.url)}
+                        onClick={() => handlePlayOpen(video.url)}
                         style={{ cursor: "pointer" }}
                       />
                       <DeleteIcon color="error" style={{ cursor: "pointer" }} />
@@ -478,11 +441,10 @@ const VideoDashboard = () => {
           TransitionComponent={Transition}
           keepMounted
           onClose={(event, reason) => {
-            // Prevent closing on backdrop click or Escape key
             if (reason === "backdropClick" || reason === "escapeKeyDown") {
               return;
             }
-            handlePlayClose(); // Only close when explicitly called
+            handlePlayClose();
           }}
           maxWidth="sm"
           fullWidth
