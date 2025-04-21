@@ -15,6 +15,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import ReactPlayer from "react-player";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { debounce } from "lodash";
+import { LinearProgress } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -154,17 +155,16 @@ const VideoDashboard = () => {
   const today = dayjs().startOf("day");
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchVideos();
-  }, [currentPage, order, orderBy, filters]);
 
-  const fetchVideos = async (filters) => {
+  const fetchVideos = async () => {
     const token = localStorage.getItem("token");
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
     const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
     try {
+      setLoading(true);
       const response = await getVideos(
         token, 
         offset, 
@@ -180,6 +180,8 @@ const VideoDashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching videos:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -220,6 +222,9 @@ const VideoDashboard = () => {
     []
   );
   
+  useEffect(() => {
+    fetchVideos();
+  }, [currentPage, order, orderBy, filters]);
 
   return (
     <Box p={4}>
@@ -325,6 +330,7 @@ const VideoDashboard = () => {
                 )}
               </Stack>
             }
+            {loading && <LinearProgress />}
             <Table>
               <EnhancedTableHead
                 order={order}
@@ -347,7 +353,7 @@ const VideoDashboard = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Form.Control
+                      {/* <Form.Control
                         id="filter-description"
                         placeholder="Description"
                         value={inputValue.description}
@@ -355,7 +361,7 @@ const VideoDashboard = () => {
                         onChange={(e) =>
                           handleFilterChange("description", e.target.value)
                         }
-                      />
+                      /> */}
                     </TableCell>
                     <TableCell>
                       <Form.Control
@@ -369,7 +375,7 @@ const VideoDashboard = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Form.Control
+                      {/* <Form.Control
                         id="filter-uploadedBy"
                         placeholder="Uploaded By"
                         value={inputValue.uploadedBy}
@@ -377,7 +383,7 @@ const VideoDashboard = () => {
                         onChange={(e) =>
                           handleFilterChange("uploadedBy", e.target.value)
                         }
-                      />
+                      /> */}
                     </TableCell>
                     <TableCell>
                       <Form.Control
