@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback  } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
@@ -14,6 +14,7 @@ import {
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ReactPlayer from "react-player";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { debounce } from "lodash";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -148,51 +149,39 @@ const VideoDashboard = () => {
   const [totalData, setTotalData] = useState([]);
   const [selected, setSelected] = useState([]);
   const [openFilter, setOpenFilter] = useState(false);
-  const [filters, setFilters] = useState({
-    title: "",
-    description: "",
-    locationState: "",
-    uploadedBy: "",
-    uploadDate: "",
-    views: "",
-  });
-
+  const [inputValue, setInputValue] = useState("");
+  const [filters, setFilters] = useState({});
   const today = dayjs().startOf("day");
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   useEffect(() => {
+    fetchVideos();
+  }, [currentPage, order, orderBy, filters]);
+
+  const fetchVideos = async (filters) => {
     const token = localStorage.getItem("token");
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
     const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
-    
-    const fetchVideos = async () => {
-      try {
-        const response = await getVideos(
-          token, 
-          offset, 
-          limit,
-          sortBy,
-          sortField,
-          filters.title,
-          filters.description,
-          filters.locationState,
-          filters.uploadedBy,
-          filters.uploadDate,
-          filters.views
-        );
-        
-        if (response.status === 200) {
-          setGetVideo(response?.data);
-          setTotalData(response?.total);
-        }
-      } catch (error) {
-        console.error("Error fetching videos:", error);
+    try {
+      const response = await getVideos(
+        token, 
+        offset, 
+        limit,
+        sortBy,
+        sortField,
+        filters
+      );
+      
+      if (response.status === 200) {
+        setGetVideo(response?.data);
+        setTotalData(response?.total);
       }
-    };
-    fetchVideos();
-  }, [currentPage, order, orderBy, filters]);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    }
+  };
 
   const handlePlayOpen = (url) => {
     setSelected(url);
@@ -213,11 +202,24 @@ const VideoDashboard = () => {
   const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const handleFilterChange = (filterName, value) => {
-    setFilters((prev) => ({
+    setInputValue((prev) => ({
       ...prev,
       [filterName]: value,
     }));
+    debouncedUpdateFilters(filterName, value);
   };
+
+  const debouncedUpdateFilters = useCallback(
+    debounce((key, value) => {
+      setFilters((prevFilters) => {
+        const updatedFilters = { ...prevFilters, [key]: value };
+        fetchVideos(updatedFilters);
+        return updatedFilters;
+      });
+    }, 2000),
+    []
+  );
+  
 
   return (
     <Box p={4}>
@@ -285,39 +287,39 @@ const VideoDashboard = () => {
           <TableContainer>
             {
               <Stack direction="row" spacing={1} className="p-3">
-                {filters.title && (
+                {inputValue.title && (
                   <Chip
-                    label={`Title: ${filters.title}`}
+                    label={`Title: ${inputValue.title}`}
                     onDelete={() => handleFilterChange("title", "")}
                   />
                 )}
-                {filters.description && (
+                {inputValue.description && (
                   <Chip
-                    label={`Desc: ${filters.description}`}
+                    label={`Desc: ${inputValue.description}`}
                     onDelete={() => handleFilterChange("description", "")}
                   />
                 )}
-                {filters.locationState && (
+                {inputValue.locationState && (
                   <Chip
-                    label={`Location: ${filters.locationState}`}
+                    label={`Location: ${inputValue.locationState}`}
                     onDelete={() => handleFilterChange("locationState", "")}
                   />
                 )}
-                {filters.uploadedBy && (
+                {inputValue.uploadedBy && (
                   <Chip
-                    label={`Uploaded By: ${filters.uploadedBy}`}
+                    label={`Uploaded By: ${inputValue.uploadedBy}`}
                     onDelete={() => handleFilterChange("uploadedBy", "")}
                   />
                 )}
-                {filters.uploadDate && (
+                {inputValue.uploadDate && (
                   <Chip
-                    label={`Date: ${filters.uploadDate}`}
+                    label={`Date: ${inputValue.uploadDate}`}
                     onDelete={() => handleFilterChange("uploadDate", "")}
                   />
                 )}
-                {filters.views && (
+                {inputValue.views && (
                   <Chip
-                    label={`Views: ${filters.views}`}
+                    label={`Views: ${inputValue.views}`}
                     onDelete={() => handleFilterChange("views", "")}
                   />
                 )}
@@ -337,7 +339,7 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-title"
                         placeholder="Title"
-                        value={filters.title}
+                        value={inputValue.title}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("title", e.target.value)
@@ -348,7 +350,7 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-description"
                         placeholder="Description"
-                        value={filters.description}
+                        value={inputValue.description}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("description", e.target.value)
@@ -359,7 +361,7 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-locationState"
                         placeholder="Location"
-                        value={filters.locationState}
+                        value={inputValue.locationState}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("locationState", e.target.value)
@@ -370,7 +372,7 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-uploadedBy"
                         placeholder="Uploaded By"
-                        value={filters.uploadedBy}
+                        value={inputValue.uploadedBy}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("uploadedBy", e.target.value)
@@ -381,7 +383,7 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-uploadDate"
                         placeholder="Uploaded Date"
-                        value={filters.uploadDate}
+                        value={inputValue.uploadDate}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("uploadDate", e.target.value)
@@ -393,7 +395,7 @@ const VideoDashboard = () => {
                         id="filter-views"
                         placeholder="Views"
                         className="rounded-0 custom-input"
-                        value={filters.views}
+                        value={inputValue.views}
                         onChange={(e) =>
                           handleFilterChange("views", e.target.value)
                         }

@@ -1,10 +1,10 @@
 import axios from "./axios";
 
-export const getVideos = async (token, offset, limit, sortBy,sortField) => {
+export const getVideos = async (token, offset, limit, sortBy,sortField,filters) => {
   try {
     const response = await axios.post(
       "/admin/video/getAll",
-      { offset, limit,sortBy,sortField },
+      { offset, limit,sortBy,sortField,filters },
       {
         headers: {
           Authorization: `Bearer ${token}`,
