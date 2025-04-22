@@ -135,7 +135,7 @@ const TestDashboard = () => {
           rowsPerPageOptions={[rowsPerPage]}
           component="div"
           className="paginated-custom"
-          count={10}
+          count={totalData}
           rowsPerPage={rowsPerPage}
           page={currentPage}
         />
