@@ -28,6 +28,14 @@ code {
 
   box-shadow: none !important;
 }
+.update-loader .global-loader {
+  top: auto !important;
+  left: auto !important;
+  bottom: 4px !important;
+  right: 0px !important;
+  width: 82.4% !important;
+  height: 89% !important;
+}
 .accordion-button button {
   background-color: inherit !important;
 }
@@ -51,7 +59,7 @@ code {
 .accordion-button:not(.collapsed) {
   box-shadow: none !important;
 }
-.custom-accordion h2::after  {
+.custom-accordion h2::after {
   display: none !important;
 }
 .data-table-changes .MuiDataGrid-footerContainer p {
