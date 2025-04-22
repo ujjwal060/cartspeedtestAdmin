@@ -1,174 +1,200 @@
-import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
-import Offcanvas from "react-bootstrap/Offcanvas";
+import React, { useState, useEffect } from "react";
+import { Box, Tooltip, Typography } from "@mui/material";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
+import { getQA } from "../api/test";
 import AddTestFormFile from "./AddTestForm";
-
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import TablePagination from "@mui/material/TablePagination";
+import "../components/css/accordion-level-styles.css";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import LocationPinIcon from "@mui/icons-material/LocationPin";
+import "../index.css";
+import Loader from "../components/Loader";
 const TestDashboard = () => {
+  const rowsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(0);
+  const [filters, setFilters] = useState({});
   const [show, setShow] = useState(false);
-
-  const [value, setValue] = React.useState(null);
-  const [answerValue, setAnswerValue] = React.useState(null);
-  const [filterLevel, setFilterLevel] = React.useState(null);
+  const [getData, setGetData] = useState([]);
+  const [totalData, setTotalData] = useState([]);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const [age, setAge] = React.useState("");
-  const [options, setOptions] = useState({
-    option1: "",
-    option2: "",
-    option3: "",
-    option4: "",
-  });
+  const [loading, setLoading] = useState(false);
+  const [openFilter, setOpenFilter] = useState(false);
+  const token = localStorage.getItem("token");
+  const [level, setLevel] = useState("");
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
+  const fetchQA = async () => {
+    const offset = currentPage * rowsPerPage;
+    const limit = rowsPerPage;
+    setLoading(true);
+    try {
+      const response = await getQA(token, offset, limit, filters);
+      setGetData(response?.data);
+      setTotalData(response?.total);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleChangePage = (_, newPage) => setCurrentPage(newPage);
+
+  const handeOpenFilter = () => {
+    setOpenFilter(!openFilter);
+    if (openFilter) {
+      setFilters({});
+    }
   };
 
-  const handleOptionChange = (e) => {
-    const { id, value } = e.target;
-    setOptions((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+  const handleLevelChange = (event) => {
+    const selectedLevel = event.target.value;
+    setLevel(selectedLevel);
+    setFilters((prev) => ({ ...prev, level: selectedLevel }));
   };
 
-  const allOptionsFilled = () => {
-    return (
-      options.option1 && options.option2 && options.option3 && options.option4
-    );
-  };
-
-  const answerOptions = [
-    options.option1,
-    options.option2,
-    options.option3,
-    options.option4,
-  ].filter((opt) => opt); // Filter out empty options
+  useEffect(() => {
+    fetchQA();
+  }, [currentPage, filters]);
 
   return (
     <Box p={4}>
-      {/* Table */}
       <Box>
-        <div className="d-flex justify-content-end gap-2">
-          <FormControl sx={{ width: "200px" }} size="small">
-            <InputLabel id="demo-simple-select-label">
-              Filter By Level
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={filterLevel}
-              label="Filter By Level"
-              onChange={(e) => setFilterLevel(e.target.value)}
-              sx={{ height: "40px" }}
-            >
-              <MenuItem value={1}>Level 1</MenuItem>
-              <MenuItem value={2}>Level 2</MenuItem>
-              <MenuItem value={3}>Level 3</MenuItem>
-            </Select>
-          </FormControl>
+        <div className="position-sticky top-0 d-flex justify-content-end gap-2 mb-4 align-items-center">
+          {openFilter && (
+            <>
+              {/* <FormControl sx={{ width: "200px" }} size="small">
+                <InputLabel id="demo-simple-select-label">
+                  Filter By Location
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={level}
+                  label=" Filter By Location"
+                  // onChange={(e) => setFilterLevel(e.target.value)}
+                  sx={{ height: "40px" }}
+                >
+                  <MenuItem value={1}>Delhi</MenuItem>
+                </Select>
+              </FormControl> */}
+              <FormControl sx={{ width: "200px" }} size="small">
+                <InputLabel id="demo-simple-select-label">
+                  Filter By Level
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={level}
+                  label="Filter By Level"
+                  onChange={handleLevelChange}
+                  sx={{ height: "40px" }}
+                >
+                  <MenuItem value={"Easy"}>Easy</MenuItem>
+                  <MenuItem value={"Medium"}>Medium</MenuItem>
+                  <MenuItem value={"Hard"}>Hard</MenuItem>
+                </Select>
+              </FormControl>
+            </>
+          )}
+          <Tooltip title="filter">
+            <FilterListIcon
+              onClick={handeOpenFilter}
+              className="text-primary"
+              style={{ cursor: "pointer" }}
+            />
+          </Tooltip>
           <Button
             variant="contained"
             color="primary"
-            className="mb-3 "
+            className="rounded-4 d-flex gap-1 flex-row "
             onClick={handleShow}
           >
-            Add Test
+            <AddCircleOutlineIcon />
+            Add Assessment
           </Button>
         </div>
 
-        <Accordion
-          className="d-flex flex-column gap-3"
-          defaultActiveKey="0"
-          flush
-        >
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Q1 Lorem Ipsum</Accordion.Header>
-            <Accordion.Body>
-              <div className="row align-items-start">
-                <div className="col-lg-3">
-                  <Typography className="text-start" variant="h6">
-                    Level: 1
-                  </Typography>
-                </div>
-                <div className="col-lg-9">
-                  <Typography className="text-end" variant="h6">
-                    Selected Location: Uttar Pradesh , India
-                  </Typography>
-                </div>
+        <Accordion className="d-flex flex-column gap-3 custom-accordion" flush>
+          {loading === true ? (
+            <div className="update-loader">
+              <Loader />
+            </div>
+          ) : (
+            getData?.map((item, index) => (
+              <Accordion.Item eventKey={index.toString()} key={item._id}>
+                <Accordion.Header
+                  className={`accordion-button p-0 ${item.level?.toLowerCase()}`}
+                >
+                  Q{currentPage * rowsPerPage + index + 1}. {item.question}
+                </Accordion.Header>
+                <Accordion.Body>
+                  <div className="row align-items-start">
+                    <div className="col-lg-3">
+                      <div className="d-flex justify-content-start gap-1 align-items-center">
+                        <Typography className="text-end" variant="h6">
+                          Lv:
+                        </Typography>
+                        <span className="fs-6">{item.level}</span>
+                      </div>
+                    </div>
+                    <div className="col-lg-9">
+                      <div className="d-flex justify-content-end gap-1 align-items-center">
+                        <Typography className="text-end" variant="h6">
+                          <LocationPinIcon />
+                        </Typography>
+                        <span className="fs-6">{item.state}</span>
+                      </div>
+                    </div>
 
-                <div className="col-lg-6">
-                  <div className="row gy-3 align-items-center ps-1 pt-3">
                     <div className="col-lg-6">
-                      <Typography>A. Lorem Ipsum</Typography>
+                      <div className="row gy-3 align-items-center ps-1 pt-3">
+                        {item.options.map((option, optIndex) => (
+                          <div className="col-lg-6" key={option._id}>
+                            <Typography>
+                              {String.fromCharCode(65 + optIndex)}.{" "}
+                              {option.text}
+                            </Typography>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <div className="col-lg-6">
-                      <Typography>B. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>C. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>D. Lorem Ipsum</Typography>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-lg-6">
-                  <div className="mt-5 d-flex justify-content-end">
-                    <Chip label=" D. Lorem Ipsum" color="success" />
-                  </div>
-                </div>
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>Q2 Lorem Ipsum</Accordion.Header>
-            <Accordion.Body>
-              <div className="row align-items-start">
-                <div className="col-lg-3">
-                  <Typography className="text-start" variant="h6">
-                    Level: 1
-                  </Typography>
-                </div>
-                <div className="col-lg-9">
-                  <Typography className="text-end" variant="h6">
-                    Selected Location: Uttar Pradesh , India
-                  </Typography>
-                </div>
-
-                <div className="col-lg-6">
-                  <div className="row gy-3 align-items-center ps-1 pt-3">
-                    <div className="col-lg-6">
-                      <Typography>A. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>B. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>C. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>D. Lorem Ipsum</Typography>
+                      <div className="mt-5 d-flex justify-content-end">
+                        {item.options.map((option, optIndex) =>
+                          option.isCorrect ? (
+                            <Chip
+                              key={option._id}
+                              label={`${String.fromCharCode(65 + optIndex)}. ${
+                                option.text
+                              }`}
+                              color="success"
+                            />
+                          ) : null
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="col-lg-6">
-                  <div className="mt-5 d-flex justify-content-end">
-                    <Chip label=" D. Lorem Ipsum" color="success" />
-                  </div>
-                </div>
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
+                </Accordion.Body>
+              </Accordion.Item>
+            ))
+          )}
         </Accordion>
+        <TablePagination
+          rowsPerPageOptions={[rowsPerPage]}
+          component="div"
+          className="paginated-custom"
+          count={totalData}
+          rowsPerPage={rowsPerPage}
+          page={currentPage}
+          onPageChange={handleChangePage}
+        />
       </Box>
       <AddTestFormFile handleClose={handleClose} show={show} />
     </Box>

@@ -15,7 +15,7 @@ const AddVideoOffcanvas = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleVideoInput = (e) => {
     const files = Array.from(e.target.files);

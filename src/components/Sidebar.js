@@ -37,7 +37,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { text: "Dashboard", link: "/dashboard", icon: <DashboardIcon /> },
     { text: "Users", link: "/users", icon: <PeopleIcon /> },
     { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
-    { text: "Tests", link: "/tests", icon: <AssignmentIcon /> },
+    { text: "Assessment ", link: "/assessment", icon: <AssignmentIcon /> },
   ];
 
   return (
