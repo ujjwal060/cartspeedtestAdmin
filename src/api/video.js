@@ -7,6 +7,7 @@ export const getVideos = async (token, offset, limit, sortBy,sortField,filters) 
       { offset, limit,sortBy,sortField,filters },
       {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }
