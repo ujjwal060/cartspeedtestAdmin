@@ -20,13 +20,13 @@ const TestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [filters, setFilters] = useState({});
   const [show, setShow] = useState(false);
-  const [filterLevel, setFilterLevel] = React.useState(null);
   const [getData, setGetData] = useState([]);
   const [totalData, setTotalData] = useState([]);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [openFilter, setOpenFilter] = useState(false);
   const token = localStorage.getItem("token");
+  const [level, setLevel] = useState("");
 
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
@@ -44,10 +44,20 @@ const TestDashboard = () => {
 
   const handeOpenFilter = () => {
     setOpenFilter(!openFilter);
+    if(openFilter){
+      setFilters({})
+    }
   };
+
+  const handleLevelChange = (event) => {
+    const selectedLevel = event.target.value;
+    setLevel(selectedLevel);
+    setFilters((prev) => ({ ...prev, level: selectedLevel }));
+  };
+
   useEffect(() => {
     fetchQA();
-  }, [currentPage]);
+  }, [currentPage,filters]);
 
   return (
     <Box p={4}>
@@ -55,21 +65,21 @@ const TestDashboard = () => {
         <div className="position-sticky top-0 d-flex justify-content-end gap-2 mb-4 align-items-center">
           {openFilter && (
             <>
-              <FormControl sx={{ width: "200px" }} size="small">
+              {/* <FormControl sx={{ width: "200px" }} size="small">
                 <InputLabel id="demo-simple-select-label">
                   Filter By Location
                 </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={filterLevel}
+                  value={level}
                   label=" Filter By Location"
-                  onChange={(e) => setFilterLevel(e.target.value)}
+                  // onChange={(e) => setFilterLevel(e.target.value)}
                   sx={{ height: "40px" }}
                 >
                   <MenuItem value={1}>Delhi</MenuItem>
                 </Select>
-              </FormControl>
+              </FormControl> */}
               <FormControl sx={{ width: "200px" }} size="small">
                 <InputLabel id="demo-simple-select-label">
                   Filter By Level
@@ -77,14 +87,14 @@ const TestDashboard = () => {
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={filterLevel}
+                  value={level}
                   label="Filter By Level"
-                  onChange={(e) => setFilterLevel(e.target.value)}
+                  onChange={handleLevelChange}
                   sx={{ height: "40px" }}
                 >
-                  <MenuItem value={1}>easy</MenuItem>
-                  <MenuItem value={2}>medium</MenuItem>
-                  <MenuItem value={3}>hard</MenuItem>
+                  <MenuItem value={"Easy"}>Easy</MenuItem>
+                  <MenuItem value={"Medium"}>Medium</MenuItem>
+                  <MenuItem value={"Hard"}>Hard</MenuItem>
                 </Select>
               </FormControl>
             </>
@@ -116,24 +126,24 @@ const TestDashboard = () => {
               <Accordion.Header
                 className={`accordion-button p-0 ${item.level?.toLowerCase()}`}
               >
-                Q{index + 1}. {item.question}
+                Q{currentPage * rowsPerPage + index + 1}. {item.question}
               </Accordion.Header>
               <Accordion.Body>
                 <div className="row align-items-start">
                   <div className="col-lg-3">
-                    <div className="d-flex justify-content-start gap-1">
+                    <div className="d-flex justify-content-start gap-1 align-items-center">
                       <Typography className="text-end" variant="h6">
                         Lv:
                       </Typography>
-                      <span className="fs-5">{item.level}</span>
+                      <span className="fs-6">{item.level}</span>
                     </div>
                   </div>
                   <div className="col-lg-9">
-                    <div className="d-flex justify-content-end gap-1">
+                    <div className="d-flex justify-content-end gap-1 align-items-center">
                       <Typography className="text-end" variant="h6">
                         <LocationPinIcon />
                       </Typography>
-                      <span className="fs-5">{item.state}</span>
+                      <span className="fs-6">{item.state}</span>
                     </div>
                   </div>
 
