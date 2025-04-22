@@ -18,8 +18,20 @@ export const getQA = async (token, offset, limit, filters) => {
   }
 };
 
-export const addQA = async (data, token) => {
+export const addQA = async (token, state, level, question, options, answer) => {
   try {
+    const formattedOptions = options.map((option) => ({
+      text: option,
+      isCorrect: option === answer,
+    }));
+
+    const data = {
+      question,
+      options: formattedOptions,
+      level,
+      state,
+    };
+
     const response = await axios.post("/admin/QA/add", data, {
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +40,7 @@ export const addQA = async (data, token) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error uploading videos:", error);
+    console.error("Error adding question:", error);
     throw error;
   }
 };
