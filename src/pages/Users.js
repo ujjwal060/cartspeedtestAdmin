@@ -1,108 +1,82 @@
-import React, { useState, useMemo } from "react";
-import { Paper, Box } from "@mui/material";
+import React, { useEffect, useState, useCallback } from "react";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import {
+  Box,
+  Paper,
+  Button,
+  Dialog,
+  DialogContent,
+  Slide,
+  Chip,
+  Tooltip,
+  Stack,
+} from "@mui/material";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ReactPlayer from "react-player";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { debounce } from "lodash";
+import { LinearProgress } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
+import { toast } from "react-toastify";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import PropTypes from "prop-types";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
+import Form from "react-bootstrap/Form";
+import { getAllUsers } from "../api/users";
 
-// Constants
-const ROWS_PER_PAGE = 10;
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
-
-// Sample data - in a real app, this would come from an API
-const DUMMY_DATA = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "1234567890",
-    address: "New York, USA",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    phone: "0987654321",
-    address: "London, UK",
-  },
-  // Add more dummy data for testing pagination and sorting
-  ...Array.from({ length: 15 }, (_, i) => ({
-    id: i + 3,
-    name: `User ${i + 3}`,
-    email: `user${i + 3}@example.com`,
-    phone: `555${String(i + 3).padStart(7, "0")}`,
-    address: `City ${i + 3}, Country`,
-  })),
-];
-
-// Sorting functions
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
+const rowsPerPage = 10;
 
 const headCells = [
   {
     id: "id",
     numeric: true,
     disablePadding: false,
-    label: "ID",
+    label: "S.No",
+    disableSort: true,
   },
   {
-    id: "name",
+    id: "Name",
     numeric: false,
     disablePadding: false,
-    label: "Name",
+    label: "name",
   },
   {
-    id: "email",
+    id: "Email",
     numeric: false,
     disablePadding: false,
-    label: "Email",
+    label: "email",
+    disableSort: false,
   },
   {
-    id: "phone",
+    id: "Phone",
     numeric: false,
     disablePadding: false,
-    label: "Phone No",
+    label: "phone",
+    disableSort: false,
   },
   {
-    id: "address",
+    id: "Address",
     numeric: false,
     disablePadding: false,
     label: "Address",
+    disableSort: true,
   },
+  {
+    id: "uploadDate",
+    numeric: false,
+    disablePadding: false,
+    label: "Date",
+  }
 ];
 
 function EnhancedTableHead(props) {
@@ -112,7 +86,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead>
+    <TableHead className="tableHead-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -121,18 +95,24 @@ function EnhancedTableHead(props) {
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={{ display: "none" }}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
+            {!headCell.disableSort ? (
+              <TableSortLabel
+                active={orderBy === headCell.id}
+                direction={orderBy === headCell.id ? order : "asc"}
+                onClick={createSortHandler(headCell.id)}
+              >
+                {headCell.label}
+                {orderBy === headCell.id ? (
+                  <Box component="span" sx={{ display: "none" }}>
+                    {order === "desc"
+                      ? "sorted descending"
+                      : "sorted ascending"}
+                  </Box>
+                ) : null}
+              </TableSortLabel>
+            ) : (
+              headCell.label
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -140,19 +120,46 @@ function EnhancedTableHead(props) {
   );
 }
 
-EnhancedTableHead.propTypes = {
-  onRequestSort: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
-  orderBy: PropTypes.string.isRequired,
-};
-
-const Users = () => {
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("id");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE);
+const VideoDashboard = () => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [getVideo, setGetVideo] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("");
+  const [totalData, setTotalData] = useState([]);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [filters, setFilters] = useState({});
+  const today = dayjs().startOf("day");
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token");
+
+  const fetchVideos = async () => {
+    const offset = currentPage * rowsPerPage;
+    const limit = rowsPerPage;
+    const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+    try {
+      setLoading(true);
+      const response = await getAllUsers(
+        token,
+        offset,
+        limit,
+        sortBy,
+        sortField,
+        filters
+      );
+
+      if (response.status === 200) {
+        setGetVideo(response?.data);
+        setTotalData(response?.total);
+      }
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -160,33 +167,43 @@ const Users = () => {
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const handeOpenFilter = () => {
+    setOpenFilter(!openFilter);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleChangePage = (_, newPage) => setCurrentPage(newPage);
+
+  const handleFilterChange = (filterName, value) => {
+    setInputValue((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+    debouncedUpdateFilters(filterName, value);
   };
-  const today = dayjs().startOf("day");
 
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - DUMMY_DATA.length) : 0;
-
-  const visibleRows = useMemo(
-    () =>
-      stableSort(DUMMY_DATA, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      ),
-    [order, orderBy, page, rowsPerPage]
+  const debouncedUpdateFilters = useCallback(
+    debounce((key, value) => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [key]: value,
+      }));
+    }, 2000),
+    []
   );
 
+  useEffect(() => {
+    fetchVideos();
+  }, [currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(0);
+    fetchVideos();
+  }, [filters, order, orderBy]);
+
   return (
-    <>
-      <Box p={4}>
-        <div className="d-flex justify-content-end gap-2 align-items-center mb-3 pad-root">
+    <Box p={4}>
+      <Box>
+        <div className="d-flex justify-content-between gap-2 align-items-center pad-root">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer
               components={["DateRangePicker"]}
@@ -200,7 +217,7 @@ const Users = () => {
                 onChange={(newValue) => {
                   setStartDate(newValue);
                   if (endDate && newValue && newValue.isAfter(endDate)) {
-                    setEndDate(null); // Reset end date if it's before new start
+                    setEndDate(null);
                   }
                 }}
                 minDate={today}
@@ -218,9 +235,47 @@ const Users = () => {
               />
             </DemoContainer>
           </LocalizationProvider>
+          <div className="d-flex justify-content-end gap-3 align-items-center">
+            <Tooltip title="filter">
+              <FilterListIcon
+                onClick={handeOpenFilter}
+                className="text-primary"
+                style={{ cursor: "pointer" }}
+              />
+            </Tooltip>
+          </div>
         </div>
-        <Paper>
+        <Paper elevation={3} className="mt-3">
           <TableContainer>
+            {
+              <Stack direction="row" spacing={1} className="p-3">
+                {inputValue.title && (
+                  <Chip
+                    label={`name: ${inputValue.name}`}
+                    onDelete={() => handleFilterChange("name", "")}
+                  />
+                )}
+                {inputValue.email && (
+                  <Chip
+                    label={`Desc: ${inputValue.email}`}
+                    onDelete={() => handleFilterChange("email", "")}
+                  />
+                )}
+                {inputValue.mobile && (
+                  <Chip
+                    label={`phone: ${inputValue.locationState}`}
+                    onDelete={() => handleFilterChange("mobile", "")}
+                  />
+                )}
+                {inputValue.state && (
+                  <Chip
+                    label={`Uploaded By: ${inputValue.state}`}
+                    onDelete={() => handleFilterChange("state", "")}
+                  />
+                )}
+              </Stack>
+            }
+            {loading && <LinearProgress />}
             <Table>
               <EnhancedTableHead
                 order={order}
@@ -228,37 +283,86 @@ const Users = () => {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
-                {visibleRows.map((row) => (
-                  <TableRow hover key={row.id}>
-                    <TableCell>{row.id}</TableCell>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.email}</TableCell>
-                    <TableCell>{row.phone}</TableCell>
-                    <TableCell>{row.address}</TableCell>
-                  </TableRow>
-                ))}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: 53 * emptyRows }}>
-                    <TableCell colSpan={headCells.length} />
+                {openFilter && (
+                  <TableRow>
+                    <TableCell></TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-name"
+                        placeholder="Name"
+                        value={inputValue.name}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("name", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-email"
+                        placeholder="Email"
+                        value={inputValue.email}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("email", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-mobile"
+                        placeholder="Phone"
+                        value={inputValue.mobile}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("mobile", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-state"
+                        placeholder="Address"
+                        value={inputValue.state}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("state", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
                 )}
+                {getVideo.map((video, index) => (
+                  <TableRow key={video._id || index}>
+                    <TableCell>
+                      {currentPage * rowsPerPage + index + 1}
+                    </TableCell>
+                    <TableCell>{video.name}</TableCell>
+                    <TableCell>{video.email}</TableCell>
+                    <TableCell>{video.mobile}</TableCell>
+                    <TableCell>{video.state}</TableCell>
+                    <TableCell>
+                      {new Date(video.updatedAt).toLocaleDateString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+            rowsPerPageOptions={[rowsPerPage]}
             component="div"
-            count={DUMMY_DATA.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
             className="paginated-custom"
+            count={totalData}
+            rowsPerPage={rowsPerPage}
+            page={currentPage}
             onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Paper>
       </Box>
-    </>
+    </Box>
   );
 };
 
-export default Users;
+export default VideoDashboard;
