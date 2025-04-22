@@ -1,21 +1,18 @@
 import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { Button } from "@mui/material";
-import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import Accordion from "react-bootstrap/Accordion";
-import AddTestForm from "./AddTestForm";
+import { addQA } from "../api/test";
+
 
 export default function AddTestFormFile({ handleClose, show }) {
   const [value, setValue] = React.useState(null);
   const [answerValue, setAnswerValue] = React.useState(null);
-  const [filterLevel, setFilterLevel] = React.useState(null);
   const [age, setAge] = React.useState("");
   const [options, setOptions] = useState({
     option1: "",
@@ -23,6 +20,8 @@ export default function AddTestFormFile({ handleClose, show }) {
     option3: "",
     option4: "",
   });
+  const token = localStorage.getItem("token");
+
 
   const handleChange = (event) => {
     setAge(event.target.value);
@@ -47,7 +46,8 @@ export default function AddTestFormFile({ handleClose, show }) {
     options.option2,
     options.option3,
     options.option4,
-  ].filter((opt) => opt); // Filter out empty options
+  ].filter((opt) => opt);
+
   return (
     <>
       <Offcanvas show={show} onHide={handleClose} placement={"end"}>
