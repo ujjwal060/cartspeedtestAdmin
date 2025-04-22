@@ -11,6 +11,7 @@ import { getQA } from "../api/test";
 import AddTestFormFile from "./AddTestForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import TablePagination from "@mui/material/TablePagination";
+import "../components/css/accordion-level-styles.css"
 
 const TestDashboard = () => {
   const rowsPerPage = 10;
@@ -86,7 +87,7 @@ const TestDashboard = () => {
         >
           {getData?.map((item, index) => (
             <Accordion.Item eventKey={index.toString()} key={item._id}>
-              <Accordion.Header>
+              <Accordion.Header className={`accordion-button ${item.level?.toLowerCase()}`}>
                 Q{index + 1}. {item.question}
               </Accordion.Header>
               <Accordion.Body>
