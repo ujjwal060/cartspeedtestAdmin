@@ -28,7 +28,7 @@ code {
 
   box-shadow: none !important;
 }
-.accordion-button button:not(.collapsed) {
+.accordion-button button {
   background-color: inherit !important;
 }
 
