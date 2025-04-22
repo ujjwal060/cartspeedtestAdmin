@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
@@ -16,30 +16,32 @@ const TestDashboard = () => {
   const [filters, setFilters] = useState({});
   const [show, setShow] = useState(false);
   const [filterLevel, setFilterLevel] = React.useState(null);
+  const [getData, setGetData] = useState([]);
+  const [totalData, setTotalData] = useState([]);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
- 
+
   const token = localStorage.getItem("token");
 
-    const fetchQA = async () => {
-      const offset = currentPage * rowsPerPage;
-      const limit = rowsPerPage;
-      try {
-        const response = await getQA(
-          token,
-          offset,
-          limit,
-          filters
-        );
-        console.log(response);
-        
-      } catch (error) {
-        console.error("Error fetching videos:", error);
-      } finally {
-      }
-    };
+  const fetchQA = async () => {
+    const offset = currentPage * rowsPerPage;
+    const limit = rowsPerPage;
+    try {
+      const response = await getQA(
+        token,
+        offset,
+        limit,
+        filters
+      );
+      setGetData(response?.data);
+      setTotalData(response?.total);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+    }
+  };
 
- useEffect(() => {
+  useEffect(() => {
     fetchQA();
   }, [currentPage]);
 
@@ -79,45 +81,52 @@ const TestDashboard = () => {
           defaultActiveKey="0"
           flush
         >
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Q1 Lorem Ipsum</Accordion.Header>
-            <Accordion.Body>
-              <div className="row align-items-start">
-                <div className="col-lg-3">
-                  <Typography className="text-start" variant="h6">
-                    Level: 1
-                  </Typography>
-                </div>
-                <div className="col-lg-9">
-                  <Typography className="text-end" variant="h6">
-                    Selected Location: Uttar Pradesh , India
-                  </Typography>
-                </div>
+          {getData?.map((item, index) => (
+            <Accordion.Item eventKey={index.toString()} key={item._id}>
+              <Accordion.Header>
+                Q{index + 1}. {item.question}
+              </Accordion.Header>
+              <Accordion.Body>
+                <div className="row align-items-start">
+                  <div className="col-lg-3">
+                    <Typography className="text-start" variant="h6">
+                      Level: {item.level}
+                    </Typography>
+                  </div>
+                  <div className="col-lg-9">
+                    <Typography className="text-end" variant="h6">
+                      Location: {item.state}
+                    </Typography>
+                  </div>
 
-                <div className="col-lg-6">
-                  <div className="row gy-3 align-items-center ps-1 pt-3">
-                    <div className="col-lg-6">
-                      <Typography>A. Lorem Ipsum</Typography>
+                  <div className="col-lg-6">
+                    <div className="row gy-3 align-items-center ps-1 pt-3">
+                      {item.options.map((option, optIndex) => (
+                        <div className="col-lg-6" key={option._id}>
+                          <Typography>
+                            {String.fromCharCode(65 + optIndex)}. {option.text}
+                          </Typography>
+                        </div>
+                      ))}
                     </div>
-                    <div className="col-lg-6">
-                      <Typography>B. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>C. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>D. Lorem Ipsum</Typography>
+                  </div>
+                  <div className="col-lg-6">
+                    <div className="mt-5 d-flex justify-content-end">
+                      {item.options.map((option, optIndex) =>
+                        option.isCorrect ? (
+                          <Chip
+                            key={option._id}
+                            label={`${String.fromCharCode(65 + optIndex)}. ${option.text}`}
+                            color="success"
+                          />
+                        ) : null
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-6">
-                  <div className="mt-5 d-flex justify-content-end">
-                    <Chip label=" D. Lorem Ipsum" color="success" />
-                  </div>
-                </div>
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
+              </Accordion.Body>
+            </Accordion.Item>
+          ))}
         </Accordion>
       </Box>
       <AddTestFormFile handleClose={handleClose} show={show} />
