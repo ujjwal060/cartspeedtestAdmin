@@ -12,8 +12,7 @@ import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
 import AddTestForm from "./AddTestForm";
 
-export default function AddTestFormFile({ handleClose , show}) {
-
+export default function AddTestFormFile({ handleClose, show }) {
   const [value, setValue] = React.useState(null);
   const [answerValue, setAnswerValue] = React.useState(null);
   const [filterLevel, setFilterLevel] = React.useState(null);
@@ -177,17 +176,14 @@ export default function AddTestFormFile({ handleClose , show}) {
               </div>
             )}
           </div>
-          <div className="row gy-4 mt-2">
-            <div className="col-lg-6">
-              <Button variant="contained" className="w-100" color="error">
-                Reset
-              </Button>
-            </div>
-            <div className="col-lg-6">
-              <Button variant="contained" className="w-100" color="success">
-                Save
-              </Button>
-            </div>
+          <div className="kb-buttons-box d-flex justify-content-end gap-2">
+            <Button variant="contained" color="error" className="rounded-4">
+              Reset
+            </Button>
+
+            <Button variant="contained" color="success" className="rounded-4">
+              Save
+            </Button>
           </div>
         </Offcanvas.Body>
       </Offcanvas>
