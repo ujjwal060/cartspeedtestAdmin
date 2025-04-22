@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
@@ -7,8 +7,9 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
-import { getQA } from "../api/test"
-import AddTestFormFile from "./AddTestForm"
+import { getQA } from "../api/test";
+import AddTestFormFile from "./AddTestForm";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 const TestDashboard = () => {
   const rowsPerPage = 10;
@@ -18,35 +19,29 @@ const TestDashboard = () => {
   const [filterLevel, setFilterLevel] = React.useState(null);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
- 
+
   const token = localStorage.getItem("token");
 
-    const fetchQA = async () => {
-      const offset = currentPage * rowsPerPage;
-      const limit = rowsPerPage;
-      try {
-        const response = await getQA(
-          token,
-          offset,
-          limit,
-          filters
-        );
-        console.log(response);
-        
-      } catch (error) {
-        console.error("Error fetching videos:", error);
-      } finally {
-      }
-    };
+  const fetchQA = async () => {
+    const offset = currentPage * rowsPerPage;
+    const limit = rowsPerPage;
+    try {
+      const response = await getQA(token, offset, limit, filters);
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+    }
+  };
 
- useEffect(() => {
+  useEffect(() => {
     fetchQA();
   }, [currentPage]);
 
   return (
     <Box p={4}>
       <Box>
-        <div className="d-flex justify-content-end gap-2">
+        <div className="d-flex justify-content-end gap-2 mb-4">
           <FormControl sx={{ width: "200px" }} size="small">
             <InputLabel id="demo-simple-select-label">
               Filter By Level
@@ -69,7 +64,9 @@ const TestDashboard = () => {
             color="primary"
             className="mb-3 "
             onClick={handleShow}
+            className="rounded-4 d-flex gap-1 flex-row"
           >
+            <AddCircleOutlineIcon />
             Add Test
           </Button>
         </div>
