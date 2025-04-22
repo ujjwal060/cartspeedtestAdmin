@@ -10,6 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
+import {getQA} from "../api/test"
 
 const TestDashboard = () => {
   const [show, setShow] = useState(false);
@@ -50,11 +51,10 @@ const TestDashboard = () => {
     options.option2,
     options.option3,
     options.option4,
-  ].filter((opt) => opt); // Filter out empty options
+  ].filter((opt) => opt);
 
   return (
     <Box p={4}>
-      {/* Table */}
       <Box>
         <div className="d-flex justify-content-end gap-2">
           <FormControl sx={{ width: "200px" }} size="small">
@@ -69,9 +69,9 @@ const TestDashboard = () => {
               onChange={(e) => setFilterLevel(e.target.value)}
               sx={{ height: "40px" }}
             >
-              <MenuItem value={1}>Level 1</MenuItem>
-              <MenuItem value={2}>Level 2</MenuItem>
-              <MenuItem value={3}>Level 3</MenuItem>
+              <MenuItem value={1}>easy</MenuItem>
+              <MenuItem value={2}>medium</MenuItem>
+              <MenuItem value={3}>hard</MenuItem>
             </Select>
           </FormControl>
           <Button
