@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { Button } from "@mui/material";
@@ -10,11 +10,13 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
-import {getQA} from "../api/test"
+import { getQA } from "../api/test"
 
 const TestDashboard = () => {
+  const rowsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(0);
+  const [filters, setFilters] = useState({});
   const [show, setShow] = useState(false);
-
   const [value, setValue] = React.useState(null);
   const [answerValue, setAnswerValue] = React.useState(null);
   const [filterLevel, setFilterLevel] = React.useState(null);
@@ -27,6 +29,25 @@ const TestDashboard = () => {
     option3: "",
     option4: "",
   });
+  const token = localStorage.getItem("token");
+
+    const fetchQA = async () => {
+      const offset = currentPage * rowsPerPage;
+      const limit = rowsPerPage;
+      try {
+        const response = await getQA(
+          token,
+          offset,
+          limit,
+          filters
+        );
+        console.log(response);
+        
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      } finally {
+      }
+    };
 
   const handleChange = (event) => {
     setAge(event.target.value);
@@ -53,6 +74,9 @@ const TestDashboard = () => {
     options.option4,
   ].filter((opt) => opt);
 
+ useEffect(() => {
+    fetchQA();
+  }, [currentPage]);
   return (
     <Box p={4}>
       <Box>
@@ -91,45 +115,6 @@ const TestDashboard = () => {
         >
           <Accordion.Item eventKey="0">
             <Accordion.Header>Q1 Lorem Ipsum</Accordion.Header>
-            <Accordion.Body>
-              <div className="row align-items-start">
-                <div className="col-lg-3">
-                  <Typography className="text-start" variant="h6">
-                    Level: 1
-                  </Typography>
-                </div>
-                <div className="col-lg-9">
-                  <Typography className="text-end" variant="h6">
-                    Selected Location: Uttar Pradesh , India
-                  </Typography>
-                </div>
-
-                <div className="col-lg-6">
-                  <div className="row gy-3 align-items-center ps-1 pt-3">
-                    <div className="col-lg-6">
-                      <Typography>A. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>B. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>C. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>D. Lorem Ipsum</Typography>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-lg-6">
-                  <div className="mt-5 d-flex justify-content-end">
-                    <Chip label=" D. Lorem Ipsum" color="success" />
-                  </div>
-                </div>
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>Q2 Lorem Ipsum</Accordion.Header>
             <Accordion.Body>
               <div className="row align-items-start">
                 <div className="col-lg-3">

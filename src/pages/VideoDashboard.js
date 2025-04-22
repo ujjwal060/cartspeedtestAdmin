@@ -245,8 +245,6 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy]);
 
-  console.log("videoFiles", videoFiles);
-
   return (
     <Box p={4}>
       <Box>
