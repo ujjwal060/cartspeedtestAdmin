@@ -17,10 +17,12 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useNavigate } from "react-router-dom";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const data = {
     totalUsers: 1024,
     newUsersThisMonth: 123,
@@ -154,7 +156,7 @@ const Dashboard = () => {
                   <Button
                     variant="contained"
                     color="secondary"
-                    href="/videos"
+                    onClick={() => navigate("/videos")}
                     className="mt-2 w-100"
                   >
                     View Videos
