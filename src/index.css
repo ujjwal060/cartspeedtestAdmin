@@ -28,6 +28,10 @@ code {
 
   box-shadow: none !important;
 }
+.accordion-button button:not(.collapsed) {
+  background-color: inherit !important;
+}
+
 .tableHead-custom th span:hover {
   cursor: all-scroll !important;
 }
@@ -46,6 +50,9 @@ code {
 }
 .accordion-button:not(.collapsed) {
   box-shadow: none !important;
+}
+.custom-accordion h2::after  {
+  display: none !important;
 }
 .data-table-changes .MuiDataGrid-footerContainer p {
   margin: 0 !important;
