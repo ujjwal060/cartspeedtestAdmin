@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useCallback  } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
@@ -18,7 +18,7 @@ import { debounce } from "lodash";
 import { LinearProgress } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
@@ -32,7 +32,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import Form from "react-bootstrap/Form";
-import { getVideos,deleteVideos } from "../api/video";
+import { getVideos, deleteVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -166,28 +166,33 @@ const VideoDashboard = () => {
     try {
       setLoading(true);
       const response = await getVideos(
-        token, 
-        offset, 
+        token,
+        offset,
         limit,
         sortBy,
         sortField,
         filters
       );
-      
+
       if (response.status === 200) {
         setGetVideo(response?.data);
         setTotalData(response?.total);
       }
     } catch (error) {
       console.error("Error fetching videos:", error);
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
- 
+
+  const deleteUploadedVideo = (id) => {
+    if (window.confirm("Delete this video?")) {
+      setVideoFiles((prev) => prev.filter((v) => v.id !== id));
+    }
+  };
   const handleDelete = async (videoId) => {
     try {
-      const res = await deleteVideos(videoId , token);
+      const res = await deleteVideos(videoId, token);
       toast.success(res.message[0]);
       fetchVideos();
     } catch (error) {
@@ -230,7 +235,7 @@ const VideoDashboard = () => {
     }, 2000),
     []
   );
-  
+
   useEffect(() => {
     fetchVideos();
   }, [currentPage]);
@@ -238,7 +243,9 @@ const VideoDashboard = () => {
   useEffect(() => {
     setCurrentPage(0);
     fetchVideos();
-  }, [filters,order, orderBy]);
+  }, [filters, order, orderBy]);
+
+  console.log("videoFiles", videoFiles);
 
   return (
     <Box p={4}>
@@ -295,10 +302,12 @@ const VideoDashboard = () => {
             </Button>
             <AddVideoOffcanvas
               open={open}
+              setOpen={setOpen} 
               handleClose={handleClose}
               selectedVideos={[]}
               videoFiles={videoFiles}
               setVideoFiles={setVideoFiles}
+              deleteUploadedVideo={deleteUploadedVideo}
             />
           </div>
         </div>
@@ -427,7 +436,9 @@ const VideoDashboard = () => {
                 )}
                 {getVideo.map((video, index) => (
                   <TableRow key={video._id || index}>
-                    <TableCell>{currentPage * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>
+                      {currentPage * rowsPerPage + index + 1}
+                    </TableCell>
                     <TableCell>{video.title}</TableCell>
                     <TableCell>{video.description}</TableCell>
                     <TableCell>{video.locationState}</TableCell>
@@ -442,7 +453,11 @@ const VideoDashboard = () => {
                         onClick={() => handlePlayOpen(video.url)}
                         style={{ cursor: "pointer" }}
                       />
-                      <DeleteIcon color="error" style={{ cursor: "pointer" }}  onClick={() => handleDelete(video._id)}/>
+                      <DeleteIcon
+                        color="error"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleDelete(video._id)}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

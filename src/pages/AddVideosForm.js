@@ -5,6 +5,7 @@ import { addVideos } from "../api/video";
 import { toast } from "react-toastify";
 const AddVideoOffcanvas = ({
   open,
+  setOpen,
   handleClose,
   selectedVideos,
   deleteUploadedVideo,
@@ -26,7 +27,7 @@ const AddVideoOffcanvas = ({
       fileurl: URL.createObjectURL(file),
       file: file,
     }));
-    setVideoFiles((prev) => [...prev, ...updatedFiles]);
+    setVideoFiles((prev) => [...updatedFiles]);
   };
 
   const handleVideoUpload = async (e) => {
@@ -54,6 +55,7 @@ const AddVideoOffcanvas = ({
         setValue("");
         setDescription("");
         setVideoFiles([]);
+        setOpen(false);
         handleClose();
         setIsSubmitting(false);
       }
@@ -79,7 +81,6 @@ const AddVideoOffcanvas = ({
                     id="fileupload"
                     className="file-upload-input"
                     onChange={handleVideoInput}
-                    multiple
                   />
                   <span>
                     Drag and drop or{" "}
@@ -122,7 +123,6 @@ const AddVideoOffcanvas = ({
               </div>
 
               <div className="row gy-4 mb-4">
-
                 <div className="col-lg-12">
                   <TextField
                     variant="outlined"
