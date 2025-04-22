@@ -7,28 +7,11 @@ const routeNames = {
   "/dashboard": "Dashboard",
   "/users": "Users",
   "/videos": "Videos",
-  "/tests": "Tests",
+  "/assessment": "Assessments",
 };
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
-  // const navigate = useNavigate();
-
-  // const [anchorEl, setAnchorEl] = useState(null);
-
-  // const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  // const handleMenuClose = () => setAnchorEl(null);
-
-  // const handleProfile = () => {
-  //   handleMenuClose();
-  //   navigate('/profile');
-  // };
-
-  // const handleLogout = () => {
-  //   localStorage.clear();
-  //   navigate('/login');
-  // };
-
   const currentRouteName = routeNames[location.pathname] || "Welcome";
 
   return (
@@ -36,7 +19,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
       position="fixed"
       sx={{
         width: {
-          xs: "100%", // <768px
+          xs: "100%",
           md: sidebarOpen ? "calc(100% - 240px)" : "100%",
         },
         ml: {
