@@ -10,6 +10,7 @@ import Accordion from "react-bootstrap/Accordion";
 import { getQA } from "../api/test";
 import AddTestFormFile from "./AddTestForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import TablePagination from "@mui/material/TablePagination";
 
 const TestDashboard = () => {
   const rowsPerPage = 10;
@@ -62,9 +63,8 @@ const TestDashboard = () => {
           <Button
             variant="contained"
             color="primary"
-            className="mb-3 "
+            className="rounded-4 d-flex gap-1 flex-row "
             onClick={handleShow}
-            className="rounded-4 d-flex gap-1 flex-row"
           >
             <AddCircleOutlineIcon />
             Add Test
@@ -116,6 +116,14 @@ const TestDashboard = () => {
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
+        <TablePagination
+          rowsPerPageOptions={[rowsPerPage]}
+          component="div"
+          className="paginated-custom"
+          count={10}
+          rowsPerPage={rowsPerPage}
+          page={currentPage}
+        />
       </Box>
       <AddTestFormFile handleClose={handleClose} show={show} />
     </Box>
