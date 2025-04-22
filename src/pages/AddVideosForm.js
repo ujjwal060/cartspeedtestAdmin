@@ -64,6 +64,13 @@ const AddVideoOffcanvas = ({
     }
   };
 
+  const modalClose = () => {
+    setTitle("");
+    setValue("");
+    setVideoFiles([]);
+    setDescription("");
+  }
+
   return (
     <Offcanvas show={open} onHide={handleClose} placement={"end"}>
       <Offcanvas.Header closeButton>
@@ -180,19 +187,21 @@ const AddVideoOffcanvas = ({
                 </div>
               </div>
 
-              <div className="kb-buttons-box d-flex justify-content-center gap-2">
+              <div className="kb-buttons-box d-flex justify-content-end gap-2">
                 <Button
-                  onClick={handleClose}
+                  onClick={modalClose}
                   color="error"
                   variant="contained"
+                  className="rounded-4"
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  Reset
                 </Button>
                 <Button
                   type="submit"
                   color="success"
                   variant="contained"
+                  className="rounded-4"
                   disabled={isSubmitting}
                   loading={isSubmitting}
                   loadingPosition="start"

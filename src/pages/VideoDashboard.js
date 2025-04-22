@@ -186,9 +186,7 @@ const VideoDashboard = () => {
   };
 
   const deleteUploadedVideo = (id) => {
-    if (window.confirm("Delete this video?")) {
-      setVideoFiles((prev) => prev.filter((v) => v.id !== id));
-    }
+    setVideoFiles((prev) => prev.filter((v) => v.id !== id));
   };
   const handleDelete = async (videoId) => {
     try {
@@ -300,7 +298,7 @@ const VideoDashboard = () => {
             </Button>
             <AddVideoOffcanvas
               open={open}
-              setOpen={setOpen} 
+              setOpen={setOpen}
               handleClose={handleClose}
               selectedVideos={[]}
               videoFiles={videoFiles}
