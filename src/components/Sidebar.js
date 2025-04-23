@@ -116,7 +116,7 @@ const Sidebar = () => {
   };
   const currentRouteName = routeNames[location.pathname] || "Welcome";
   const handleDrawerOpen = () => {
-    setOpen(true);
+    setOpen(!open);
   };
 
   const handleDrawerClose = () => {
@@ -146,8 +146,11 @@ const Sidebar = () => {
       <CssBaseline />
       <AppBar
         position="fixed"
+        className={`${open ? "" : "appbar-open"}`}
         open={open}
         sx={{
+          width: `calc(100% - ${open ? drawerWidth : 0}px)`,
+          marginLeft: open ? drawerWidth : 0,
           transition: "all 0.3s",
           background: "linear-gradient(to right, #3f87a6, #ebf8e1)",
           zIndex: (theme) => theme.zIndex.drawer + 1,
@@ -161,7 +164,6 @@ const Sidebar = () => {
             edge="start"
             sx={{
               marginRight: 5,
-              ...(open && { display: "none" }),
             }}
           >
             <MenuIcon />
@@ -173,27 +175,30 @@ const Sidebar = () => {
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
-          <Box sx={{ display: "flex", width: "100%", alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: open ? "flex-start" : "center",
+            }}
+          >
+            <Avatar
+              alt="Company Logo"
+              src={user.logo}
+              sx={{
+                width: open ? 56 : 40,
+                height: open ? 56 : 40,
+                marginRight: open ? "12px" : 0,
+                transition: "all 0.3s ease",
+              }}
+            />
             {open && (
-              <>
-                <Avatar
-                  alt="Company Logo"
-                  src={user.logo}
-                  sx={{ width: 56, height: 56, marginRight: "12px" }}
-                />
-                <Box>
-                  <Typography variant="h7">{user.companyName}</Typography>
-                  <Typography>{user.role}</Typography>
-                </Box>
-              </>
+              <Box>
+                <Typography variant="h7">{user.companyName}</Typography>
+                <Typography>{user.role}</Typography>
+              </Box>
             )}
-            <IconButton onClick={handleDrawerClose} sx={{ ml: "auto" }}>
-              {theme.direction === "rtl" ? (
-                <ChevronRightIcon />
-              ) : (
-                <ChevronLeftIcon />
-              )}
-            </IconButton>
           </Box>
         </DrawerHeader>
         <Divider />
