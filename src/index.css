@@ -171,17 +171,17 @@ code {
   margin-bottom: 8px;
 }
 .table-custom-level .easy {
-  color: #d4edda !important;
-  background-color: #155724 !important;
+  background-color: #d4edda !important;
+  color: #155724 !important;
 }
 .table-custom-level .hard {
-  color: #f8d7da !important;
-  background-color: #721c24 !important;
+  background-color: #f8d7e2 !important;
+  color: #721c24 !important;
 }
 
 .table-custom-level .medium {
-  color: #fff3cd !important;
-  background-color: #856404 !important;
+  background-color: #fff3cd !important;
+  color: #856404 !important;
 }
 .file-detail p {
   font-size: 12px;

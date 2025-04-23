@@ -373,25 +373,35 @@ const VideoDashboard = () => {
                         }
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="">
                       <FormControl
                         size="small"
+                        className="mb-2"
                         style={{ width: "100px" }}
                         variant="standard"
                       >
                         <InputLabel id="demo-simple-select-label">
-                          Select Level
+                          Level
                         </InputLabel>
                         <Select
                           labelId="demo-simple-select-label"
                           id="demo-simple-select"
                           value={level}
-                          label="Select Level"
+                          label="Level"
                           onChange={handleChange}
+                          className="table-custom-level"
                         >
-                          <MenuItem value={"Easy"}>Easy</MenuItem>
-                          <MenuItem value={"Medium"}>Medium</MenuItem>
-                          <MenuItem value={"Hard"}>Hard</MenuItem>
+                          <MenuItem value={"Easy"}>
+                            {" "}
+                            <Chip label="Easy" className="easy" />
+                          </MenuItem>
+                          <MenuItem value={"Medium"}>
+                            <Chip label="Medium" className="medium" />
+                          </MenuItem>
+                          <MenuItem value={"Hard"}>
+                            {" "}
+                            <Chip label="Hard" className="hard " />
+                          </MenuItem>
                         </Select>
                       </FormControl>
                     </TableCell>
@@ -453,8 +463,11 @@ const VideoDashboard = () => {
                     </TableCell> */}
                     <TableCell>{video.title}</TableCell>
                     <TableCell>{video.description}</TableCell>
-                    <TableCell className={`${video?.level?.toLowerCase()}`}>
-                      {video?.level}
+                    <TableCell>
+                      <Chip
+                        label={` ${video?.level}`}
+                        className={`${video?.level?.toLowerCase()}`}
+                      />
                     </TableCell>
                     <TableCell>{video.locationState}</TableCell>
                     <TableCell>{video.uploadedBy?.name}</TableCell>
