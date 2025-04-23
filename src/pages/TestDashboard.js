@@ -16,8 +16,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import "../index.css";
 import Loader from "../components/Loader";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 const TestDashboard = () => {
   const rowsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(0);
