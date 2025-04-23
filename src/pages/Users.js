@@ -1,39 +1,28 @@
 import React, { useEffect, useState, useCallback } from "react";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
   Paper,
-  Button,
-  Dialog,
-  DialogContent,
-  Slide,
+
   Chip,
   Tooltip,
   Stack,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import ReactPlayer from "react-player";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { debounce } from "lodash";
 import { LinearProgress } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import { toast } from "react-toastify";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
 import { getAllUsers } from "../api/users";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const rowsPerPage = 10;
 
 const headCells = [
@@ -76,7 +65,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Date",
-  }
+  },
 ];
 
 function EnhancedTableHead(props) {
@@ -123,18 +112,16 @@ function EnhancedTableHead(props) {
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [getVideo, setGetVideo] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
   const [totalData, setTotalData] = useState([]);
   const [openFilter, setOpenFilter] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({});
-  const today = dayjs().startOf("day");
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
-
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
@@ -191,6 +178,15 @@ const VideoDashboard = () => {
     []
   );
 
+  const handleDateChange = (update) => {
+    setDateRange(update);
+    setFilters((prev) => ({
+      ...prev,
+      startDate: update[0],
+      endDate: update[1],
+    }));
+  };
+
   useEffect(() => {
     fetchVideos();
   }, [currentPage]);
@@ -203,38 +199,20 @@ const VideoDashboard = () => {
   return (
     <Box p={4}>
       <Box>
-        <div className="d-flex justify-content-between gap-2 align-items-center pad-root">
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer
-              components={["DateRangePicker"]}
-              className="d-flex flex-row gap-3"
-            >
-              <DatePicker
-                label="Start Date"
-                value={startDate}
-                sx={{ width: "200px" }}
-                size="small"
-                onChange={(newValue) => {
-                  setStartDate(newValue);
-                  if (endDate && newValue && newValue.isAfter(endDate)) {
-                    setEndDate(null);
-                  }
-                }}
-                minDate={today}
-              />
+        <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
+          <div className="custom-picker">
+            <CalendarMonthIcon className="svg-custom" />
+            <DatePicker
+              selectsRange={true}
+              startDate={startDate}
+              endDate={endDate}
+              onChange={handleDateChange}
+              isClearable={true}
+              placeholderText="Select date range"
+              className="form-control"
+            />
+          </div>
 
-              <DatePicker
-                label="End Date"
-                value={endDate}
-                sx={{ width: "200px" }}
-                size="small"
-                onChange={setEndDate}
-                minDate={
-                  startDate ? startDate.add(1, "day") : today.add(1, "day")
-                }
-              />
-            </DemoContainer>
-          </LocalizationProvider>
           <div className="d-flex justify-content-end gap-3 align-items-center">
             <Tooltip title="filter">
               <FilterListIcon

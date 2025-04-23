@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
 import React, { Suspense, lazy } from "react";
 import { Box } from "@mui/material";
 import Layout from "./components/Layout";

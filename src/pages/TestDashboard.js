@@ -16,6 +16,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import "../index.css";
 import Loader from "../components/Loader";
+
 const TestDashboard = () => {
   const rowsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(0);
@@ -117,7 +118,7 @@ const TestDashboard = () => {
             onClick={handleShow}
           >
             <AddCircleOutlineIcon />
-            Add Assessment
+            Assessment
           </Button>
         </div>
 
