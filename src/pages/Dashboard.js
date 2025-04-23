@@ -148,37 +148,41 @@ const Dashboard = () => {
           <div className="col-lg-4">
             <Grid size={{ xs: 12 }} className="mb-2">
               <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Tests Overview
-                  </Typography>
-                  <Typography variant="body1">
-                    Total Tests: {data.totalTests || 0}
-                  </Typography>
-                  <Typography variant="body1">
-                    Passed: {data.passedTests || 0}
-                  </Typography>
-                </CardContent>
+                <CardActionArea>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Tests Overview
+                    </Typography>
+                    <Typography variant="body1">
+                      Total Tests: {data.totalTests || 0}
+                    </Typography>
+                    <Typography variant="body1">
+                      Passed: {data.passedTests || 0}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
               </Card>
             </Grid>
 
             {/* Certificates Issued */}
             <Grid size={{ xs: 12 }} className="mb-2">
               <Card>
-                <CardContent>
-                  <Typography variant="h6">Certificates Issued</Typography>
-                  <Typography variant="body1">
-                    Total Certificates: {data.certificatesIssued || 0}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    href="/issue-certificate"
-                    className="mt-2 w-100"
-                  >
-                    Issue Certificate
-                  </Button>
-                </CardContent>
+                <CardActionArea>
+                  <CardContent>
+                    <Typography variant="h6">Certificates Issued</Typography>
+                    <Typography variant="body1">
+                      Total Certificates: {data.certificatesIssued || 0}
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      href="/issue-certificate"
+                      className="mt-2 w-100"
+                    >
+                      Issue Certificate
+                    </Button>
+                  </CardContent>
+                </CardActionArea>
               </Card>
             </Grid>
 

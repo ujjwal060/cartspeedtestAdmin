@@ -81,7 +81,7 @@ const headCells = [
     id: "uploadedBy.name",
     numeric: false,
     disablePadding: false,
-    label: "Uploaded By",
+    label: "Uploaded",
     disableSort: true,
   },
   {
@@ -277,6 +277,7 @@ const VideoDashboard = () => {
               isClearable={true}
               placeholderText="Select date range"
               className="form-control"
+              maxDate={new Date()} 
             />
           </div>
 

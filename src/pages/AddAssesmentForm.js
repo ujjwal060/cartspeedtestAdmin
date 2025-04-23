@@ -10,7 +10,7 @@ import Select from "@mui/material/Select";
 import { addQA } from "../api/test";
 import { toast } from "react-toastify";
 
-export default function AddTestFormFile({ handleClose, show }) {
+export default function AddAssesmentFormFile({ handleClose, show }) {
   const [state, setState] = React.useState(null);
   const [answerValue, setAnswerValue] = React.useState(null);
   const [age, setAge] = React.useState("");
