@@ -1,12 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import {
-  Box,
-  Paper,
-
-  Chip,
-  Tooltip,
-  Stack,
-} from "@mui/material";
+import { Box, Paper, Chip, Tooltip, Stack } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { debounce } from "lodash";
 import { LinearProgress } from "@mui/material";
@@ -210,6 +203,7 @@ const VideoDashboard = () => {
               isClearable={true}
               placeholderText="Select date range"
               className="form-control"
+              maxDate={new Date()}
             />
           </div>
 
@@ -328,16 +322,16 @@ const VideoDashboard = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[rowsPerPage]}
-            component="div"
-            className="paginated-custom"
-            count={totalData}
-            rowsPerPage={rowsPerPage}
-            page={currentPage}
-            onPageChange={handleChangePage}
-          />
         </Paper>
+        <TablePagination
+          rowsPerPageOptions={[rowsPerPage]}
+          component="div"
+          className="paginated-custom"
+          count={totalData}
+          rowsPerPage={rowsPerPage}
+          page={currentPage}
+          onPageChange={handleChangePage}
+        />
       </Box>
     </Box>
   );

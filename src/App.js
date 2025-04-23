@@ -11,7 +11,7 @@ import Layout from "./components/Layout";
 import { ToastContainer } from "react-toastify";
 import Watermark from "./components/Watermark";
 import Loader from "./components/Loader";
-import TestDashboard from "./pages/TestDashboard";
+import AssesmentDashboard from "./pages/AssesmentDashboard";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -51,7 +51,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/Videos" element={<VideoDashboard />} />
-                <Route path="/assessment" element={<TestDashboard />} />
+                <Route path="/assessment" element={<AssesmentDashboard />} />
               </Route>
             </Routes>
           </Suspense>

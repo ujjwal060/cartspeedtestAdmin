@@ -8,7 +8,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
 import { getQA } from "../api/test";
-import AddTestFormFile from "./AddTestForm";
+import AddAssesmentFormFile from "./AddAssesmentForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import TablePagination from "@mui/material/TablePagination";
 import "../components/css/accordion-level-styles.css";
@@ -17,7 +17,7 @@ import LocationPinIcon from "@mui/icons-material/LocationPin";
 import "../index.css";
 import Loader from "../components/Loader";
 
-const TestDashboard = () => {
+const AssesmentDashboard = () => {
   const rowsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(0);
   const [filters, setFilters] = useState({});
@@ -197,9 +197,9 @@ const TestDashboard = () => {
           onPageChange={handleChangePage}
         />
       </Box>
-      <AddTestFormFile handleClose={handleClose} show={show} />
+      <AddAssesmentFormFile handleClose={handleClose} show={show} />
     </Box>
   );
 };
 
-export default TestDashboard;
+export default AssesmentDashboard;
