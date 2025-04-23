@@ -16,8 +16,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import "../index.css";
 import Loader from "../components/Loader";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 const TestDashboard = () => {
   const rowsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(0);
@@ -31,8 +30,6 @@ const TestDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const token = localStorage.getItem("token");
   const [level, setLevel] = useState("");
-  const [dateRange, setDateRange] = useState([null, null]);
-  const [startDate, endDate] = dateRange;
 
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
@@ -63,15 +60,6 @@ const TestDashboard = () => {
     setFilters((prev) => ({ ...prev, level: selectedLevel }));
   };
 
-  const handleDateChange = (update) => {
-    setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1]
-    }));
-  };
-  
   useEffect(() => {
     fetchQA();
   }, [currentPage, filters]);

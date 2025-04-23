@@ -119,8 +119,8 @@ export default function AddTestFormFile({ handleClose, show }) {
             }}
           />
           <div className="row gy-4 mt-4">
-            <div className="col-lg-6 me-auto">
-              <FormControl size="small" className="w-100">
+            <div className="col-lg-12 me-auto">
+              <FormControl size="small" className="w-100"  variant="standard" >
                 <InputLabel id="demo-simple-select-label">
                   Select Level
                 </InputLabel>

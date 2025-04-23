@@ -3,6 +3,10 @@ import { Button, TextField } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { addVideos } from "../api/video";
 import { toast } from "react-toastify";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
 const AddVideoOffcanvas = ({
   open,
   setOpen,
@@ -16,7 +20,11 @@ const AddVideoOffcanvas = ({
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [level, setLevel] = useState("");
 
+  const handleChange = (event) => {
+    setLevel(event.target.value);
+  };
   const handleVideoInput = (e) => {
     const files = Array.from(e.target.files);
     const updatedFiles = files.map((file, index) => ({
@@ -39,7 +47,7 @@ const AddVideoOffcanvas = ({
     formData.append("title", title);
     formData.append("state", value);
     formData.append("description", description);
-
+    formData.append("level", level);
     videoFiles.forEach((vid) => {
       formData.append("image", vid.file);
     });
@@ -69,7 +77,7 @@ const AddVideoOffcanvas = ({
     setValue("");
     setVideoFiles([]);
     setDescription("");
-  }
+  };
 
   return (
     <Offcanvas show={open} onHide={handleClose} placement={"end"}>
@@ -187,27 +195,52 @@ const AddVideoOffcanvas = ({
                 </div>
               </div>
 
-              <div className="kb-buttons-box d-flex justify-content-end gap-2">
-                <Button
-                  onClick={modalClose}
-                  color="error"
-                  variant="contained"
-                  className="rounded-4"
-                  disabled={isSubmitting}
-                >
-                  Reset
-                </Button>
-                <Button
-                  type="submit"
-                  color="success"
-                  variant="contained"
-                  className="rounded-4"
-                  disabled={isSubmitting}
-                  loading={isSubmitting}
-                  loadingPosition="start"
-                >
-                  Save
-                </Button>
+              <div className="kb-buttons-box d-flex justify-content-between gap-4 align-items-center">
+                <div className="w-100">
+                  {" "}
+                  <FormControl
+                    size="small"
+                    className="w-100"
+                    variant="standard"
+                  >
+                    <InputLabel id="demo-simple-select-label">
+                      Select Level
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={level}
+                      label="Select Level"
+                      onChange={handleChange}
+                    >
+                      <MenuItem value={"Easy"}>Easy</MenuItem>
+                      <MenuItem value={"Medium"}>Medium</MenuItem>
+                      <MenuItem value={"Hard"}>Hard</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                <div className="w-100 d-flex gap-2">
+                  <Button
+                    onClick={modalClose}
+                    color="error"
+                    variant="contained"
+                    className="rounded-4"
+                    disabled={isSubmitting}
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    type="submit"
+                    color="success"
+                    variant="contained"
+                    className="rounded-4"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                    loadingPosition="start"
+                  >
+                    Save
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

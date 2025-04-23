@@ -11,6 +11,10 @@ import {
   Tooltip,
   Stack,
 } from "@mui/material";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ReactPlayer from "react-player";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -26,7 +30,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
 import { getVideos, deleteVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
@@ -39,13 +43,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const rowsPerPage = 10;
 
 const headCells = [
-  {
-    id: "id",
-    numeric: true,
-    disablePadding: false,
-    label: "S.No",
-    disableSort: true,
-  },
+  // {
+  //   id: "id",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "S.No",
+  //   disableSort: true,
+  // },
   {
     id: "title",
     numeric: false,
@@ -57,6 +61,13 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Description",
+    disableSort: true,
+  },
+  {
+    id: "level",
+    numeric: false,
+    disablePadding: false,
+    label: "level",
     disableSort: true,
   },
   {
@@ -155,7 +166,10 @@ const VideoDashboard = () => {
   const token = localStorage.getItem("token");
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
-
+  const [level, setLevel] = useState("");
+  const handleChange = (event) => {
+    setLevel(event.target.value);
+  };
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
@@ -254,16 +268,16 @@ const VideoDashboard = () => {
       <Box>
         <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
           <div className="custom-picker">
-        <CalendarMonthIcon className="svg-custom"/>
-        <DatePicker
-            selectsRange={true}
-            startDate={startDate}
-            endDate={endDate}
-            onChange={handleDateChange}
-            isClearable={true}
-            placeholderText="Select date range"
-            className="form-control"
-          />
+            <CalendarMonthIcon className="svg-custom" />
+            <DatePicker
+              selectsRange={true}
+              startDate={startDate}
+              endDate={endDate}
+              onChange={handleDateChange}
+              isClearable={true}
+              placeholderText="Select date range"
+              className="form-control"
+            />
           </div>
 
           <div className="d-flex justify-content-end gap-3 align-items-center">
@@ -360,15 +374,26 @@ const VideoDashboard = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      {/* <Form.Control
-                        id="filter-description"
-                        placeholder="Description"
-                        value={inputValue.description}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("description", e.target.value)
-                        }
-                      /> */}
+                      <FormControl
+                        size="small"
+                        style={{ width: "100px" }}
+                        variant="standard"
+                      >
+                        <InputLabel id="demo-simple-select-label">
+                          Select Level
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-label"
+                          id="demo-simple-select"
+                          value={level}
+                          label="Select Level"
+                          onChange={handleChange}
+                        >
+                          <MenuItem value={"Easy"}>Easy</MenuItem>
+                          <MenuItem value={"Medium"}>Medium</MenuItem>
+                          <MenuItem value={"Hard"}>Hard</MenuItem>
+                        </Select>
+                      </FormControl>
                     </TableCell>
                     <TableCell>
                       <Form.Control
@@ -419,12 +444,18 @@ const VideoDashboard = () => {
                   </TableRow>
                 )}
                 {getVideo.map((video, index) => (
-                  <TableRow key={video._id || index}>
-                    <TableCell>
+                  <TableRow
+                    key={video._id || index}
+                    className="table-custom-level"
+                  >
+                    {/* <TableCell>
                       {currentPage * rowsPerPage + index + 1}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>{video.title}</TableCell>
                     <TableCell>{video.description}</TableCell>
+                    <TableCell className={`${video?.level?.toLowerCase()}`}>
+                      {video?.level}
+                    </TableCell>
                     <TableCell>{video.locationState}</TableCell>
                     <TableCell>{video.uploadedBy?.name}</TableCell>
                     <TableCell>
@@ -448,17 +479,16 @@ const VideoDashboard = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[rowsPerPage]}
-            component="div"
-            className="paginated-custom"
-            count={totalData}
-            rowsPerPage={rowsPerPage}
-            page={currentPage}
-            onPageChange={handleChangePage}
-          />
         </Paper>
-
+        <TablePagination
+          rowsPerPageOptions={[rowsPerPage]}
+          component="div"
+          className="paginated-custom"
+          count={totalData}
+          rowsPerPage={rowsPerPage}
+          page={currentPage}
+          onPageChange={handleChangePage}
+        />
         <Dialog
           open={playOpen}
           TransitionComponent={Transition}

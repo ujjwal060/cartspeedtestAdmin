@@ -43,6 +43,7 @@ code {
 .custom-picker {
   position: relative !important;
 }
+
 .custom-picker .svg-custom {
   position: absolute !important;
   right: 35px !important;
@@ -168,6 +169,19 @@ code {
   font-weight: 500;
   line-height: 20px;
   margin-bottom: 8px;
+}
+.table-custom-level .easy {
+  color: #d4edda !important;
+  background-color: #155724 !important;
+}
+.table-custom-level .hard {
+  color: #f8d7da !important;
+  background-color: #721c24 !important;
+}
+
+.table-custom-level .medium {
+  color: #fff3cd !important;
+  background-color: #856404 !important;
 }
 .file-detail p {
   font-size: 12px;
