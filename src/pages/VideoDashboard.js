@@ -26,15 +26,12 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
+
 import Form from "react-bootstrap/Form";
 import { getVideos, deleteVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -141,8 +138,7 @@ function EnhancedTableHead(props) {
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [getVideo, setGetVideo] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+
   const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
@@ -153,11 +149,12 @@ const VideoDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({});
-  const today = dayjs().startOf("day");
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
 
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
@@ -234,6 +231,15 @@ const VideoDashboard = () => {
     []
   );
 
+  const handleDateChange = (update) => {
+    setDateRange(update);
+    setFilters((prev) => ({
+      ...prev,
+      startDate: update[0],
+      endDate: update[1],
+    }));
+  };
+
   useEffect(() => {
     fetchVideos();
   }, [currentPage]);
@@ -247,37 +253,16 @@ const VideoDashboard = () => {
     <Box p={4}>
       <Box>
         <div className="d-flex justify-content-between gap-2 align-items-center pad-root">
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer
-              components={["DateRangePicker"]}
-              className="d-flex flex-row gap-3"
-            >
-              <DatePicker
-                label="Start Date"
-                value={startDate}
-                sx={{ width: "200px" }}
-                size="small"
-                onChange={(newValue) => {
-                  setStartDate(newValue);
-                  if (endDate && newValue && newValue.isAfter(endDate)) {
-                    setEndDate(null);
-                  }
-                }}
-                minDate={today}
-              />
+          <DatePicker
+            selectsRange={true}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={handleDateChange}
+            isClearable={true}
+            placeholderText="Select date range"
+            className="form-control"
+          />
 
-              <DatePicker
-                label="End Date"
-                value={endDate}
-                sx={{ width: "200px" }}
-                size="small"
-                onChange={setEndDate}
-                minDate={
-                  startDate ? startDate.add(1, "day") : today.add(1, "day")
-                }
-              />
-            </DemoContainer>
-          </LocalizationProvider>
           <div className="d-flex justify-content-end gap-3 align-items-center">
             <Tooltip title="filter">
               <FilterListIcon
@@ -294,7 +279,7 @@ const VideoDashboard = () => {
               className="rounded-4 d-flex gap-1 flex-row"
             >
               <AddCircleOutlineIcon />
-              Add Video
+              Video
             </Button>
             <AddVideoOffcanvas
               open={open}

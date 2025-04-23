@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Card,
@@ -31,8 +31,8 @@ const Dashboard = () => {
     topStates: [],
     newUsersThisMonth: 0,
     totalTests: 10,
-    passedTests:10,
-    certificatesIssued: 10
+    passedTests: 10,
+    certificatesIssued: 10,
   });
 
   const fetchData = async () => {
@@ -46,9 +46,11 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchData()
-  })
-  const sortedStates = [...data.topStates].sort((a, b) => a.state.localeCompare(b.state));
+    fetchData();
+  });
+  const sortedStates = [...data.topStates].sort((a, b) =>
+    a.state.localeCompare(b.state)
+  );
   const chartData = {
     labels: sortedStates.map((state) => state.state),
     datasets: [
@@ -74,7 +76,6 @@ const Dashboard = () => {
     ],
   };
 
-
   return (
     <div className="container-fluid">
       <Box sx={{ padding: "24px" }}>
@@ -85,7 +86,10 @@ const Dashboard = () => {
         {/* Top Summary Cards */}
         <Grid container spacing={3} sx={{ marginBottom: 2 }}>
           <Grid size={{ xs: 12, sm: 4 }}>
-            <Card sx={{ backgroundColor: "#f0f4ff" }}>
+            <Card
+              sx={{ backgroundColor: "#f0f4ff" }}
+              onClick={() => navigate("/users")}
+            >
               <CardActionArea>
                 <CardContent>
                   <Typography variant="subtitle2" color="textSecondary">
