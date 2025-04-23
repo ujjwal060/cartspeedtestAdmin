@@ -373,7 +373,7 @@ const VideoDashboard = () => {
                         }
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="">
                       <FormControl
                         size="small"
                         className="mb-2"
@@ -389,10 +389,19 @@ const VideoDashboard = () => {
                           value={level}
                           label="Level"
                           onChange={handleChange}
+                          className="table-custom-level"
                         >
-                          <MenuItem value={"Easy"}>Easy</MenuItem>
-                          <MenuItem value={"Medium"}>Medium</MenuItem>
-                          <MenuItem value={"Hard"}>Hard</MenuItem>
+                          <MenuItem value={"Easy"}>
+                            {" "}
+                            <Chip label="Easy" className="easy" />
+                          </MenuItem>
+                          <MenuItem value={"Medium"}>
+                            <Chip label="Medium" className="medium" />
+                          </MenuItem>
+                          <MenuItem value={"Hard"}>
+                            {" "}
+                            <Chip label="Hard" className="hard " />
+                          </MenuItem>
                         </Select>
                       </FormControl>
                     </TableCell>
