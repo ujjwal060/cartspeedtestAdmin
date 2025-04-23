@@ -18,7 +18,7 @@ import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
-
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { text: "Users", link: "/users", icon: <PeopleIcon /> },
     { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
     { text: "Assessment ", link: "/assessment", icon: <AssignmentIcon /> },
-    { text: "Test ", link: "/test", icon: <AssignmentIcon /> },
+    { text: "Test ", link: "/test", icon: <PendingActionsIcon /> },
     {
       text: "Certificate ",
       link: "/certificate",
