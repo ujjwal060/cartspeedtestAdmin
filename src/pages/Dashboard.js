@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState,useEffect } from "react";
 import {
   Grid,
   Card,
@@ -18,28 +18,45 @@ import {
   Legend,
 } from "chart.js";
 import { useNavigate } from "react-router-dom";
+import { getAll } from "../api/dashboard";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const data = {
-    totalUsers: 1024,
-    newUsersThisMonth: 123,
-    activeUsers: 240,
-    totalTests: 87,
-    passedTests: 66,
-    certificatesIssued: 54,
+  const [data, setData] = useState({
+    totalUsers: 0,
+    thisMonthUsers: 0,
+    activeUsers: 10,
+    topStates: [],
+    newUsersThisMonth: 0,
+    totalTests: 10,
+    passedTests:10,
+    certificatesIssued: 10
+  });
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await getAll(token);
+      setData(res);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
   };
 
+  useEffect(() => {
+    fetchData()
+  })
+  const sortedStates = [...data.topStates].sort((a, b) => a.state.localeCompare(b.state));
   const chartData = {
-    labels: ["Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata"],
+    labels: sortedStates.map((state) => state.state),
     datasets: [
       {
         label: "Users",
-        data: [40, 60, 30, 20, 50],
+        data: sortedStates.map((state) => state.count),
         backgroundColor: [
-          "rgba(255, 99, 132, 0.6)", 
+          "rgba(255, 99, 132, 0.6)",
           "rgba(54, 162, 235, 0.6)",
           "rgba(255, 206, 86, 0.6)",
           "rgba(75, 192, 192, 0.6)",
@@ -56,7 +73,7 @@ const Dashboard = () => {
       },
     ],
   };
-  
+
 
   return (
     <div className="container-fluid">
@@ -89,7 +106,7 @@ const Dashboard = () => {
                     New This Month
                   </Typography>
                   <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.newUsersThisMonth}
+                    {data.newUsersThisMonth || 0}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -103,7 +120,7 @@ const Dashboard = () => {
                     Active Users
                   </Typography>
                   <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.activeUsers}
+                    {data.activeUsers || 0}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -132,10 +149,10 @@ const Dashboard = () => {
                     Tests Overview
                   </Typography>
                   <Typography variant="body1">
-                    Total Tests: {data.totalTests}
+                    Total Tests: {data.totalTests || 0}
                   </Typography>
                   <Typography variant="body1">
-                    Passed: {data.passedTests}
+                    Passed: {data.passedTests || 0}
                   </Typography>
                 </CardContent>
               </Card>
@@ -147,7 +164,7 @@ const Dashboard = () => {
                 <CardContent>
                   <Typography variant="h6">Certificates Issued</Typography>
                   <Typography variant="body1">
-                    Total Certificates: {data.certificatesIssued}
+                    Total Certificates: {data.certificatesIssued || 0}
                   </Typography>
                   <Button
                     variant="contained"
