@@ -222,10 +222,6 @@ code {
 }
 
 @media screen and (min-width: 800px) {
-  .content-open {
-    width: calc(100% - 240px) !important;
-    margin-left: auto !important;
-  }
 }
 @media screen and (max-width: 800px) {
   .css-dkbq3b-MuiDrawer-docked .MuiDrawer-paper {
