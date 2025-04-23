@@ -30,8 +30,6 @@ const TestDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const token = localStorage.getItem("token");
   const [level, setLevel] = useState("");
-  const [dateRange, setDateRange] = useState([null, null]);
-  const [startDate, endDate] = dateRange;
 
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
@@ -62,15 +60,6 @@ const TestDashboard = () => {
     setFilters((prev) => ({ ...prev, level: selectedLevel }));
   };
 
-  const handleDateChange = (update) => {
-    setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1]
-    }));
-  };
-  
   useEffect(() => {
     fetchQA();
   }, [currentPage, filters]);
