@@ -36,6 +36,19 @@ code {
   width: 82.4% !important;
   height: 89% !important;
 }
+.react-datepicker-wrapper input {
+  width: 280px !important;
+  padding-right: 70px !important;
+}
+.custom-picker {
+  position: relative !important;
+}
+.custom-picker .svg-custom {
+  position: absolute !important;
+  right: 35px !important;
+  top: 6px !important;
+  z-index: 1;
+}
 .accordion-button button {
   background-color: inherit !important;
 }

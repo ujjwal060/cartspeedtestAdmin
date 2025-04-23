@@ -26,7 +26,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Form from "react-bootstrap/Form";
 import { getVideos, deleteVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
@@ -252,8 +252,10 @@ const VideoDashboard = () => {
   return (
     <Box p={4}>
       <Box>
-        <div className="d-flex justify-content-between gap-2 align-items-center pad-root">
-          <DatePicker
+        <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
+          <div className="custom-picker">
+        <CalendarMonthIcon className="svg-custom"/>
+        <DatePicker
             selectsRange={true}
             startDate={startDate}
             endDate={endDate}
@@ -262,6 +264,7 @@ const VideoDashboard = () => {
             placeholderText="Select date range"
             className="form-control"
           />
+          </div>
 
           <div className="d-flex justify-content-end gap-3 align-items-center">
             <Tooltip title="filter">
