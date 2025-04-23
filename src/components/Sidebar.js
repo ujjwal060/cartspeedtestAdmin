@@ -17,6 +17,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
+import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
@@ -38,6 +39,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { text: "Users", link: "/users", icon: <PeopleIcon /> },
     { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
     { text: "Assessment ", link: "/assessment", icon: <AssignmentIcon /> },
+    { text: "Test ", link: "/test", icon: <AssignmentIcon /> },
+    {
+      text: "Certificate ",
+      link: "/certificate",
+      icon: <WorkspacePremiumIcon />,
+    },
   ];
 
   return (
