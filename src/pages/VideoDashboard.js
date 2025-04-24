@@ -317,6 +317,7 @@ const VideoDashboard = () => {
               videoFiles={videoFiles}
               setVideoFiles={setVideoFiles}
               deleteUploadedVideo={deleteUploadedVideo}
+              onVideoUploaded={fetchVideos}
             />
           </div>
         </div>

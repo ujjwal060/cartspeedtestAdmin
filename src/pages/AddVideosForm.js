@@ -11,7 +11,7 @@ const AddVideoOffcanvas = ({
   open,
   setOpen,
   handleClose,
-  selectedVideos,
+  onVideoUploaded,
   deleteUploadedVideo,
   videoFiles,
   setVideoFiles,
@@ -62,10 +62,12 @@ const AddVideoOffcanvas = ({
         setTitle("");
         setValue("");
         setDescription("");
+        setLevel("");
         setVideoFiles([]);
         setOpen(false);
         handleClose();
         setIsSubmitting(false);
+        onVideoUploaded()
       }
     } catch (err) {
       console.error("Video upload failed:", err);
