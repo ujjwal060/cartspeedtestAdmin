@@ -96,6 +96,7 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Status",
+    disableSort: true,
   },
   {
     id: "actions",
