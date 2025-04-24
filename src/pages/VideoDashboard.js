@@ -12,6 +12,7 @@ import {
   Stack,
 } from "@mui/material";
 import Select from "@mui/material/Select";
+import Switch from '@mui/material/Switch';
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -32,7 +33,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getVideos, deleteVideos } from "../api/video";
+import { getVideos, deleteVideos,isActiveVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -91,10 +92,10 @@ const headCells = [
     label: "Date",
   },
   {
-    id: "views",
+    id: "status",
     numeric: true,
     disablePadding: false,
-    label: "Views",
+    label: "Status",
   },
   {
     id: "actions",
@@ -149,7 +150,6 @@ function EnhancedTableHead(props) {
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [getVideo, setGetVideo] = useState([]);
-
   const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
@@ -202,6 +202,16 @@ const VideoDashboard = () => {
   const handleDelete = async (videoId) => {
     try {
       const res = await deleteVideos(videoId, token);
+      toast.success(res.message[0]);
+      fetchVideos();
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
+
+  const handleToggleStatus = async (videoId) => {
+    try {
+      const res = await isActiveVideos(videoId, token);
       toast.success(res.message[0]);
       fetchVideos();
     } catch (error) {
@@ -277,7 +287,7 @@ const VideoDashboard = () => {
               isClearable={true}
               placeholderText="Select date range"
               className="form-control"
-              maxDate={new Date()} 
+              maxDate={new Date()}
             />
           </div>
 
@@ -475,7 +485,14 @@ const VideoDashboard = () => {
                     <TableCell>
                       {new Date(video.uploadDate).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>{video.views}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={video.isActive}
+                        onChange={() => handleToggleStatus(video._id)}
+                        color="primary"
+                        inputProps={{ 'aria-label': 'toggle video status' }}
+                      />
+                    </TableCell>
                     <TableCell>
                       <PlayArrowIcon
                         color="success"

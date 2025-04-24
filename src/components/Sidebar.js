@@ -113,14 +113,12 @@ const Sidebar = () => {
     "/users": "Users",
     "/videos": "Videos",
     "/assessment": "Assessments",
+    "/test": "Test",
+    "/certificate": "Certificate",
   };
   const currentRouteName = routeNames[location.pathname] || "Welcome";
   const handleDrawerOpen = () => {
     setOpen(!open);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
   };
 
   const handleLogout = () => {
