@@ -42,3 +42,16 @@ export const deleteVideos = async (id,token) => {
   });
   return response.data;
 };
+
+export const isActiveVideos = async (id, token) => {
+  const response = await axios.patch(
+    `/admin/video/status/${id}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};
