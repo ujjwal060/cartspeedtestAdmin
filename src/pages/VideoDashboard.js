@@ -191,7 +191,7 @@ const VideoDashboard = () => {
         setTotalData(response?.total);
       }
     } catch (error) {
-      console.error("Error fetching videos:", error);
+      toast.error(error?.response?.data?.message?.[0]);
     } finally {
       setLoading(false);
     }
