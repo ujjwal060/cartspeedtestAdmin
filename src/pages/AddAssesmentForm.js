@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { Button } from "@mui/material";
 import TextField from "@mui/material/TextField";
@@ -7,11 +7,10 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { addQA } from "../api/test";
+import { addQA,getVideos} from "../api/test";
 import { toast } from "react-toastify";
 
-export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded }) {
-  const [state, setState] = React.useState(null);
+export default function AddAssesmentFormFile({ handleClose, show, onVideoUploaded }) {
   const [answerValue, setAnswerValue] = React.useState(null);
   const [age, setAge] = React.useState("");
   const [question, setQuestion] = useState("");
@@ -21,10 +20,28 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
     option3: "",
     option4: "",
   });
+  const [videoOptions, setVideoOptions] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (age) {
+      const fetchVideos = async () => {
+        try {
+          const response = await getVideos(token,age);
+          setVideoOptions(response.data);
+        } catch (error) {
+          toast.error("Failed to fetch videos");
+        }
+      };
+      fetchVideos();
+    }
+  }, [age]);
 
   const handleChange = (event) => {
     setAge(event.target.value);
+    setSelectedVideo(null);
+    setVideoOptions([]);
   };
 
   const handleOptionChange = (e) => {
@@ -56,28 +73,18 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
         options.option3,
         options.option4,
       ];
-
       const response = await addQA(
         token,
-        state,
         age,
         question,
         optionsArray,
-        answerValue
+        answerValue,
+        selectedVideo._id,
+        selectedVideo.locationState
       );
       if (response.status === 201) {
         handleClose();
-        setState("");
-        setAge("");
-        setQuestion("");
-        setOptions({
-          option1: "",
-          option2: "",
-          option3: "",
-          option4: "",
-        });
-        setAnswerValue(null);
-        onVideoUploaded();
+        modalClose();
         toast.success("Test Added Successfully", {
           autoClose: 3000,
         });
@@ -88,7 +95,6 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
   };
 
   const modalClose = () => {
-    setState("");
     setAge("");
     setQuestion("");
     setOptions({
@@ -98,101 +104,104 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
       option4: "",
     });
     setAnswerValue(null);
+    setSelectedVideo(null);
+    setVideoOptions([]);
   };
+
   return (
-    <>
-      <Offcanvas show={show} onHide={handleClose} placement={"end"}>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Add Your Test</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <TextField
-            label="Add Your State"
-            variant="standard"
-            value={state}
-            className="w-100"
-            onChange={(e) => {
-              setState(e.target.value);
-            }}
-          />
+    <Offcanvas show={show} onHide={handleClose} placement={"end"}>
+      <Offcanvas.Header closeButton>
+        <Offcanvas.Title>Add Your Test</Offcanvas.Title>
+      </Offcanvas.Header>
+      <Offcanvas.Body>
+        <div className="col-lg-12 me-auto">
+          <FormControl size="small" className="w-100" variant="standard">
+            <InputLabel id="demo-simple-select-label">Select Level</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={age}
+              label="Select Level"
+              onChange={handleChange}
+            >
+              <MenuItem value={"Easy"}>Easy</MenuItem>
+              <MenuItem value={"Medium"}>Medium</MenuItem>
+              <MenuItem value={"Hard"}>Hard</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
+        {age && videoOptions.length > 0 && (
+          <div className="col-lg-12 mt-4">
+            <Autocomplete
+              id="video-select"
+              value={selectedVideo}
+              options={videoOptions}
+              getOptionLabel={(option) => option.title}
+              onChange={(event, newValue) => {
+                setSelectedVideo(newValue);
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select Video" variant="standard" />
+              )}
+            />
+          </div>
+        )}
+
+        {selectedVideo && (
           <div className="row gy-4 mt-4">
-            <div className="col-lg-12 me-auto">
-              <FormControl size="small" className="w-100"  variant="standard" >
-                <InputLabel id="demo-simple-select-label">
-                  Select Level
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={age}
-                  label="Select Level"
-                  onChange={handleChange}
-                >
-                  <MenuItem value={"Easy"}>Easy</MenuItem>
-                  <MenuItem value={"Medium"}>Medium</MenuItem>
-                  <MenuItem value={"Hard"}>Hard</MenuItem>
-                </Select>
-              </FormControl>
+            <div className="col-lg-12">
+              <TextField
+                id="standard-basic"
+                label="Add Your Question Here"
+                variant="standard"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                className="w-100"
+              />
             </div>
 
-            {age && (
-              <div className="col-lg-12">
-                <TextField
-                  id="standard-basic"
-                  label="Add Your Question Here"
-                  variant="standard"
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  className="w-100"
-                />
-              </div>
-            )}
+            <div className="col-lg-6">
+              <TextField
+                id="option1"
+                label="Option 1"
+                variant="standard"
+                className="w-100"
+                value={options.option1}
+                onChange={handleOptionChange}
+              />
+            </div>
+            <div className="col-lg-6">
+              <TextField
+                id="option2"
+                label="Option 2"
+                variant="standard"
+                className="w-100"
+                value={options.option2}
+                onChange={handleOptionChange}
+              />
+            </div>
 
-            {age && (
-              <>
-                <div className="col-lg-6">
-                  <TextField
-                    id="option1"
-                    label="Option 1"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option1}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-                <div className="col-lg-6">
-                  <TextField
-                    id="option2"
-                    label="Option 2"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option2}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-
-                <div className="col-lg-6">
-                  <TextField
-                    id="option3"
-                    label="Option 3"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option3}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-                <div className="col-lg-6">
-                  <TextField
-                    id="option4"
-                    label="Option 4"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option4}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-              </>
-            )}
+            <div className="col-lg-6">
+              <TextField
+                id="option3"
+                label="Option 3"
+                variant="standard"
+                className="w-100"
+                value={options.option3}
+                onChange={handleOptionChange}
+              />
+            </div>
+            <div className="col-lg-6">
+              <TextField
+                id="option4"
+                label="Option 4"
+                variant="standard"
+                className="w-100"
+                value={options.option4}
+                onChange={handleOptionChange}
+              />
+            </div>
 
             {age && (
               <div className="col-lg-12">
@@ -215,27 +224,28 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
               </div>
             )}
           </div>
-          <div className="kb-buttons-box d-flex justify-content-end gap-2 mt-3">
-            <Button
-              variant="contained"
-              color="error"
-              className="rounded-4"
-              onClick={() => modalClose()}
-            >
-              Reset
-            </Button>
+        )}
 
-            <Button
-              variant="contained"
-              color="success"
-              className="rounded-4"
-              onClick={() => handleSubmit()}
-            >
-              Save
-            </Button>
-          </div>
-        </Offcanvas.Body>
-      </Offcanvas>
-    </>
+        <div className="kb-buttons-box d-flex justify-content-end gap-2 mt-3">
+          <Button
+            variant="contained"
+            color="error"
+            className="rounded-4"
+            onClick={() => modalClose()}
+          >
+            Reset
+          </Button>
+
+          <Button
+            variant="contained"
+            color="success"
+            className="rounded-4"
+            onClick={() => handleSubmit()}
+          >
+            Save
+          </Button>
+        </div>
+      </Offcanvas.Body>
+    </Offcanvas>
   );
 }
