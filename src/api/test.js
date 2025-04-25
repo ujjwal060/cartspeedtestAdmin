@@ -44,3 +44,22 @@ export const addQA = async (token, state, level, question, options, answer) => {
     throw error;
   }
 };
+
+export const getVideos = async (token,level) => {
+  try {
+    const response = await axios.post(
+      "/admin/QA/getVideos",
+      {level},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading videos:", error);
+    throw error;
+  }
+};

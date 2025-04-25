@@ -106,7 +106,7 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
           <Offcanvas.Title>Add Your Test</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          <TextField
+          {/* <TextField
             label="Add Your State"
             variant="standard"
             value={state}
@@ -114,9 +114,8 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
             onChange={(e) => {
               setState(e.target.value);
             }}
-          />
-          <div className="row gy-4 mt-4">
-            <div className="col-lg-12 me-auto">
+          /> */}
+           <div className="col-lg-12 me-auto">
               <FormControl size="small" className="w-100"  variant="standard" >
                 <InputLabel id="demo-simple-select-label">
                   Select Level
@@ -134,7 +133,7 @@ export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded
                 </Select>
               </FormControl>
             </div>
-
+          <div className="row gy-4 mt-4">
             {age && (
               <div className="col-lg-12">
                 <TextField
