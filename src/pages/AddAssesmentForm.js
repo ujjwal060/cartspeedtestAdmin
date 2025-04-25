@@ -10,7 +10,7 @@ import Select from "@mui/material/Select";
 import { addQA } from "../api/test";
 import { toast } from "react-toastify";
 
-export default function AddAssesmentFormFile({ handleClose, show }) {
+export default function AddAssesmentFormFile({ handleClose, show,onVideoUploaded }) {
   const [state, setState] = React.useState(null);
   const [answerValue, setAnswerValue] = React.useState(null);
   const [age, setAge] = React.useState("");
@@ -65,7 +65,6 @@ export default function AddAssesmentFormFile({ handleClose, show }) {
         optionsArray,
         answerValue
       );
-      console.log(response);
       if (response.status === 201) {
         handleClose();
         setState("");
@@ -78,15 +77,13 @@ export default function AddAssesmentFormFile({ handleClose, show }) {
           option4: "",
         });
         setAnswerValue(null);
+        onVideoUploaded();
         toast.success("Test Added Successfully", {
           autoClose: 3000,
         });
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Getting error on posting Test", {
-        autoClose: 3000,
-      });
+      toast.error(error?.response?.data?.message?.[0]);
     }
   };
 

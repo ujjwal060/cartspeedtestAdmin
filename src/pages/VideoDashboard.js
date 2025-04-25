@@ -33,7 +33,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getVideos, deleteVideos,isActiveVideos } from "../api/video";
+import { getVideos, deleteVideos, isActiveVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -96,6 +96,7 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Status",
+    disableSort: true,
   },
   {
     id: "actions",
@@ -190,7 +191,7 @@ const VideoDashboard = () => {
         setTotalData(response?.total);
       }
     } catch (error) {
-      console.error("Error fetching videos:", error);
+      toast.error(error?.response?.data?.message?.[0]);
     } finally {
       setLoading(false);
     }

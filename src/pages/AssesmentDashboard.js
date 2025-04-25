@@ -16,6 +16,8 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import "../index.css";
 import Loader from "../components/Loader";
+import { toast } from "react-toastify";
+
 
 const AssesmentDashboard = () => {
   const rowsPerPage = 10;
@@ -40,7 +42,7 @@ const AssesmentDashboard = () => {
       setGetData(response?.data);
       setTotalData(response?.total);
     } catch (error) {
-      console.error("Error fetching videos:", error);
+      toast.error(error?.response?.data?.message?.[0]);
     } finally {
       setLoading(false);
     }
@@ -197,7 +199,7 @@ const AssesmentDashboard = () => {
           onPageChange={handleChangePage}
         />
       </Box>
-      <AddAssesmentFormFile handleClose={handleClose} show={show} />
+      <AddAssesmentFormFile handleClose={handleClose} show={show} onVideoUploaded={fetchQA} />
     </Box>
   );
 };

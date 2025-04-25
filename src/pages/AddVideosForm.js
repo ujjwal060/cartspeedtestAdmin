@@ -69,8 +69,10 @@ const AddVideoOffcanvas = ({
         setIsSubmitting(false);
         onVideoUploaded()
       }
-    } catch (err) {
-      console.error("Video upload failed:", err);
+    } catch (error) {
+      toast.error(error?.response?.data?.message?.[0])
+    }finally{
+      setIsSubmitting(false);
     }
   };
 

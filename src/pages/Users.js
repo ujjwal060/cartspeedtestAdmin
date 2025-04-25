@@ -3,6 +3,7 @@ import { Box, Paper, Chip, Tooltip, Stack } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { debounce } from "lodash";
 import { LinearProgress } from "@mui/material";
+import { toast } from "react-toastify";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -135,7 +136,7 @@ const VideoDashboard = () => {
         setTotalData(response?.total);
       }
     } catch (error) {
-      console.error("Error fetching videos:", error);
+      toast.error(error?.response?.data?.message?.[0]);
     } finally {
       setLoading(false);
     }
