@@ -85,6 +85,7 @@ export default function AddAssesmentFormFile({ handleClose, show, onVideoUploade
       if (response.status === 201) {
         handleClose();
         modalClose();
+        onVideoUploaded();
         toast.success("Test Added Successfully", {
           autoClose: 3000,
         });
