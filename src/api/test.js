@@ -18,7 +18,7 @@ export const getQA = async (token, offset, limit, filters) => {
   }
 };
 
-export const addQA = async (token, state, level, question, options, answer) => {
+export const addQA = async (token, level, question, options, answer,videoId,state) => {
   try {
     const formattedOptions = options.map((option) => ({
       text: option,
@@ -29,7 +29,8 @@ export const addQA = async (token, state, level, question, options, answer) => {
       question,
       options: formattedOptions,
       level,
-      state,
+      videoId,
+      state
     };
 
     const response = await axios.post("/admin/QA/add", data, {
