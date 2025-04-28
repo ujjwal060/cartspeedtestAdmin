@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Tooltip, Typography } from "@mui/material";
+import { Box, Tooltip, Typography, Dialog, DialogContent,Slide } from "@mui/material";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import InputLabel from "@mui/material/InputLabel";
@@ -16,8 +16,13 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import "../index.css";
 import Loader from "../components/Loader";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const AssesmentDashboard = () => {
   const rowsPerPage = 10;
@@ -32,6 +37,8 @@ const AssesmentDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const token = localStorage.getItem("token");
   const [level, setLevel] = useState("");
+  const [playOpen, setPlayOpen] = useState(false);
+  const [selected, setSelected] = useState([]);
 
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
@@ -55,6 +62,12 @@ const AssesmentDashboard = () => {
       setFilters({});
     }
   };
+
+  const handlePlayOpen = (url) => {
+    setSelected(url);
+    setPlayOpen(true);
+  };
+  const handlePlayClose = () => setPlayOpen(false);
 
   const handleLevelChange = (event) => {
     const selectedLevel = event.target.value;
@@ -138,8 +151,8 @@ const AssesmentDashboard = () => {
                   Q{currentPage * rowsPerPage + index + 1}. {item.question}
                 </Accordion.Header>
                 <Accordion.Body>
-                  <div className="row align-items-start">
-                    <div className="col-lg-3">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div className="">
                       <div className="d-flex justify-content-start gap-1 align-items-center">
                         <Typography className="text-end" variant="h6">
                           Lv:
@@ -147,7 +160,18 @@ const AssesmentDashboard = () => {
                         <span className="fs-6">{item.level}</span>
                       </div>
                     </div>
-                    <div className="col-lg-9">
+                    {item.videoData?.title && (
+                      <div className="d-flex align-items-center gap-2" style={{ cursor: "pointer" }} onClick={() => handlePlayOpen(item.videoData?.url)}>
+                        <PlayArrowIcon
+                          color="success"
+                          style={{ cursor: "pointer" }}
+                        />
+                        <Typography className="fs-6 text-primary">
+                          {item.videoData.title}
+                        </Typography>
+                      </div>
+                    )}
+                    <div className="">
                       <div className="d-flex justify-content-end gap-1 align-items-center">
                         <Typography className="text-end" variant="h6">
                           <LocationPinIcon />
@@ -156,6 +180,9 @@ const AssesmentDashboard = () => {
                       </div>
                     </div>
 
+
+                  </div>
+                  <div className="row">
                     <div className="col-lg-6">
                       <div className="row gy-3 align-items-center ps-1 pt-3">
                         {item.options.map((option, optIndex) => (
@@ -174,9 +201,8 @@ const AssesmentDashboard = () => {
                           option.isCorrect ? (
                             <Chip
                               key={option._id}
-                              label={`${String.fromCharCode(65 + optIndex)}. ${
-                                option.text
-                              }`}
+                              label={`${String.fromCharCode(65 + optIndex)}. ${option.text
+                                }`}
                               color="success"
                             />
                           ) : null
@@ -199,6 +225,34 @@ const AssesmentDashboard = () => {
           onPageChange={handleChangePage}
         />
       </Box>
+      <Dialog
+        open={playOpen}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={(event, reason) => {
+          if (reason === "backdropClick" || reason === "escapeKeyDown") {
+            return;
+          }
+          handlePlayClose();
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogContent className="text-center">
+          <ReactPlayer
+            url={selected}
+            controls
+            className="object-fit-cover"
+            width="100%"
+          />
+          <button
+            onClick={handlePlayClose}
+            className="btn btn-danger mt-4 px-5"
+          >
+            Close
+          </button>
+        </DialogContent>
+      </Dialog>
       <AddAssesmentFormFile handleClose={handleClose} show={show} onVideoUploaded={fetchQA} />
     </Box>
   );
