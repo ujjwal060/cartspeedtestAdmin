@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Box, Tooltip, Typography, Dialog, DialogContent,Slide } from "@mui/material";
+import { Box, Tooltip, Typography, Dialog, DialogContent,Slide,Breadcrumbs } from "@mui/material";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
+import { useLocation} from "react-router-dom";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -39,6 +40,8 @@ const AssesmentDashboard = () => {
   const [level, setLevel] = useState("");
   const [playOpen, setPlayOpen] = useState(false);
   const [selected, setSelected] = useState([]);
+  const location = useLocation();
+  const { title,videoId } = location.state || {};
 
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
@@ -74,14 +77,34 @@ const AssesmentDashboard = () => {
     setLevel(selectedLevel);
     setFilters((prev) => ({ ...prev, level: selectedLevel }));
   };
+  
+  useEffect(() => {
+    if (videoId) {
+      setFilters({ videoId });
+    }
+  }, [videoId]);
 
   useEffect(() => {
     fetchQA();
   }, [currentPage, filters]);
 
+  const renderBreadcrumb = () => {
+    if (!title) return null;
+    
+    return (
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        {/* <Link color="inherit" href="/videos">
+          Home
+        </Link> */}
+        <Typography color="text.primary">{title}</Typography>
+      </Breadcrumbs>
+    );
+  };
+
   return (
     <Box p={4}>
       <Box>
+      {renderBreadcrumb()}
         <div className="position-sticky top-0 d-flex justify-content-end gap-2 mb-4 align-items-center">
           {openFilter && (
             <>

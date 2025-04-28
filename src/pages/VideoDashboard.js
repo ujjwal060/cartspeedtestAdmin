@@ -11,6 +11,7 @@ import {
   Tooltip,
   Stack,
 } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 import Select from "@mui/material/Select";
 import Switch from '@mui/material/Switch';
 import InputLabel from "@mui/material/InputLabel";
@@ -168,6 +169,7 @@ const VideoDashboard = () => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
   const [level, setLevel] = useState("");
+  const navigate = useNavigate();
   const handleChange = (event) => {
     setLevel(event.target.value);
   };
@@ -471,10 +473,12 @@ const VideoDashboard = () => {
                     key={video._id || index}
                     className="table-custom-level"
                   >
-                    {/* <TableCell>
-                      {currentPage * rowsPerPage + index + 1}
-                    </TableCell> */}
-                    <TableCell>{video.title}</TableCell>
+                    <TableCell
+                      onClick={() => navigate('/assessment', { state: { title: video.title, videoId: video._id } })}
+                      style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+                    >
+                      {video.title}
+                    </TableCell>
                     <TableCell>{video.description}</TableCell>
                     <TableCell>
                       <Chip
