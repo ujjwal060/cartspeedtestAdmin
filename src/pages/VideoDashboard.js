@@ -66,10 +66,10 @@ const headCells = [
     disableSort: true,
   },
   {
-    id: "level",
+    id: "Section",
     numeric: false,
     disablePadding: false,
-    label: "level",
+    label: "Section",
     disableSort: true,
   },
   {

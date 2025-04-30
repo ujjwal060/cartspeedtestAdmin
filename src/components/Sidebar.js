@@ -115,6 +115,7 @@ const Sidebar = () => {
     "/assessment": "Assessments",
     "/test": "Test",
     "/certificate": "Certificate",
+    "/test-detail": "Test Detail",
   };
   const currentRouteName = routeNames[location.pathname] || "Welcome";
   const handleDrawerOpen = () => {
@@ -137,6 +138,7 @@ const Sidebar = () => {
       link: "/certificate",
       icon: <WorkspacePremiumIcon />,
     },
+
   ];
 
   return (

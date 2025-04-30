@@ -7,6 +7,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import Autocomplete from "@mui/material/Autocomplete";
 const AddVideoOffcanvas = ({
   open,
   setOpen,
@@ -67,11 +68,11 @@ const AddVideoOffcanvas = ({
         setOpen(false);
         handleClose();
         setIsSubmitting(false);
-        onVideoUploaded()
+        onVideoUploaded();
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message?.[0])
-    }finally{
+      toast.error(error?.response?.data?.message?.[0]);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -142,19 +143,8 @@ const AddVideoOffcanvas = ({
               </div>
 
               <div className="row gy-4 mb-4">
-                <div className="col-lg-12">
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    className="w-100"
-                    placeholder="Enter video title.."
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-lg-12">
-                  {/* <Autocomplete
+                <div className="col-lg-6">
+                  <Autocomplete
                     id="controlled-demo"
                     size="small"
                     value={value}
@@ -175,7 +165,32 @@ const AddVideoOffcanvas = ({
                     renderInput={(params) => (
                       <TextField {...params} label="Add Your State" />
                     )}
-                  /> */}
+                  />
+                </div>
+                <div className="col-lg-6">
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    disabled
+                    className="w-100"
+                    placeholder="Enter video title.."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="col-lg-12">
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    className="w-100"
+                    placeholder="Enter video title.."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="col-lg-12">
                   <TextField
                     variant="outlined"
                     size="small"
@@ -199,52 +214,27 @@ const AddVideoOffcanvas = ({
                 </div>
               </div>
 
-              <div className="kb-buttons-box d-flex justify-content-between gap-4 align-items-center">
-                <div className="w-100">
-                  {" "}
-                  <FormControl
-                    size="small"
-                    className="w-100"
-                    variant="standard"
-                  >
-                    <InputLabel id="demo-simple-select-label">
-                      Select Level
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={level}
-                      label="Select Level"
-                      onChange={handleChange}
-                    >
-                      <MenuItem value={"Easy"}>Easy</MenuItem>
-                      <MenuItem value={"Medium"}>Medium</MenuItem>
-                      <MenuItem value={"Hard"}>Hard</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="w-100 d-flex gap-2">
-                  <Button
-                    onClick={modalClose}
-                    color="error"
-                    variant="contained"
-                    className="rounded-4"
-                    disabled={isSubmitting}
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="success"
-                    variant="contained"
-                    className="rounded-4"
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
-                    loadingPosition="start"
-                  >
-                    Save
-                  </Button>
-                </div>
+              <div className="kb-buttons-box d-flex justify-content-end gap-2 align-items-center">
+                <Button
+                  onClick={modalClose}
+                  color="error"
+                  variant="contained"
+                  className="rounded-4"
+                  disabled={isSubmitting}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  color="success"
+                  variant="contained"
+                  className="rounded-4"
+                  disabled={isSubmitting}
+                  loading={isSubmitting}
+                  loadingPosition="start"
+                >
+                  Save
+                </Button>
               </div>
             </div>
           </div>
