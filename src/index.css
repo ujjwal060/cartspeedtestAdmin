@@ -200,6 +200,9 @@ code {
   flex-wrap: wrap;
   align-items: center;
 }
+.full-height .MuiInputBase-root {
+  height: 100% !important;
+}
 .file-action-btn {
   font-size: 12px;
   color: #8194aa;

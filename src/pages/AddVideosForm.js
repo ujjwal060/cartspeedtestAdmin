@@ -7,6 +7,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import { sectionVideos } from "../api/video";
 
 const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
   const [value, setValue] = useState("");
@@ -40,6 +41,20 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
           : section
       )
     );
+  };
+
+  const handleSection = async (sectionNumber) => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    try {
+      const response = await sectionVideos(value, sectionNumber, token, userId);
+      console.log(response);
+      if (response.status === 200) {
+        sectionTitle(response.data.title);
+      }
+    } catch (error) {
+      console.error("Error checking section:", error);
+    }
   };
 
   const handleVideoUpload = async (e) => {
@@ -176,7 +191,7 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
         <form onSubmit={handleVideoUpload}>
           <div className="row gy-4 mb-4">
             <div className="col-lg-12">
-              <TextField
+              {/* <TextField
                 variant="outlined"
                 size="small"
                 className="w-100"
@@ -184,10 +199,10 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 required
-              />
+              /> */}
             </div>
             <div className="col-lg-6">
-              <FormControl fullWidth>
+              <FormControl fullWidth variant="standard">
                 <InputLabel id="demo-simple-select-label">
                   Select Section
                 </InputLabel>
@@ -195,21 +210,25 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={section}
+                  size="small"
                   label="Select Section"
-                  onChange={(e) => setSection(e.target.value)}
+                  onChange={(e) => {
+                    setSection(e.target.value);
+                    handleSection(e.target.value);
+                  }}
                 >
-                  <MenuItem value={"Section1"}>Section1</MenuItem>
-                  <MenuItem value={"Section2"}>Section2</MenuItem>
-                  <MenuItem value={"Section3"}>Section3</MenuItem>
-                  <MenuItem value={"Section4"}>Section4</MenuItem>
-                  <MenuItem value={"Section5"}>Section5</MenuItem>
+                  <MenuItem value={1}>Section1</MenuItem>
+                  <MenuItem value={2}>Section2</MenuItem>
+                  <MenuItem value={3}>Section3</MenuItem>
+                  <MenuItem value={4}>Section4</MenuItem>
+                  <MenuItem value={5}>Section5</MenuItem>
                 </Select>
               </FormControl>
             </div>
             <div className="col-lg-6">
               <TextField
-                variant="outlined"
-                className="w-100"
+                variant="standard"
+                className="w-100 h-100 full-height"
                 placeholder="Enter section title.."
                 value={sectionTitle}
                 onChange={(e) => setSectionTitle(e.target.value)}
@@ -218,163 +237,166 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
             </div>
           </div>
 
-          {value && section && sectionTitle && (
+          {section && sectionTitle && (
             <>
               {videoSections.map((videoSection, index) => (
-                <div key={videoSection.id} className="fileupload-view mb-4">
-                  <div className="kb-data-box">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h5>Section {index + 1}</h5>
-                      {videoSections.length > 1 && (
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                          onClick={() => removeSection(videoSection.id)}
-                        >
-                          Remove Section
-                        </Button>
-                      )}
-                    </div>
-
-                    <div className="kb-file-upload">
-                      <div className="file-upload-box">
-                        <input
-                          type="file"
-                          accept="video/*"
-                          id={`fileupload-${videoSection.id}`}
-                          className="file-upload-input"
-                          onChange={(e) => handleVideoInput(e, videoSection.id)}
-                        />
-                        <span>
-                          Drag and drop or{" "}
-                          <span className="file-link">Choose your files</span>
-                        </span>
+                <>
+                  <div key={videoSection.id} className="fileupload-view mb-4">
+                    <div className="kb-data-box">
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Section {index + 1}</h5>
+                        {videoSections.length > 1 && (
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => removeSection(videoSection.id)}
+                          >
+                            Remove Section
+                          </Button>
+                        )}
                       </div>
-                      {videoSection.videoFiles.length > 0 && (
-                        <p className="mt-2">
-                          {videoSection.videoFiles.length} video(s) selected
-                        </p>
-                      )}
-                    </div>
 
-                    <div className="kb-attach-box mb-3">
-                      {videoSection.videoFiles.map((vid) => (
-                        <div className="file-atc-box" key={vid.id}>
-                          <div className="file-image">
-                            <video
-                              width="100"
-                              height="60"
-                              controls
-                              src={vid.fileurl}
-                            ></video>
-                          </div>
-                          <div className="file-detail">
-                            <h6>{vid.filename}</h6>
-                            <p>
-                              <span>Size : {vid.filesize}</span>
-                              <span className="ml-2">
-                                Modified Time : {vid.datetime}
-                              </span>
-                            </p>
-                            <div className="file-actions">
-                              <button
-                                type="button"
-                                className="file-action-btn"
-                                onClick={() =>
-                                  deleteUploadedVideo(videoSection.id, vid.id)
-                                }
-                              >
-                                Delete
-                              </button>
+                      <div className="kb-file-upload">
+                        <div className="file-upload-box">
+                          <input
+                            type="file"
+                            accept="video/*"
+                            id={`fileupload-${videoSection.id}`}
+                            className="file-upload-input"
+                            onChange={(e) =>
+                              handleVideoInput(e, videoSection.id)
+                            }
+                          />
+                          <span>
+                            Drag and drop or{" "}
+                            <span className="file-link">Choose your files</span>
+                          </span>
+                        </div>
+                        {videoSection.videoFiles.length > 0 && (
+                          <p className="mt-2">
+                            {videoSection.videoFiles.length} video(s) selected
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="kb-attach-box mb-3">
+                        {videoSection.videoFiles.map((vid) => (
+                          <div className="file-atc-box" key={vid.id}>
+                            <div className="file-image">
+                              <video
+                                width="100"
+                                height="60"
+                                controls
+                                src={vid.fileurl}
+                              ></video>
+                            </div>
+                            <div className="file-detail">
+                              <h6>{vid.filename}</h6>
+                              <p>
+                                <span>Size : {vid.filesize}</span>
+                                <span className="ml-2">
+                                  Modified Time : {vid.datetime}
+                                </span>
+                              </p>
+                              <div className="file-actions">
+                                <button
+                                  type="button"
+                                  className="file-action-btn"
+                                  onClick={() =>
+                                    deleteUploadedVideo(videoSection.id, vid.id)
+                                  }
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="row gy-4 mb-4">
-                      <div className="col-lg-12">
-                        <TextField
-                          variant="outlined"
-                          size="small"
-                          className="w-100"
-                          placeholder="Enter video title.."
-                          value={videoSection.title}
-                          onChange={(e) =>
-                            updateSectionField(
-                              videoSection.id,
-                              "title",
-                              e.target.value
-                            )
-                          }
-                          required
-                        />
+                        ))}
                       </div>
 
-                      <div className="col-lg-12">
-                        <TextField
-                          variant="outlined"
-                          size="small"
-                          placeholder="Enter video description.."
-                          className="w-100"
-                          value={videoSection.description}
-                          onChange={(e) =>
-                            updateSectionField(
-                              videoSection.id,
-                              "description",
-                              e.target.value
-                            )
-                          }
-                          required
-                          multiline
-                          rows={4}
-                        />
+                      <div className="row gy-4 mb-4">
+                        <div className="col-lg-12">
+                          <TextField
+                            variant="outlined"
+                            size="small"
+                            className="w-100"
+                            placeholder="Enter video title.."
+                            value={videoSection.title}
+                            onChange={(e) =>
+                              updateSectionField(
+                                videoSection.id,
+                                "title",
+                                e.target.value
+                              )
+                            }
+                            required
+                          />
+                        </div>
+
+                        <div className="col-lg-12">
+                          <TextField
+                            variant="outlined"
+                            size="small"
+                            placeholder="Enter video description.."
+                            className="w-100"
+                            value={videoSection.description}
+                            onChange={(e) =>
+                              updateSectionField(
+                                videoSection.id,
+                                "description",
+                                e.target.value
+                              )
+                            }
+                            required
+                            multiline
+                            rows={4}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </>
               ))}
-
-              <div className="d-flex flex-column gap-2 align-items-center">
-                <Button
-                  color="primary"
-                  variant="outlined"
-                  className="rounded-4"
-                  onClick={addNewSection}
-                  disabled={videoSections.length >= 5 || isSubmitting}
-                >
-                  Add More Sections (Max 5)
-                </Button>
-
-                <div className="d-flex gap-2 justify-content-end">
-                  <Button
-                    onClick={resetForm}
-                    color="error"
-                    variant="contained"
-                    className="rounded-4"
-                    disabled={isSubmitting}
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="success"
-                    variant="contained"
-                    className="rounded-4"
-                    disabled={
-                      isSubmitting ||
-                      videoSections.some(
-                        (section) => section.videoFiles.length === 0
-                      )
-                    }
-                  >
-                    {isSubmitting ? "Uploading..." : `Save`}
-                  </Button>
-                </div>
-              </div>
             </>
           )}
+          <div className="d-flex flex-column gap-2 align-items-center">
+            <Button
+              color="primary"
+              variant="outlined"
+              className="rounded-4"
+              onClick={addNewSection}
+              disabled={videoSections.length >= 5 || isSubmitting}
+            >
+              Add More Sections (Max 5)
+            </Button>
+
+            <div className="d-flex gap-2 justify-content-end">
+              <Button
+                onClick={resetForm}
+                color="error"
+                variant="contained"
+                className="rounded-4"
+                disabled={isSubmitting}
+              >
+                Reset
+              </Button>
+              <Button
+                type="submit"
+                color="success"
+                variant="contained"
+                className="rounded-4"
+                disabled={
+                  isSubmitting ||
+                  videoSections.some(
+                    (section) => section.videoFiles.length === 0
+                  )
+                }
+              >
+                {isSubmitting ? "Uploading..." : `Save`}
+              </Button>
+            </div>
+          </div>
         </form>
       </Offcanvas.Body>
     </Offcanvas>
