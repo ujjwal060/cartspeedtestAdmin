@@ -18,7 +18,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
 
-export default function AddAssesmentFormFile({ handleClose, show, onVideoUploaded }) {
+export default function AddAssesmentFormFile({
+  handleClose,
+  show,
+  onVideoUploaded,
+}) {
   const [answerValue, setAnswerValue] = React.useState(null);
   const [age, setAge] = React.useState("");
   const [question, setQuestion] = useState("");
@@ -169,7 +173,9 @@ export default function AddAssesmentFormFile({ handleClose, show, onVideoUploade
         autoClose: 3000,
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message?.[0] || "Failed to add questions");
+      toast.error(
+        error?.response?.data?.message?.[0] || "Failed to add questions"
+      );
     }
   };
 
@@ -190,17 +196,21 @@ export default function AddAssesmentFormFile({ handleClose, show, onVideoUploade
       <Offcanvas.Body>
         <div className="col-lg-12 me-auto">
           <FormControl size="small" className="w-100" variant="standard">
-            <InputLabel id="demo-simple-select-label">Select Level</InputLabel>
+            <InputLabel id="demo-simple-select-label">
+              Select Section
+            </InputLabel>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={age}
-              label="Select Level"
+              label="Select Section"
               onChange={handleChange}
             >
-              <MenuItem value={"Easy"}>Easy</MenuItem>
-              <MenuItem value={"Medium"}>Medium</MenuItem>
-              <MenuItem value={"Hard"}>Hard</MenuItem>
+              <MenuItem value={"Section1"}>Section1</MenuItem>
+              <MenuItem value={"Section2"}>Section2</MenuItem>
+              <MenuItem value={"Section3"}>Section3</MenuItem>
+              <MenuItem value={"Section4"}>Section4</MenuItem>
+              <MenuItem value={"Section5"}>Section5</MenuItem>
             </Select>
           </FormControl>
         </div>
@@ -217,7 +227,11 @@ export default function AddAssesmentFormFile({ handleClose, show, onVideoUploade
                 setQuestionsList([]);
               }}
               renderInput={(params) => (
-                <TextField {...params} label="Select Video" variant="standard" />
+                <TextField
+                  {...params}
+                  label="Select Video"
+                  variant="standard"
+                />
               )}
             />
           </div>
@@ -309,10 +323,15 @@ export default function AddAssesmentFormFile({ handleClose, show, onVideoUploade
                 onClick={addQuestionToList}
                 disabled={!question || !answerValue || !allOptionsFilled()}
                 startIcon={
-                  editingIndex !== null ? <SystemUpdateAltIcon /> : <AddCircleOutlineIcon />
+                  editingIndex !== null ? (
+                    <SystemUpdateAltIcon />
+                  ) : (
+                    <AddCircleOutlineIcon />
+                  )
                 }
               >
-                {editingIndex !== null ? "Update" : "Add"} ({questionsList.length}/10)
+                {editingIndex !== null ? "Update" : "Add"} (
+                {questionsList.length}/10)
               </Button>
 
               {editingIndex !== null && (
@@ -335,16 +354,22 @@ export default function AddAssesmentFormFile({ handleClose, show, onVideoUploade
         {questionsList.length > 0 && (
           <div className="mt-3">
             <h6>Questions to be added ({questionsList.length}):</h6>
-            <List dense={true} style={{ maxHeight: '200px', overflow: 'auto' }}>
+            <List dense={true} style={{ maxHeight: "200px", overflow: "auto" }}>
               {questionsList.map((q, index) => (
                 <ListItem
                   key={index}
                   secondaryAction={
                     <>
-                      <IconButton edge="end" onClick={() => editQuestion(index)}>
+                      <IconButton
+                        edge="end"
+                        onClick={() => editQuestion(index)}
+                      >
                         <EditIcon />
                       </IconButton>
-                      <IconButton edge="end" onClick={() => removeQuestion(index)}>
+                      <IconButton
+                        edge="end"
+                        onClick={() => removeQuestion(index)}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </>

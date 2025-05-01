@@ -27,6 +27,7 @@ import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 
 const drawerWidth = 240;
@@ -115,6 +116,8 @@ const Sidebar = () => {
     "/assessment": "Assessments",
     "/test": "Test",
     "/certificate": "Certificate",
+    "/test-detail": "Test Detail",
+    "/admin": "Admin",
   };
   const currentRouteName = routeNames[location.pathname] || "Welcome";
   const handleDrawerOpen = () => {
@@ -136,6 +139,11 @@ const Sidebar = () => {
       text: "Certificate ",
       link: "/certificate",
       icon: <WorkspacePremiumIcon />,
+    },
+    {
+      text: "Admin ",
+      link: "/admin",
+      icon: <SupervisorAccountIcon />,
     },
   ];
 

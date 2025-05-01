@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Box, Tooltip, Typography, Dialog, DialogContent,Slide,Breadcrumbs } from "@mui/material";
+import {
+  Box,
+  Tooltip,
+  Typography,
+  Dialog,
+  DialogContent,
+  Slide,
+  Breadcrumbs,
+} from "@mui/material";
 import { Button } from "@mui/material";
 import Chip from "@mui/material/Chip";
-import { useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -41,7 +49,7 @@ const AssesmentDashboard = () => {
   const [playOpen, setPlayOpen] = useState(false);
   const [selected, setSelected] = useState([]);
   const location = useLocation();
-  const { title,videoId } = location.state || {};
+  const { title, videoId } = location.state || {};
 
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
@@ -77,7 +85,7 @@ const AssesmentDashboard = () => {
     setLevel(selectedLevel);
     setFilters((prev) => ({ ...prev, level: selectedLevel }));
   };
-  
+
   useEffect(() => {
     if (videoId) {
       setFilters({ videoId });
@@ -90,7 +98,7 @@ const AssesmentDashboard = () => {
 
   const renderBreadcrumb = () => {
     if (!title) return null;
-    
+
     return (
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
         {/* <Link color="inherit" href="/videos">
@@ -101,28 +109,23 @@ const AssesmentDashboard = () => {
     );
   };
 
-  return (
+  return loading ? (
+    <div className="">
+      <div className="global-loader">
+        <div className="loader-animation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  ) : (
     <Box p={4}>
       <Box>
-      {renderBreadcrumb()}
+        {renderBreadcrumb()}
         <div className="position-sticky top-0 d-flex justify-content-end gap-2 mb-4 align-items-center">
           {openFilter && (
             <>
-              {/* <FormControl sx={{ width: "200px" }} size="small">
-                <InputLabel id="demo-simple-select-label">
-                  Filter By Location
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={level}
-                  label=" Filter By Location"
-                  // onChange={(e) => setFilterLevel(e.target.value)}
-                  sx={{ height: "40px" }}
-                >
-                  <MenuItem value={1}>Delhi</MenuItem>
-                </Select>
-              </FormControl> */}
               <FormControl sx={{ width: "200px" }} size="small">
                 <InputLabel id="demo-simple-select-label">
                   Filter By Level
@@ -161,82 +164,78 @@ const AssesmentDashboard = () => {
         </div>
 
         <Accordion className="d-flex flex-column gap-3 custom-accordion" flush>
-          {loading === true ? (
-            <div className="update-loader">
-              <Loader />
-            </div>
-          ) : (
-            getData?.map((item, index) => (
-              <Accordion.Item eventKey={index.toString()} key={item._id}>
-                <Accordion.Header
-                  className={`accordion-button p-0 ${item.level?.toLowerCase()}`}
-                >
-                  Q{currentPage * rowsPerPage + index + 1}. {item.question}
-                </Accordion.Header>
-                <Accordion.Body>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div className="">
-                      <div className="d-flex justify-content-start gap-1 align-items-center">
-                        <Typography className="text-end" variant="h6">
-                          Lv:
-                        </Typography>
-                        <span className="fs-6">{item.level}</span>
-                      </div>
-                    </div>
-                    {item.videoData?.title && (
-                      <div className="d-flex align-items-center gap-2" style={{ cursor: "pointer" }} onClick={() => handlePlayOpen(item.videoData?.url)}>
-                        <PlayArrowIcon
-                          color="success"
-                          style={{ cursor: "pointer" }}
-                        />
-                        <Typography className="fs-6 text-primary">
-                          {item.videoData.title}
-                        </Typography>
-                      </div>
-                    )}
-                    <div className="">
-                      <div className="d-flex justify-content-end gap-1 align-items-center">
-                        <Typography className="text-end" variant="h6">
-                          <LocationPinIcon />
-                        </Typography>
-                        <span className="fs-6">{item.state}</span>
-                      </div>
-                    </div>
-
-
-                  </div>
-                  <div className="row">
-                    <div className="col-lg-6">
-                      <div className="row gy-3 align-items-center ps-1 pt-3">
-                        {item.options.map((option, optIndex) => (
-                          <div className="col-lg-6" key={option._id}>
-                            <Typography>
-                              {String.fromCharCode(65 + optIndex)}.{" "}
-                              {option.text}
-                            </Typography>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mt-5 d-flex justify-content-end">
-                        {item.options.map((option, optIndex) =>
-                          option.isCorrect ? (
-                            <Chip
-                              key={option._id}
-                              label={`${String.fromCharCode(65 + optIndex)}. ${option.text
-                                }`}
-                              color="success"
-                            />
-                          ) : null
-                        )}
-                      </div>
+          {getData?.map((item, index) => (
+            <Accordion.Item eventKey={index.toString()} key={item._id}>
+              <Accordion.Header
+                className={`accordion-button p-0 ${item.level?.toLowerCase()}`}
+              >
+                Q{currentPage * rowsPerPage + index + 1}. {item.question}
+              </Accordion.Header>
+              <Accordion.Body>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div className="">
+                    <div className="d-flex justify-content-start gap-1 align-items-center">
+                      <Typography className="text-end" variant="h6">
+                        Lv:
+                      </Typography>
+                      <span className="fs-6">{item.level}</span>
                     </div>
                   </div>
-                </Accordion.Body>
-              </Accordion.Item>
-            ))
-          )}
+                  {item.videoData?.title && (
+                    <div
+                      className="d-flex align-items-center gap-2"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handlePlayOpen(item.videoData?.url)}
+                    >
+                      <PlayArrowIcon
+                        color="success"
+                        style={{ cursor: "pointer" }}
+                      />
+                      <Typography className="fs-6 text-primary">
+                        {item.videoData.title}
+                      </Typography>
+                    </div>
+                  )}
+                  <div className="">
+                    <div className="d-flex justify-content-end gap-1 align-items-center">
+                      <Typography className="text-end" variant="h6">
+                        <LocationPinIcon />
+                      </Typography>
+                      <span className="fs-6">{item.state}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-lg-6">
+                    <div className="row gy-3 align-items-center ps-1 pt-3">
+                      {item.options.map((option, optIndex) => (
+                        <div className="col-lg-6" key={option._id}>
+                          <Typography>
+                            {String.fromCharCode(65 + optIndex)}. {option.text}
+                          </Typography>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="col-lg-6">
+                    <div className="mt-5 d-flex justify-content-end">
+                      {item.options.map((option, optIndex) =>
+                        option.isCorrect ? (
+                          <Chip
+                            key={option._id}
+                            label={`${String.fromCharCode(65 + optIndex)}. ${
+                              option.text
+                            }`}
+                            color="success"
+                          />
+                        ) : null
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Accordion.Body>
+            </Accordion.Item>
+          ))}
         </Accordion>
         <TablePagination
           rowsPerPageOptions={[rowsPerPage]}
@@ -276,7 +275,11 @@ const AssesmentDashboard = () => {
           </button>
         </DialogContent>
       </Dialog>
-      <AddAssesmentFormFile handleClose={handleClose} show={show} onVideoUploaded={fetchQA} />
+      <AddAssesmentFormFile
+        handleClose={handleClose}
+        show={show}
+        onVideoUploaded={fetchQA}
+      />
     </Box>
   );
 };
