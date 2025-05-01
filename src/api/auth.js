@@ -1,23 +1,47 @@
 import axios from "./axios";
 
+export const registerUser = async (data, token) => {
+  const response = await axios.post("/admin/register", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
 
+export const getAdmin = async (
+  token,
+  offset,
+  limit,
+  sortBy,
+  sortField,
+  filters
+) => {
+  const response = await axios.post(
+    "/admin/getAllAdmins",
+    { offset, limit, sortBy, sortField, filters },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};
 export const authenticateUser = (token) => {
   return axios.post(
-    '/admin/auth/verifyToken', 
+    "/admin/auth/verifyToken",
     {},
     {
       headers: {
         Authorization: `Bearer ${token}`,
-      }
+      },
     }
   );
 };
 
 export const refreashToken = (refreshToken) => {
-  return axios.post(
-    '/admin/auth/refreshToken',
-    { refreshToken },
-  );
+  return axios.post("/admin/auth/refreshToken", { refreshToken });
 };
 
 export const loginUser = async (credentials) => {
@@ -43,8 +67,8 @@ export const resetPassword = async (data) => {
 export const getProfile = async (id, token) => {
   const response = await axios.get(`/admin/profile/${id}`, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
   return response.data;
 };

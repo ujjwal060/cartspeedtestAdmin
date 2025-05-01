@@ -15,6 +15,7 @@ import AssesmentDashboard from "./pages/AssesmentDashboard";
 import TestDashboard from "./pages/TestDashboard";
 import CertificateDashboard from "./pages/CertificateDashboard";
 import TestDetail from "./pages/TestDetail";
+import AdminDashboard from "./pages/adminDashboard";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -58,6 +59,7 @@ function App() {
                 <Route path="/test" element={<TestDashboard />} />
                 <Route path="/test-detail/:id" element={<TestDetail />} />
                 <Route path="/certificate" element={<CertificateDashboard />} />
+                <Route path="/admin" element={<AdminDashboard />} />
               </Route>
             </Routes>
           </Suspense>

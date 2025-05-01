@@ -85,7 +85,7 @@ const Dashboard = () => {
 
         {/* Top Summary Cards */}
         <Grid container spacing={3} sx={{ marginBottom: 2 }}>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <Card
               sx={{ backgroundColor: "#f0f4ff" }}
               onClick={() => navigate("/users")}
@@ -102,7 +102,7 @@ const Dashboard = () => {
               </CardActionArea>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <Card sx={{ backgroundColor: "#e3fce3" }}>
               <CardActionArea>
                 <CardContent>
@@ -116,7 +116,7 @@ const Dashboard = () => {
               </CardActionArea>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <Card sx={{ backgroundColor: "#fff4e5" }}>
               <CardActionArea>
                 <CardContent>
