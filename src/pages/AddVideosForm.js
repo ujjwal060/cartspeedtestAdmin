@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
@@ -14,16 +15,17 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [section, setSection] = useState("");
   const [sectionTitle, setSectionTitle] = useState("");
-  const [videoSections, setVideoSections] = useState([
-    {
-      id: 1,
-      title: "",
-      description: "",
-      videoFiles: [],
-    },
-  ]);
+  const [titleError, setTitleError] = useState(false);
 
-  const handleVideoInput = (e, sectionId) => {
+  // Changed to single section instead of array
+  const [videoSection, setVideoSection] = useState({
+    id: 1,
+    title: "",
+    description: "",
+    videoFiles: [],
+  });
+
+  const handleVideoInput = (e) => {
     const files = Array.from(e.target.files);
     const updatedFiles = files.map((file, index) => ({
       id: `${file.name}-${index}-${Date.now()}`,
@@ -34,13 +36,10 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
       file: file,
     }));
 
-    setVideoSections((prevSections) =>
-      prevSections.map((section) =>
-        section.id === sectionId
-          ? { ...section, videoFiles: [...updatedFiles] }
-          : section
-      )
-    );
+    setVideoSection(prev => ({
+      ...prev,
+      videoFiles: [...updatedFiles]
+    }));
   };
 
   const handleSection = async (sectionNumber) => {
@@ -48,58 +47,62 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
     const userId = localStorage.getItem("userId");
     try {
       const response = await sectionVideos(value, sectionNumber, token, userId);
-      console.log(response);
       if (response.status === 200) {
-        sectionTitle(response.data.title);
+        if (response.data.title) {
+          setSectionTitle(response.data.title);
+          setTitleError(false);
+        } else {
+          setSectionTitle('');
+          setTitleError(true);
+        }
       }
     } catch (error) {
       console.error("Error checking section:", error);
+      setTitleError(true);
     }
   };
 
+ 
+
   const handleVideoUpload = async (e) => {
     e.preventDefault();
-
-    // Check if any section has no videos
-    const hasEmptySections = videoSections.some(
-      (section) => section.videoFiles.length === 0
-    );
-
-    if (hasEmptySections) {
-      toast.error("Please select at least one video file in each section");
+  
+    if (!section || !sectionTitle) {
+      toast.error("Please select a section and enter section title");
       return;
     }
-
+  
+    if (videoSection.videoFiles.length === 0) {
+      toast.error("Please select at least one video file");
+      return;
+    }
+  
     setIsSubmitting(true);
     const token = localStorage.getItem("token");
-
+  
     try {
-      // Create an array of all upload promises from all sections
-      const uploadPromises = videoSections.flatMap((section) =>
-        section.videoFiles.map((vid) => {
-          const formData = new FormData();
-          formData.append("title", vid.title || section.title);
-          formData.append("state", value);
-          formData.append("description", section.description);
-          formData.append("section", section.sectionTitle || section);
-          formData.append("video", vid.file);
-
-          return addVideos(formData, token);
-        })
-      );
-
-      // Wait for all uploads to complete
+      const uploadPromises = videoSection.videoFiles.map((vid) => {
+        const formData = new FormData();
+        formData.append("title", vid.title || videoSection.title || "");
+        formData.append("description", videoSection.description || "");
+        formData.append("image", vid.file);
+        formData.append("sectionNumber", section);
+        formData.append("sectionTitle", sectionTitle);
+  
+        return addVideos(formData, token);
+      });
+  
       const responses = await Promise.all(uploadPromises);
-
-      // Check all responses for success
-      const allSuccess = responses.every((response) => response.status === 201);
-
+      console.log("API Responses:", responses); // Debugging
+  
+      const allSuccess = responses.every(response => {
+        if (!response) return false;
+        // Some APIs return success on 200, not just 201
+        return response.status === 200 || response.status === 201;
+      });
+  
       if (allSuccess) {
-        const totalVideos = videoSections.reduce(
-          (sum, section) => sum + section.videoFiles.length,
-          0
-        );
-        toast.success(`${totalVideos} Video(s) Uploaded Successfully`, {
+        toast.success(`${videoSection.videoFiles.length} Video(s) Uploaded Successfully`, {
           autoClose: 3000,
         });
         resetForm();
@@ -107,79 +110,56 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
         handleClose();
         onVideoUploaded();
       } else {
-        throw new Error("Some videos failed to upload");
+        const firstError = responses.find(r => !r || r.status !== 201);
+        throw new Error(firstError?.data?.message || "Some videos failed to upload");
       }
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message?.[0] || "Error uploading videos"
-      );
+      console.error("Full error object:", error);
+      
+      let errorMessage = "Error uploading videos";
+      if (error.response) {
+        // Handle different backend error formats
+        errorMessage = 
+          (Array.isArray(error.response.data?.message) 
+            ? error.response.data.message[0] 
+            : error.response.data?.message) ||
+          error.response.data?.error ||
+          error.response.statusText ||
+          `Server error (${error.response.status})`;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+  
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const resetForm = () => {
     setValue("");
     setSection("");
-    setVideoSections([
-      {
-        id: 1,
-        title: "",
-        description: "",
-        videoFiles: [],
-        sectionTitle: "",
-      },
-    ]);
+    setSectionTitle("");
+    setTitleError(false);
+    setVideoSection({
+      id: 1,
+      title: "",
+      description: "",
+      videoFiles: [],
+    });
   };
 
-  const addNewSection = () => {
-    if (videoSections.length >= 5) {
-      toast.warning("Maximum 5 sections allowed");
-      return;
-    }
-    setVideoSections((prev) => [
+  const updateSectionField = (field, value) => {
+    setVideoSection(prev => ({
       ...prev,
-      {
-        id: prev.length + 1,
-        title: "",
-        description: "",
-        videoFiles: [],
-        sectionTitle: "",
-      },
-    ]);
+      [field]: value
+    }));
   };
 
-  const removeSection = (sectionId) => {
-    if (videoSections.length <= 1) {
-      toast.warning("At least one section is required");
-      return;
-    }
-    setVideoSections((prev) =>
-      prev.filter((section) => section.id !== sectionId)
-    );
-  };
-
-  const updateSectionField = (sectionId, field, value) => {
-    setVideoSections((prevSections) =>
-      prevSections.map((section) =>
-        section.id === sectionId ? { ...section, [field]: value } : section
-      )
-    );
-  };
-
-  const deleteUploadedVideo = (sectionId, videoId) => {
-    setVideoSections((prevSections) =>
-      prevSections.map((section) =>
-        section.id === sectionId
-          ? {
-              ...section,
-              videoFiles: section.videoFiles.filter(
-                (vid) => vid.id !== videoId
-              ),
-            }
-          : section
-      )
-    );
+  const deleteUploadedVideo = (videoId) => {
+    setVideoSection(prev => ({
+      ...prev,
+      videoFiles: prev.videoFiles.filter(vid => vid.id !== videoId)
+    }));
   };
 
   return (
@@ -190,17 +170,6 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
       <Offcanvas.Body>
         <form onSubmit={handleVideoUpload}>
           <div className="row gy-4 mb-4">
-            <div className="col-lg-12">
-              {/* <TextField
-                variant="outlined"
-                size="small"
-                className="w-100"
-                placeholder="Enter video state.."
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                required
-              /> */}
-            </div>
             <div className="col-lg-6">
               <FormControl fullWidth variant="standard">
                 <InputLabel id="demo-simple-select-label">
@@ -217,11 +186,9 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
                     handleSection(e.target.value);
                   }}
                 >
-                  <MenuItem value={1}>Section1</MenuItem>
-                  <MenuItem value={2}>Section2</MenuItem>
-                  <MenuItem value={3}>Section3</MenuItem>
-                  <MenuItem value={4}>Section4</MenuItem>
-                  <MenuItem value={5}>Section5</MenuItem>
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <MenuItem key={num} value={num}>Section{num}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </div>
@@ -231,171 +198,133 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
                 className="w-100 h-100 full-height"
                 placeholder="Enter section title.."
                 value={sectionTitle}
-                onChange={(e) => setSectionTitle(e.target.value)}
+                onChange={(e) => {
+                  setSectionTitle(e.target.value);
+                  setTitleError(false);
+                }}
                 required
+                error={titleError}
+                helperText={titleError ? "Title is required" : ""}
               />
             </div>
           </div>
 
           {section && sectionTitle && (
-            <>
-              {videoSections.map((videoSection, index) => (
-                <>
-                  <div key={videoSection.id} className="fileupload-view mb-4">
-                    <div className="kb-data-box">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5>Section {index + 1}</h5>
-                        {videoSections.length > 1 && (
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            size="small"
-                            onClick={() => removeSection(videoSection.id)}
-                          >
-                            Remove Section
-                          </Button>
-                        )}
-                      </div>
+            <div className="fileupload-view mb-4">
+              <div className="kb-data-box">
+                <div className="kb-file-upload">
+                  <div className="file-upload-box">
+                    <input
+                      type="file"
+                      accept="video/*"
+                      id="fileupload"
+                      className="file-upload-input"
+                      onChange={handleVideoInput}
+                      multiple
+                    />
+                    <span>
+                      Drag and drop or{" "}
+                      <span className="file-link">Choose your files</span>
+                    </span>
+                  </div>
+                  {videoSection.videoFiles.length > 0 && (
+                    <p className="mt-2">
+                      {videoSection.videoFiles.length} video(s) selected
+                    </p>
+                  )}
+                </div>
 
-                      <div className="kb-file-upload">
-                        <div className="file-upload-box">
-                          <input
-                            type="file"
-                            accept="video/*"
-                            id={`fileupload-${videoSection.id}`}
-                            className="file-upload-input"
-                            onChange={(e) =>
-                              handleVideoInput(e, videoSection.id)
-                            }
-                          />
-                          <span>
-                            Drag and drop or{" "}
-                            <span className="file-link">Choose your files</span>
+                <div className="kb-attach-box mb-3">
+                  {videoSection.videoFiles.map((vid) => (
+                    <div className="file-atc-box" key={vid.id}>
+                      <div className="file-image">
+                        <video
+                          width="100"
+                          height="60"
+                          controls
+                          src={vid.fileurl}
+                        ></video>
+                      </div>
+                      <div className="file-detail">
+                        <h6>{vid.filename}</h6>
+                        <p>
+                          <span>Size : {vid.filesize}</span>
+                          <span className="ml-2">
+                            Modified Time : {vid.datetime}
                           </span>
-                        </div>
-                        {videoSection.videoFiles.length > 0 && (
-                          <p className="mt-2">
-                            {videoSection.videoFiles.length} video(s) selected
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="kb-attach-box mb-3">
-                        {videoSection.videoFiles.map((vid) => (
-                          <div className="file-atc-box" key={vid.id}>
-                            <div className="file-image">
-                              <video
-                                width="100"
-                                height="60"
-                                controls
-                                src={vid.fileurl}
-                              ></video>
-                            </div>
-                            <div className="file-detail">
-                              <h6>{vid.filename}</h6>
-                              <p>
-                                <span>Size : {vid.filesize}</span>
-                                <span className="ml-2">
-                                  Modified Time : {vid.datetime}
-                                </span>
-                              </p>
-                              <div className="file-actions">
-                                <button
-                                  type="button"
-                                  className="file-action-btn"
-                                  onClick={() =>
-                                    deleteUploadedVideo(videoSection.id, vid.id)
-                                  }
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="row gy-4 mb-4">
-                        <div className="col-lg-12">
-                          <TextField
-                            variant="outlined"
-                            size="small"
-                            className="w-100"
-                            placeholder="Enter video title.."
-                            value={videoSection.title}
-                            onChange={(e) =>
-                              updateSectionField(
-                                videoSection.id,
-                                "title",
-                                e.target.value
-                              )
-                            }
-                            required
-                          />
-                        </div>
-
-                        <div className="col-lg-12">
-                          <TextField
-                            variant="outlined"
-                            size="small"
-                            placeholder="Enter video description.."
-                            className="w-100"
-                            value={videoSection.description}
-                            onChange={(e) =>
-                              updateSectionField(
-                                videoSection.id,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                            required
-                            multiline
-                            rows={4}
-                          />
+                        </p>
+                        <div className="file-actions">
+                          <button
+                            type="button"
+                            className="file-action-btn"
+                            onClick={() => deleteUploadedVideo(vid.id)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </>
-              ))}
-            </>
-          )}
-          <div className="d-flex flex-column gap-2 align-items-center">
-            <Button
-              color="primary"
-              variant="outlined"
-              className="rounded-4"
-              onClick={addNewSection}
-              disabled={videoSections.length >= 5 || isSubmitting}
-            >
-              Add More Sections (Max 5)
-            </Button>
+                  ))}
+                </div>
 
-            <div className="d-flex gap-2 justify-content-end">
-              <Button
-                onClick={resetForm}
-                color="error"
-                variant="contained"
-                className="rounded-4"
-                disabled={isSubmitting}
-              >
-                Reset
-              </Button>
-              <Button
-                type="submit"
-                color="success"
-                variant="contained"
-                className="rounded-4"
-                disabled={
-                  isSubmitting ||
-                  videoSections.some(
-                    (section) => section.videoFiles.length === 0
-                  )
-                }
-              >
-                {isSubmitting ? "Uploading..." : `Save`}
-              </Button>
+                <div className="row gy-4 mb-4">
+                  <div className="col-lg-12">
+                    <TextField
+                      variant="outlined"
+                      size="small"
+                      className="w-100"
+                      placeholder="Enter video title.."
+                      value={videoSection.title}
+                      onChange={(e) =>
+                        updateSectionField("title", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="col-lg-12">
+                    <TextField
+                      variant="outlined"
+                      size="small"
+                      placeholder="Enter video description.."
+                      className="w-100"
+                      value={videoSection.description}
+                      onChange={(e) =>
+                        updateSectionField("description", e.target.value)
+                      }
+                      required
+                      multiline
+                      rows={4}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+          )}
+
+          <div className="d-flex gap-2 justify-content-end">
+            <Button
+              onClick={resetForm}
+              color="error"
+              variant="contained"
+              className="rounded-4"
+              disabled={isSubmitting}
+            >
+              Reset Form
+            </Button>
+            <Button
+              type="submit"
+              color="success"
+              variant="contained"
+              className="rounded-4"
+              disabled={
+                isSubmitting ||
+                videoSection.videoFiles.length === 0 ||
+                titleError
+              }
+            >
+              {isSubmitting ? "Uploading..." : `Save`}
+            </Button>
           </div>
         </form>
       </Offcanvas.Body>
