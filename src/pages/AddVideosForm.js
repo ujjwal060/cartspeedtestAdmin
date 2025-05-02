@@ -85,7 +85,7 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
         const formData = new FormData();
         formData.append("title", vid.title || videoSection.title || "");
         formData.append("description", videoSection.description || "");
-        formData.append("video", vid.file);
+        formData.append("image", vid.file);
         formData.append("sectionNumber", section);
         formData.append("sectionTitle", sectionTitle);
   
