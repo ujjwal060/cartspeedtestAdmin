@@ -45,13 +45,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const rowsPerPage = 10;
 
 const headCells = [
-  // {
-  //   id: "id",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "S.No",
-  //   disableSort: true,
-  // },
   {
     id: "title",
     numeric: false,
@@ -66,31 +59,32 @@ const headCells = [
     disableSort: true,
   },
   {
-    id: "Section",
+    id: "section",
     numeric: false,
     disablePadding: false,
     label: "Section",
     disableSort: true,
   },
   {
-    id: "locationState",
+    id: "sectionTitle",
+    numeric: false,
+    disablePadding: false,
+    label: "Section Title",
+    disableSort: true,
+  },
+  {
+    id: "locationName",
     numeric: false,
     disablePadding: false,
     label: "Location",
     disableSort: true,
   },
   {
-    id: "uploadedBy.name",
+    id: "durationTime",
     numeric: false,
     disablePadding: false,
-    label: "Uploaded",
+    label: "Duration",
     disableSort: true,
-  },
-  {
-    id: "uploadDate",
-    numeric: false,
-    disablePadding: false,
-    label: "Date",
   },
   {
     id: "status",
@@ -107,7 +101,6 @@ const headCells = [
     disableSort: true,
   },
 ];
-
 function EnhancedTableHead(props) {
   const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
@@ -468,51 +461,45 @@ const VideoDashboard = () => {
                     <TableCell></TableCell>
                   </TableRow>
                 )}
-                {getVideo.map((video, index) => (
-                  <TableRow
-                    key={video._id || index}
-                    className="table-custom-level"
-                  >
-                    <TableCell
-                      onClick={() => navigate('/assessment', { state: { title: video.title, videoId: video._id } })}
-                      style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
-                    >
-                      {video.title}
-                    </TableCell>
-                    <TableCell>{video.description}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={` ${video?.level}`}
-                        className={`${video?.level?.toLowerCase()}`}
-                      />
-                    </TableCell>
-                    <TableCell>{video.locationState}</TableCell>
-                    <TableCell>{video.uploadedBy?.name}</TableCell>
-                    <TableCell>
-                      {new Date(video.uploadDate).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Switch
-                        checked={video.isActive}
-                        onChange={() => handleToggleStatus(video._id)}
-                        color="primary"
-                        inputProps={{ 'aria-label': 'toggle video status' }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <PlayArrowIcon
-                        color="success"
-                        onClick={() => handlePlayOpen(video.url)}
-                        style={{ cursor: "pointer" }}
-                      />
-                      <DeleteIcon
-                        color="error"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDelete(video._id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+          
+
+{getVideo.map((item, index) => (
+    <TableRow key={item.video._id || index}>
+      <TableCell
+        onClick={() => navigate('/assessment', { state: { title: item.video.title, videoId: item.video._id } })}
+        style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+      >
+        {item.video.title}
+      </TableCell>
+      <TableCell>{item.video.description}</TableCell>
+      <TableCell>{item.section}</TableCell>
+      <TableCell>{item.sectionTitle}</TableCell>
+      <TableCell>{item.locationName}</TableCell>
+      <TableCell>{item.video.durationTime}</TableCell>
+      <TableCell>
+        <Switch
+          checked={item.video.isActive}
+          onChange={() => handleToggleStatus(item.video._id)}
+          color="primary"
+          inputProps={{ 'aria-label': 'toggle video status' }}
+        />
+      </TableCell>
+      <TableCell>
+        <PlayArrowIcon
+          color="success"
+          onClick={() => handlePlayOpen(item.video.url)}
+          style={{ cursor: "pointer" }}
+        />
+        <DeleteIcon
+          color="error"
+          style={{ cursor: "pointer" }}
+          onClick={() => handleDelete(item.video._id)}
+        />
+      </TableCell>
+    </TableRow>
+  ))}
+
+
               </TableBody>
             </Table>
           </TableContainer>
