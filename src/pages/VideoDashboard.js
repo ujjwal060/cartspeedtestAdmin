@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
@@ -320,44 +321,26 @@ const VideoDashboard = () => {
         <Paper elevation={3} className="mt-3">
           <TableContainer>
             {
+
+
               <Stack direction="row" spacing={1} className="p-3">
                 {inputValue.title && (
-                  <Chip
-                    label={`Title: ${inputValue.title}`}
-                    onDelete={() => handleFilterChange("title", "")}
-                  />
+                  <Chip label={`Title: ${inputValue.title}`} onDelete={() => handleFilterChange("title", "")} />
                 )}
                 {inputValue.description && (
-                  <Chip
-                    label={`Desc: ${inputValue.description}`}
-                    onDelete={() => handleFilterChange("description", "")}
-                  />
+                  <Chip label={`Description: ${inputValue.description}`} onDelete={() => handleFilterChange("description", "")} />
+                )}
+                {inputValue.section && (
+                  <Chip label={`Section: ${inputValue.section}`} onDelete={() => handleFilterChange("section", "")} />
+                )}
+                {inputValue.sectionTitle && (
+                  <Chip label={`Section Title: ${inputValue.sectionTitle}`} onDelete={() => handleFilterChange("sectionTitle", "")} />
                 )}
                 {inputValue.locationState && (
-                  <Chip
-                    label={`Location: ${inputValue.locationState}`}
-                    onDelete={() => handleFilterChange("locationState", "")}
-                  />
-                )}
-                {inputValue.uploadedBy && (
-                  <Chip
-                    label={`Uploaded By: ${inputValue.uploadedBy}`}
-                    onDelete={() => handleFilterChange("uploadedBy", "")}
-                  />
-                )}
-                {inputValue.uploadDate && (
-                  <Chip
-                    label={`Date: ${inputValue.uploadDate}`}
-                    onDelete={() => handleFilterChange("uploadDate", "")}
-                  />
-                )}
-                {inputValue.views && (
-                  <Chip
-                    label={`Views: ${inputValue.views}`}
-                    onDelete={() => handleFilterChange("views", "")}
-                  />
+                  <Chip label={`Location: ${inputValue.locationState}`} onDelete={() => handleFilterChange("locationState", "")} />
                 )}
               </Stack>
+
             }
             {loading && <LinearProgress />}
             <Table>
@@ -367,137 +350,118 @@ const VideoDashboard = () => {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
+
+
+
+
                 {openFilter && (
                   <TableRow>
-                    <TableCell></TableCell>
+                    {/* Title Filter */}
                     <TableCell>
                       <Form.Control
-                        id="filter-title"
                         placeholder="Title"
-                        value={inputValue.title}
+                        value={inputValue.title || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("title", e.target.value)
-                        }
+                        onChange={(e) => handleFilterChange("title", e.target.value)}
                       />
                     </TableCell>
-                    <TableCell className="">
+
+                    {/* Description Filter */}
+                    <TableCell>
+                      <Form.Control
+                        placeholder="Description"
+                        value={inputValue.description || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) => handleFilterChange("description", e.target.value)}
+                      />
+                    </TableCell>
+
+                    {/* Section Filter (Dropdown) */}
+                    <TableCell>
                       <FormControl
                         size="small"
-                        className="mb-2"
-                        style={{ width: "100px" }}
+                        style={{ width: "120px" }}
                         variant="standard"
                       >
-                        <InputLabel id="demo-simple-select-label">
-                          Level
-                        </InputLabel>
+                        <InputLabel>Section</InputLabel>
                         <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={level}
-                          label="Level"
-                          onChange={handleChange}
-                          className="table-custom-level"
+                          value={inputValue.section || ""}
+                          onChange={(e) => handleFilterChange("section", e.target.value)}
                         >
-                          <MenuItem value={"Easy"}>
-                            {" "}
-                            <Chip label="Easy" className="easy" />
-                          </MenuItem>
-                          <MenuItem value={"Medium"}>
-                            <Chip label="Medium" className="medium" />
-                          </MenuItem>
-                          <MenuItem value={"Hard"}>
-                            {" "}
-                            <Chip label="Hard" className="hard " />
-                          </MenuItem>
+                          <MenuItem value="section1">Section 1</MenuItem>
+                          <MenuItem value="section2">Section 2</MenuItem>
+                          <MenuItem value="section3">Section 3</MenuItem>
+                          <MenuItem value="section4">Section 4</MenuItem>
+                          <MenuItem value="section5">Section 5</MenuItem>
                         </Select>
                       </FormControl>
                     </TableCell>
+
+                    {/* Section Title Filter */}
                     <TableCell>
                       <Form.Control
-                        id="filter-locationState"
+                        placeholder="Section Title"
+                        value={inputValue.sectionTitle || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("sectionTitle", e.target.value)
+                        }
+                      />
+                    </TableCell>
+
+                    {/* Location Filter */}
+                    <TableCell>
+                      <Form.Control
                         placeholder="Location"
-                        value={inputValue.locationState}
+                        value={inputValue.locationState || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("locationState", e.target.value)
                         }
                       />
                     </TableCell>
-                    <TableCell>
-                      {/* <Form.Control
-                        id="filter-uploadedBy"
-                        placeholder="Uploaded By"
-                        value={inputValue.uploadedBy}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("uploadedBy", e.target.value)
-                        }
-                      /> */}
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-uploadDate"
-                        placeholder="Uploaded Date"
-                        value={inputValue.uploadDate}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("uploadDate", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-views"
-                        placeholder="Views"
-                        className="rounded-0 custom-input"
-                        value={inputValue.views}
-                        onChange={(e) =>
-                          handleFilterChange("views", e.target.value)
-                        }
-                        type="number"
-                      />
-                    </TableCell>
+
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 )}
-          
 
-{getVideo.map((item, index) => (
-    <TableRow key={item.video._id || index}>
-      <TableCell
-        onClick={() => navigate('/assessment', { state: { title: item.video.title, videoId: item.video._id } })}
-        style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
-      >
-        {item.video.title}
-      </TableCell>
-      <TableCell>{item.video.description}</TableCell>
-      <TableCell>{item.section}</TableCell>
-      <TableCell>{item.sectionTitle}</TableCell>
-      <TableCell>{item.locationName}</TableCell>
-      <TableCell>{item.video.durationTime}</TableCell>
-      <TableCell>
-        <Switch
-          checked={item.video.isActive}
-          onChange={() => handleToggleStatus(item.video._id)}
-          color="primary"
-          inputProps={{ 'aria-label': 'toggle video status' }}
-        />
-      </TableCell>
-      <TableCell>
-        <PlayArrowIcon
-          color="success"
-          onClick={() => handlePlayOpen(item.video.url)}
-          style={{ cursor: "pointer" }}
-        />
-        <DeleteIcon
-          color="error"
-          style={{ cursor: "pointer" }}
-          onClick={() => handleDelete(item.video._id)}
-        />
-      </TableCell>
-    </TableRow>
-  ))}
+                {getVideo.map((item, index) => (
+                  <TableRow key={item.video._id || index}>
+                    <TableCell
+                      onClick={() => navigate('/assessment', { state: { title: item.video.title, videoId: item.video._id } })}
+                      style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+                    >
+                      {item.video.title}
+                    </TableCell>
+                    <TableCell>{item.video.description}</TableCell>
+                    <TableCell>{item.section}</TableCell>
+                    <TableCell>{item.sectionTitle}</TableCell>
+                    <TableCell>{item.locationName}</TableCell>
+                    <TableCell>{item.video.durationTime}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={item.video.isActive}
+                        onChange={() => handleToggleStatus(item.video._id)}
+                        color="primary"
+                        inputProps={{ 'aria-label': 'toggle video status' }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <PlayArrowIcon
+                        color="success"
+                        onClick={() => handlePlayOpen(item.video.url)}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <DeleteIcon
+                        color="error"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleDelete(item.video._id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
 
 
               </TableBody>
