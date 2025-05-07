@@ -59,6 +59,7 @@ function App() {
                 <Route path="/test" element={<TestDashboard />} />
                 <Route path="/test-detail/:id" element={<TestDetail />} />
                 <Route path="/certificate" element={<CertificateDashboard />} />
+                {/* <Route path="/certificate" element={<CertificateDashboard />} /> */}
                 <Route path="/admin" element={<AdminDashboard />} />
               </Route>
             </Routes>
