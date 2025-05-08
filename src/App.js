@@ -18,6 +18,9 @@ import TestDetail from "./pages/TestDetail";
 import AdminDashboard from "./pages/adminDashboard";
 import LSVRulesPage from "./pages/LSVRulesPage";
 import LSVLawsPage from "./pages/LSVLawsPage";
+import EditorTablePage from "./pages/AddLsvRules";
+import AddLsvRules from "./pages/AddLsvRules";
+
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -62,6 +65,7 @@ function App() {
                 <Route path="/test-detail/:id" element={<TestDetail />} />
                 <Route path="/certificate" element={<CertificateDashboard />} />
                 <Route path="/lsv-rules" element={<LSVRulesPage />} />
+                <Route path="/add-lsvrules" element={<AddLsvRules />} />
                 <Route path="/lsv-laws" element={<LSVLawsPage />} />
                 {/* <Route path="/certificate" element={<CertificateDashboard />} /> */}
                 <Route path="/admin" element={<AdminDashboard />} />

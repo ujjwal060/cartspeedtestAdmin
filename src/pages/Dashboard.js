@@ -210,11 +210,12 @@ const Dashboard = () => {
             <Grid size={{ xs: 12 }}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6">Manage LSV</Typography>
+                  <Typography variant="h6">ADD LSV</Typography>
                   <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => navigate("/lsv-rules")}
+                    // onClick={() => navigate("/lsv-rules")}
+                    onClick={() => navigate("/add-lsvrules")}
                     className="mt-2 w-100"
                   >
                     View LSV
