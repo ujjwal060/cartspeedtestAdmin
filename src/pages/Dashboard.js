@@ -202,6 +202,44 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </Grid>
+
+
+
+   {/* Manage LSV */}
+
+            <Grid size={{ xs: 12 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Manage LSV</Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => navigate("/lsv-rules")}
+                    className="mt-2 w-100"
+                  >
+                    View LSV
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+
+
+   {/* Manage Low speed vehicle */}
+            <Grid size={{ xs: 12 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Manage Low Speed Vehicle</Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => navigate("/lsv-laws")}
+                    className="mt-2 w-100"
+                  >
+                    View Low Speed Vehicle
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
           </div>
         </div>
       </Box>
