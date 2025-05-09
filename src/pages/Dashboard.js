@@ -229,11 +229,11 @@ const Dashboard = () => {
             <Grid size={{ xs: 12 }}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6">Manage Low Speed Vehicle</Typography>
+                  <Typography variant="h6">ADD Low Speed Vehicle</Typography>
                   <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => navigate("/lsv-laws")}
+                    onClick={() => navigate("/addlsv-laws")}
                     className="mt-2 w-100"
                   >
                     View Low Speed Vehicle
