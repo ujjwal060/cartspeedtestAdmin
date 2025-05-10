@@ -18,7 +18,7 @@ import TestDetail from "./pages/TestDetail";
 import AdminDashboard from "./pages/adminDashboard";
 import LSVRulesPage from "./pages/LSVRulesPage";
 import LSVLawsPage from "./pages/LSVLawsPage";
-// import EditorTablePage from "./pages/AddLsvRules";
+import EditorTablePage from "./pages/AddLsvRules";
 import AddLsvRules from "./pages/AddLsvRules";
 import AddLsvLaws from "./pages/AddLsvLaws";
 

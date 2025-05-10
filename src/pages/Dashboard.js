@@ -130,6 +130,19 @@ const Dashboard = () => {
               </CardActionArea>
             </Card>
           </Grid>
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <Card sx={{ backgroundColor: "#fff4e5" }}>
+              <CardActionArea>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary">
+       Certificates Issued                  </Typography>
+                  <Typography variant="h5" style={{ marginTop: "30px" }}>
+                    {data.certificatesIssued || 0}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
         </Grid>
 
         <div className="row gy-4">
@@ -165,7 +178,7 @@ const Dashboard = () => {
             </Grid>
 
             {/* Certificates Issued */}
-            <Grid size={{ xs: 12 }} className="mb-2">
+            {/* <Grid size={{ xs: 12 }} className="mb-2">
               <Card>
                 <CardActionArea>
                   <CardContent>
@@ -184,7 +197,7 @@ const Dashboard = () => {
                   </CardContent>
                 </CardActionArea>
               </Card>
-            </Grid>
+            </Grid> */}
 
             {/* Manage Videos */}
             <Grid size={{ xs: 12 }}>
