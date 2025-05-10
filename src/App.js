@@ -20,6 +20,7 @@ import LSVRulesPage from "./pages/LSVRulesPage";
 import LSVLawsPage from "./pages/LSVLawsPage";
 // import EditorTablePage from "./pages/AddLsvRules";
 import AddLsvRules from "./pages/AddLsvRules";
+import AddLsvLaws from "./pages/AddLsvLaws";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
@@ -67,6 +68,7 @@ function App() {
                 <Route path="/lsv-rules" element={<LSVRulesPage />} />
                 <Route path="/add-lsvrules" element={<AddLsvRules />} />
                 <Route path="/lsv-laws" element={<LSVLawsPage />} />
+                <Route path="/addlsv-laws" element={<AddLsvLaws />} />
                 {/* <Route path="/certificate" element={<CertificateDashboard />} /> */}
                 <Route path="/admin" element={<AdminDashboard />} />
               </Route>
