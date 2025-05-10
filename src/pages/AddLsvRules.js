@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button, Modal, Table, Container, Form, Row, Col } from 'react-bootstrap';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
