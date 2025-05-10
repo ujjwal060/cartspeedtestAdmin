@@ -145,40 +145,74 @@ export default function AddAssesmentFormFile({
     setAnswerValue(null);
   };
 
-  const handleSubmit = async () => {
-    if (questionsList.length === 0) {
-      toast.error("Please add at least one question");
-      return;
-    }
+  // const handleSubmit = async () => {
+  //   if (questionsList.length === 0) {
+  //     toast.error("Please add at least one question");
+  //     return;
+  //   }
 
-    try {
-      const promises = questionsList.map((q) =>
-        addQA(
-          token,
-          age,
-          q.question,
-          q.options,
-          q.answer,
-          selectedVideo._id,
-          selectedVideo.locationState
-        )
-      );
+  //   try {
+  //     const promises = questionsList.map((q) =>
+  //       addQA(
+  //         token,
+  //         age,
+  //         q.question,
+  //         q.options,
+  //         q.answer,
+  //         selectedVideo._id,
+  //         selectedVideo.locationState
+  //       )
+  //     );
 
-      await Promise.all(promises);
+  //     await Promise.all(promises);
 
-      handleClose();
-      modalClose();
-      onVideoUploaded();
-      toast.success(`${questionsList.length} Questions Added Successfully`, {
-        autoClose: 3000,
-      });
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message?.[0] || "Failed to add questions"
-      );
-    }
-  };
+  //     handleClose();
+  //     modalClose();
+  //     onVideoUploaded();
+  //     toast.success(`${questionsList.length} Questions Added Successfully`, {
+  //       autoClose: 3000,
+  //     });
+  //   } catch (error) {
+  //     toast.error(
+  //       error?.response?.data?.message?.[0] || "Failed to add questions"
+  //     );
+  //   }
+  // };
 
+
+const handleSubmit = async () => {
+  if (questionsList.length === 0) {
+    toast.error("Please add at least one question");
+    return;
+  }
+
+  try {
+    const promises = questionsList.map((q) =>
+      addQA(
+        token,
+        age, // level parameter
+        q.question,
+        q.options,
+        q.answer,
+        selectedVideo.vId, // videoId parameter (using vId from API response)
+        selectedVideo.location // state parameter (using location from API response)
+      )
+    );
+
+    await Promise.all(promises);
+
+    handleClose();
+    modalClose();
+    onVideoUploaded();
+    toast.success(`${questionsList.length} Questions Added Successfully`, {
+      autoClose: 3000,
+    });
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message?.[0] || "Failed to add questions"
+    );
+  }
+};
   const modalClose = () => {
     setAge("");
     resetForm();
