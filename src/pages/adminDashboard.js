@@ -322,26 +322,26 @@ export default function AdminDashboard() {
                 )}
                 {data.map((video, index) => (
                   <TableRow key={video._id || index}>
-                    <TableCell>{video.name}</TableCell>
-                    <TableCell>{video.email}</TableCell>
-                    <TableCell>{video.locationDetails.name}</TableCell>
-                    <TableCell>{video.mobile}</TableCell>
+                    <TableCell>{video?.name}</TableCell>
+                    <TableCell>{video?.email}</TableCell>
+                    <TableCell>{video?.locationDetails?.name}</TableCell>
+                    <TableCell>{video?.mobile}</TableCell>
                     <TableCell>
                       <FormGroup>
                         <FormControlLabel
                           control={
                             <Switch
-                              checked={video.isActive}
+                              checked={video?.isActive}
                               onChange={() => {
                                 // Add your status change handler here
                               }}
                             />
                           }
-                          label={video.isActive ? "Active" : "Inactive"}
+                          label={video?.isActive ? "Active" : "Inactive"}
                         />
                       </FormGroup>
                     </TableCell>
-                    <TableCell>{video.role}</TableCell>
+                    <TableCell>{video?.role}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -31,7 +31,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import TextField from '@mui/material/TextField';
+import TextField from "@mui/material/TextField";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -88,7 +88,7 @@ const AssesmentDashboard = () => {
   const handleLevelChange = (event) => {
     const selectedLevel = event.target.value;
     setLevel(selectedLevel);
-    setFilters((prev) => ({ ...prev, level: selectedLevel }));
+    setFilters((prev) => ({ ...prev, section: selectedLevel }));
   };
 
   useEffect(() => {
@@ -106,7 +106,6 @@ const AssesmentDashboard = () => {
 
     return (
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-
         <Typography color="text.primary">{title}</Typography>
       </Breadcrumbs>
     );
@@ -137,7 +136,12 @@ const AssesmentDashboard = () => {
         <div className="position-sticky top-0 d-flex justify-content-end gap-2 mb-4 align-items-center">
           {openFilter && (
             <>
-               <TextField id="outlined-basic" label="Search by Location" variant="outlined" size="small"/>
+              <TextField
+                id="outlined-basic"
+                label="Search by Location"
+                variant="outlined"
+                size="small"
+              />
               <FormControl sx={{ width: "200px" }} size="small">
                 <InputLabel id="demo-simple-select-label">
                   Filter By Section
@@ -199,14 +203,13 @@ const AssesmentDashboard = () => {
                 Q{currentPage * rowsPerPage + index + 1}. {item.question}
               </Accordion.Header>
               <Accordion.Body>
-
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="">
                     <div className="d-flex justify-content-start gap-1 align-items-center">
+                     
                       <Typography className="text-end" variant="h6">
-                        Section:
+                        {item.sectionNumber}
                       </Typography>
-                      <span className="fs-6">{item.sectionNumber}</span>
                     </div>
                   </div>
                   {item.videoData?.title && (
@@ -251,8 +254,9 @@ const AssesmentDashboard = () => {
                         option.isCorrect ? (
                           <Chip
                             key={option._id}
-                            label={`${String.fromCharCode(65 + optIndex)}. ${option.text
-                              }`}
+                            label={`${String.fromCharCode(65 + optIndex)}. ${
+                              option.text
+                            }`}
                             color="success"
                           />
                         ) : null
