@@ -177,28 +177,6 @@ const Dashboard = () => {
               </Card>
             </Grid>
 
-            {/* Certificates Issued */}
-            {/* <Grid size={{ xs: 12 }} className="mb-2">
-              <Card>
-                <CardActionArea>
-                  <CardContent>
-                    <Typography variant="h6">Certificates Issued</Typography>
-                    <Typography variant="body1">
-                      Total Certificates: {data.certificatesIssued || 0}
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      href="/issue-certificate"
-                      className="mt-2 w-100"
-                    >
-                      Issue Certificate
-                    </Button>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid> */}
-
             {/* Manage Videos */}
             <Grid size={{ xs: 12 }}>
               <Card>
@@ -227,7 +205,6 @@ const Dashboard = () => {
                   <Button
                     variant="contained"
                     color="secondary"
-                    // onClick={() => navigate("/lsv-rules")}
                     onClick={() => navigate("/add-lsvrules")}
                     className="mt-2 w-100"
                   >
