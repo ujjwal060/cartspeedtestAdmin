@@ -60,7 +60,8 @@ export const addQA = async (
     throw error;
   }
 };
-export const getVideos = async (token,level,section) => {
+
+export const getVideos = async (token,section) => {
   try {
     const response = await axios.post(
       "/admin/QA/getVideos",
