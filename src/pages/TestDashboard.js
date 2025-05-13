@@ -129,6 +129,7 @@ function EnhancedTableHead(props) {
   );
 }
 
+
 const modalStyle = {
   position: 'absolute',
   top: '50%',
@@ -140,10 +141,10 @@ const modalStyle = {
   boxShadow: 24,
   p: 3,
   borderRadius: 2,
+  display: 'flex',
+  flexDirection: 'column',
   maxHeight: '90vh',
-  overflowY: 'auto'
 };
-
 const TestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -503,16 +504,30 @@ const TestDashboard = () => {
                         />
                       </TableCell>
                       <TableCell>
+                      
                         <Tooltip title="View details">
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<VisibilityIcon />}
-                            onClick={() => handleOpenModal(item)}
-                          >
-                            View
-                          </Button>
-                        </Tooltip>
+  <Button
+    variant="outlined"
+    size="small"
+    onClick={() => handleOpenModal(item)}
+    startIcon={<VisibilityIcon fontSize="small" />}
+    sx={{
+      borderRadius: '20px',
+      textTransform: 'none',
+      padding: '4px 10px',
+      fontSize: '0.75rem',
+      minWidth: 0,
+      lineHeight: 1.5,
+     
+      backgroundColor:'#2e7d32',
+      color: '#fff',
+   
+    }}
+  >
+    View
+  </Button>
+</Tooltip>
+
                       </TableCell>
                     </TableRow>
                   ))
@@ -669,12 +684,7 @@ const TestDashboard = () => {
                 <Typography variant="body2" color="text.secondary">
                   Showing {selectedTest.questions.length} of {selectedTest.questions.length} questions
                 </Typography>
-                <Button 
-                  variant="contained" 
-                  onClick={handleCloseModal}
-                >
-                  Close Review
-                </Button>
+              
               </Box>
             </>
           )}
