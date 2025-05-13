@@ -134,13 +134,13 @@ const Dashboard = () => {
 
         <div className="row gy-4">
           <div className="col-lg-8">
-            <Grid size={{ xs: 8 }}>
+            <Grid style={{ height: "100%" }} size={{ xs: 8 }}>
               <Card style={{ height: "100%" }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     Location-wise Activity
                   </Typography>
-                  <Bar data={chartData} />
+                  <Bar data={chartData} options={{ responsive: true }} style={{ height: "100%" }}  />
                 </CardContent>
               </Card>
             </Grid>
@@ -187,7 +187,7 @@ const Dashboard = () => {
             </Grid>
 
             {/* Manage Videos */}
-            <Grid size={{ xs: 12 }}>
+            <Grid size={{ xs: 12 }}  className="mb-2">
               <Card>
                 <CardContent>
                   <Typography variant="h6">Manage Training Videos</Typography>
@@ -203,11 +203,9 @@ const Dashboard = () => {
               </Card>
             </Grid>
 
+            {/* Manage LSV */}
 
-
-   {/* Manage LSV */}
-
-            <Grid size={{ xs: 12 }}>
+            <Grid size={{ xs: 12 }}  className="mb-2">
               <Card>
                 <CardContent>
                   <Typography variant="h6">ADD LSV</Typography>
@@ -224,8 +222,7 @@ const Dashboard = () => {
               </Card>
             </Grid>
 
-
-   {/* Manage Low speed vehicle */}
+            {/* Manage Low speed vehicle */}
             <Grid size={{ xs: 12 }}>
               <Card>
                 <CardContent>
