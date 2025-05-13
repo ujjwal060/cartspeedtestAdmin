@@ -17,6 +17,8 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Accordion from "react-bootstrap/Accordion";
 import { getQA } from "../api/test";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import AddAssesmentFormFile from "./AddAssesmentForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import TablePagination from "@mui/material/TablePagination";
@@ -28,6 +30,8 @@ import Loader from "../components/Loader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import TextField from '@mui/material/TextField';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -50,7 +54,8 @@ const AssesmentDashboard = () => {
   const [selected, setSelected] = useState([]);
   const location = useLocation();
   const { title, videoId } = location.state || {};
-
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
@@ -69,9 +74,9 @@ const AssesmentDashboard = () => {
 
   const handeOpenFilter = () => {
     setOpenFilter(!openFilter);
-    if (openFilter) {
-      setFilters({});
-    }
+    // if (openFilter) {
+    //   setFilters({});
+    // }
   };
 
   const handlePlayOpen = (url) => {
@@ -107,6 +112,14 @@ const AssesmentDashboard = () => {
     );
   };
 
+  const handleDateChange = (update) => {
+    setDateRange(update);
+    setFilters((prev) => ({
+      ...prev,
+      startDate: update[0],
+      endDate: update[1],
+    }));
+  };
   return loading ? (
     <div className="">
       <div className="global-loader margin-loader ">
@@ -124,23 +137,39 @@ const AssesmentDashboard = () => {
         <div className="position-sticky top-0 d-flex justify-content-end gap-2 mb-4 align-items-center">
           {openFilter && (
             <>
+               <TextField id="outlined-basic" label="Search by Location" variant="outlined" size="small"/>
               <FormControl sx={{ width: "200px" }} size="small">
                 <InputLabel id="demo-simple-select-label">
-                  Filter By Level
+                  Filter By Section
                 </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={level}
-                  label="Filter By Level"
+                  label="Filter By Section"
                   onChange={handleLevelChange}
                   sx={{ height: "40px" }}
                 >
-                  <MenuItem value={"Easy"}>Easy</MenuItem>
-                  <MenuItem value={"Medium"}>Medium</MenuItem>
-                  <MenuItem value={"Hard"}>Hard</MenuItem>
+                  <MenuItem value={1}>Section 1</MenuItem>
+                  <MenuItem value={2}>Section 2</MenuItem>
+                  <MenuItem value={3}>Section 3</MenuItem>
+                  <MenuItem value={4}>Section 4</MenuItem>
+                  <MenuItem value={5}>Section 5</MenuItem>
                 </Select>
               </FormControl>
+              <div className="custom-picker">
+                <CalendarMonthIcon className="svg-custom" />
+                <DatePicker
+                  selectsRange={true}
+                  startDate={startDate}
+                  endDate={endDate}
+                  onChange={handleDateChange}
+                  isClearable={true}
+                  placeholderText="Select date range"
+                  className="form-control"
+                  maxDate={new Date()}
+                />
+              </div>
             </>
           )}
           <Tooltip title="filter">

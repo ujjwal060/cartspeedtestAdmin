@@ -204,6 +204,9 @@ code {
   flex-wrap: wrap;
   align-items: center;
 }
+.accordion-button {
+  position: static !important;
+}
 .full-height .MuiInputBase-root {
   height: 100% !important;
 }
