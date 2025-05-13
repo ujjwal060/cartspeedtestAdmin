@@ -240,10 +240,7 @@ export default function AdminDashboard() {
               setOpen={setOpen}
               handleClose={handleClose}
               selectedVideos={[]}
-              //   videoFiles={videoFiles}
-              //   setVideoFiles={setVideoFiles}
-              //   deleteUploadedVideo={deleteUploadedVideo}
-              //   onVideoUploaded={fetchVideos}
+
             />
           </div>
         </div>

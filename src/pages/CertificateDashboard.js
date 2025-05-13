@@ -147,15 +147,6 @@ export default function CertificateDashboard() {
             View, generate, and manage certificates
           </Typography>
         </Box>
-        {/* <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleGenerateCertificate}
-          sx={{ height: 'fit-content' }}
-        >
-          Generate Certificate
-        </Button> */}
-
                     <Button
                       variant="contained"
                       color="primary"
@@ -169,10 +160,7 @@ export default function CertificateDashboard() {
                       setOpen={setOpen}
                       handleClose={handleClose}
                       selectedVideos={[]}
-                      // videoFiles={videoFiles}
-                      // setVideoFiles={setVideoFiles}
-                      // deleteUploadedVideo={deleteUploadedVideo}
-                      // onVideoUploaded={fetchVideos}
+                    
                     />
       </Box>
 

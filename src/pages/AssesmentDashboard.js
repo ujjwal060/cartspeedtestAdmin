@@ -101,9 +101,7 @@ const AssesmentDashboard = () => {
 
     return (
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-        {/* <Link color="inherit" href="/videos">
-          Home
-        </Link> */}
+
         <Typography color="text.primary">{title}</Typography>
       </Breadcrumbs>
     );
@@ -111,7 +109,7 @@ const AssesmentDashboard = () => {
 
   return loading ? (
     <div className="">
-      <div className="global-loader">
+      <div className="global-loader margin-loader ">
         <div className="loader-animation">
           <span></span>
           <span></span>
@@ -172,13 +170,14 @@ const AssesmentDashboard = () => {
                 Q{currentPage * rowsPerPage + index + 1}. {item.question}
               </Accordion.Header>
               <Accordion.Body>
+
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="">
                     <div className="d-flex justify-content-start gap-1 align-items-center">
                       <Typography className="text-end" variant="h6">
-                        Lv:
+                        Section:
                       </Typography>
-                      <span className="fs-6">{item.level}</span>
+                      <span className="fs-6">{item.sectionNumber}</span>
                     </div>
                   </div>
                   {item.videoData?.title && (
@@ -201,7 +200,7 @@ const AssesmentDashboard = () => {
                       <Typography className="text-end" variant="h6">
                         <LocationPinIcon />
                       </Typography>
-                      <span className="fs-6">{item.state}</span>
+                      <span className="fs-6">{item.locationName}</span>
                     </div>
                   </div>
                 </div>
@@ -223,9 +222,8 @@ const AssesmentDashboard = () => {
                         option.isCorrect ? (
                           <Chip
                             key={option._id}
-                            label={`${String.fromCharCode(65 + optIndex)}. ${
-                              option.text
-                            }`}
+                            label={`${String.fromCharCode(65 + optIndex)}. ${option.text
+                              }`}
                             color="success"
                           />
                         ) : null
