@@ -69,7 +69,6 @@ function App() {
                 <Route path="/add-lsvrules" element={<AddLsvRules />} />
                 <Route path="/lsv-laws" element={<LSVLawsPage />} />
                 <Route path="/addlsv-laws" element={<AddLsvLaws />} />
-                {/* <Route path="/certificate" element={<CertificateDashboard />} /> */}
                 <Route path="/admin" element={<AdminDashboard />} />
               </Route>
             </Routes>

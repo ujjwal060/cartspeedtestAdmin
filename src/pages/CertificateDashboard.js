@@ -151,34 +151,23 @@ export default function CertificateDashboard() {
             View, generate, and manage certificates
           </Typography>
         </Box>
-        {/* <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleGenerateCertificate}
-          sx={{ height: 'fit-content' }}
-        >
-          Generate Certificate
-        </Button> */}
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleClickOpen}
+                      className="rounded-4 d-flex gap-1 flex-row"
+                    >
+                      <AddCircleOutlineIcon />
+                      Generate Certificate </Button>
+                    <AddCertificateOffCanvas
+                      open={open}
+                      setOpen={setOpen}
+                      handleClose={handleClose}
+                      selectedVideos={[]}
+                    
+                    />
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleClickOpen}
-          className="rounded-4 d-flex gap-1 flex-row"
-        >
-          <AddCircleOutlineIcon />
-          Generate Certificate{" "}
-        </Button>
-        <AddCertificateOffCanvas
-          open={open}
-          setOpen={setOpen}
-          handleClose={handleClose}
-          selectedVideos={[]}
-          // videoFiles={videoFiles}
-          // setVideoFiles={setVideoFiles}
-          // deleteUploadedVideo={deleteUploadedVideo}
-          // onVideoUploaded={fetchVideos}
-        />
+                        
       </Box>
 
       <div className="row mb-3">

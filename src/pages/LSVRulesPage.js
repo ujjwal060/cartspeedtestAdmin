@@ -60,7 +60,7 @@ const LSVRulesPage = () => {
       <Card className="mb-5 border-0 shadow-lg">
         <Row className="g-0 flex-md-row-reverse">
           <Col md={5}>
-            {/* <Image src={safetyImage} alt="Safety rules" fluid className="h-100 rounded-start" /> */}
+           
             <Image 
   src={safetyImage}
   width={600}  // Add approximate dimensions

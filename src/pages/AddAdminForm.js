@@ -15,10 +15,10 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Changed from isSubmitting(true) to setIsSubmitting(true)
+    setIsSubmitting(true); 
     if (!name || !email || !state || !password || !mobile) {
       toast.error("Please fill all the fields");
-      setIsSubmitting(false); // Changed here too
+      setIsSubmitting(false); 
       return;
     }
     const token = localStorage.getItem("token");
