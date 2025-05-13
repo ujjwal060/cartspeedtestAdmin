@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
+// import Navbar from "./Navbar";
 import { Box } from "@mui/material";
 
 const Layout = () => {
@@ -23,7 +23,7 @@ const Layout = () => {
     <div style={{ display: "flex" }}>
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <Box sx={{ flex: 1 }}>
-        <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        {/* <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
         <Box
           sx={{ marginTop: 8, padding: 2 }}
           className={`${sidebarOpen ? "content-open" : "w-100"}`}

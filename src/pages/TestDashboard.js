@@ -1,314 +1,422 @@
-import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
-import Offcanvas from "react-bootstrap/Offcanvas";
-import { Button } from "@mui/material";
-import Chip from "@mui/material/Chip";
+import React, { useEffect, useState, useCallback } from "react";
+import { Box, Paper, Chip, Tooltip, Stack } from "@mui/material";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { debounce } from "lodash";
+import { LinearProgress } from "@mui/material";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import TableSortLabel from "@mui/material/TableSortLabel";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import Form from "react-bootstrap/Form";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import Accordion from "react-bootstrap/Accordion";
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom";
+
+const rowsPerPage = 10;
+
+const headCells = [
+  {
+    id: "name",
+    numeric: false,
+    disablePadding: false,
+    label: "Name",
+  },
+  {
+    id: "email",
+    numeric: false,
+    disablePadding: false,
+    label: "Email",
+    disableSort: false,
+  },
+  {
+    id: "address",
+    numeric: false,
+    disablePadding: false,
+    label: "Address",
+    disableSort: true,
+  },
+  {
+    id: "duration",
+    numeric: false,
+    disablePadding: false,
+    label: "Duration",
+  },
+  {
+    id: "section",
+    numeric: true,
+    disablePadding: false,
+    label: "Section",
+  },
+  {
+    id: "testTaken",
+    numeric: true,
+    disablePadding: false,
+    label: "Test Taken",
+  },
+  {
+    id: "result",
+    numeric: false,
+    disablePadding: false,
+    label: "Result",
+  },
+  {
+    id: "view",
+    numeric: false,
+    disablePadding: false,
+    label: "View Detail",
+    disableSort: true,
+  },
+];
+
+function EnhancedTableHead(props) {
+  const { order, orderBy, onRequestSort } = props;
+  const createSortHandler = (property) => (event) => {
+    onRequestSort(event, property);
+  };
+
+  return (
+    <TableHead className="tableHead-custom">
+      <TableRow>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={"left"}
+            padding={headCell.disablePadding ? "none" : "normal"}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            {!headCell.disableSort ? (
+              <TableSortLabel
+                active={orderBy === headCell.id}
+                direction={orderBy === headCell.id ? order : "asc"}
+                onClick={createSortHandler(headCell.id)}
+              >
+                {headCell.label}
+                {orderBy === headCell.id ? (
+                  <Box component="span" sx={{ display: "none" }}>
+                    {order === "desc"
+                      ? "sorted descending"
+                      : "sorted ascending"}
+                  </Box>
+                ) : null}
+              </TableSortLabel>
+            ) : (
+              headCell.label
+            )}
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
 
 const TestDashboard = () => {
-  const [show, setShow] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const [inputValue, setInputValue] = useState({});
+  const [filters, setFilters] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const [data, setData] = useState([
+    {
+      id: 1,
+      name: "Daksh",
+      email: "daksh@example.com",
+      address: "Lucknow",
+      duration: "05:00",
+      section: 2,
+      testTaken: "3/5",
+      result: "Pass",
+    },
+    {
+      id: 2,
+      name: "Hello",
+      email: "hello@example.com",
+      address: "Delhi",
+      duration: "09:00",
+      section: 1,
+      testTaken: "2/5",
+      result: "Failed",
+    },
+    {
+      id: 3,
+      name: "Test User",
+      email: "test@example.com",
+      address: "Mumbai",
+      duration: "07:30",
+      section: 3,
+      testTaken: "4/5",
+      result: "Pass",
+    },
+  ]);
 
-  const [value, setValue] = React.useState(null);
-  const [answerValue, setAnswerValue] = React.useState(null);
-  const [filterLevel, setFilterLevel] = React.useState(null);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  const [age, setAge] = React.useState("");
-  const [options, setOptions] = useState({
-    option1: "",
-    option2: "",
-    option3: "",
-    option4: "",
+  // Filter and sort data
+  const filteredData = data.filter((item) => {
+    // Search term filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        item.name.toLowerCase().includes(searchLower) ||
+        item.email.toLowerCase().includes(searchLower) ||
+        item.address.toLowerCase().includes(searchLower) ||
+        item.result.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Other filters
+    if (
+      filters.name &&
+      !item.name.toLowerCase().includes(filters.name.toLowerCase())
+    ) {
+      return false;
+    }
+    if (
+      filters.email &&
+      !item.email.toLowerCase().includes(filters.email.toLowerCase())
+    ) {
+      return false;
+    }
+    if (
+      filters.result &&
+      !item.result.toLowerCase().includes(filters.result.toLowerCase())
+    ) {
+      return false;
+    }
+
+    // Date range filter
+    if (filters.startDate || filters.endDate) {
+    }
+
+    return true;
   });
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
+  // Sort data
+  const sortedData = React.useMemo(() => {
+    return [...filteredData].sort((a, b) => {
+      if (orderBy) {
+        const aValue = a[orderBy];
+        const bValue = b[orderBy];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return order === "asc"
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        } else {
+          return order === "asc" ? aValue - bValue : bValue - aValue;
+        }
+      }
+      return 0;
+    });
+  }, [filteredData, order, orderBy]);
+
+  // Pagination
+  const paginatedData = sortedData.slice(
+    currentPage * rowsPerPage,
+    currentPage * rowsPerPage + rowsPerPage
+  );
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
   };
 
-  const handleOptionChange = (e) => {
-    const { id, value } = e.target;
-    setOptions((prev) => ({
+  const handeOpenFilter = () => {
+    setOpenFilter(!openFilter);
+  };
+
+  const handleChangePage = (_, newPage) => setCurrentPage(newPage);
+
+  const handleFilterChange = (filterName, value) => {
+    setInputValue((prev) => ({
       ...prev,
-      [id]: value,
+      [filterName]: value,
     }));
+    debouncedUpdateFilters(filterName, value);
   };
 
-  const allOptionsFilled = () => {
-    return (
-      options.option1 && options.option2 && options.option3 && options.option4
-    );
+  const debouncedUpdateFilters = useCallback(
+    debounce((key, value) => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [key]: value,
+      }));
+      setCurrentPage(0); // Reset to first page when filters change
+    }, 500),
+    []
+  );
+
+  const handleDateChange = (update) => {
+    setDateRange(update);
+    setFilters((prev) => ({
+      ...prev,
+      startDate: update[0],
+      endDate: update[1],
+    }));
+    setCurrentPage(0);
   };
 
-  const answerOptions = [
-    options.option1,
-    options.option2,
-    options.option3,
-    options.option4,
-  ].filter((opt) => opt); // Filter out empty options
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(0);
+  };
 
   return (
     <Box p={4}>
-      {/* Table */}
       <Box>
-        <div className="d-flex justify-content-end gap-2">
-          <FormControl sx={{ width: "200px" }} size="small">
-            <InputLabel id="demo-simple-select-label">
-              Filter By Level
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={filterLevel}
-              label="Filter By Level"
-              onChange={(e) => setFilterLevel(e.target.value)}
-              sx={{ height: "40px" }}
-            >
-              <MenuItem value={1}>Level 1</MenuItem>
-              <MenuItem value={2}>Level 2</MenuItem>
-              <MenuItem value={3}>Level 3</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            variant="contained"
-            color="primary"
-            className="mb-3 "
-            onClick={handleShow}
-          >
-            Add Test
-          </Button>
+        <div className="d-flex justify-content-end align-items-center mb-3">
+          <div className="d-flex justify-content-end gap-2 align-items-center">
+            <div className="custom-picker">
+              <CalendarMonthIcon className="svg-custom" />
+              <DatePicker
+                selectsRange={true}
+                startDate={startDate}
+                endDate={endDate}
+                onChange={handleDateChange}
+                isClearable={true}
+                placeholderText="Select date range"
+                className="form-control"
+                maxDate={new Date()}
+              />
+            </div>
+
+            <Tooltip title="Filter">
+              <FilterListIcon
+                onClick={handeOpenFilter}
+                className="text-primary"
+                style={{ cursor: "pointer" }}
+              />
+            </Tooltip>
+          </div>
         </div>
 
-        <Accordion
-          className="d-flex flex-column gap-3"
-          defaultActiveKey="0"
-          flush
-        >
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Q1 Lorem Ipsum</Accordion.Header>
-            <Accordion.Body>
-              <div className="row align-items-start">
-                <div className="col-lg-3">
-                  <Typography className="text-start" variant="h6">
-                    Level: 1
-                  </Typography>
-                </div>
-                <div className="col-lg-9">
-                  <Typography className="text-end" variant="h6">
-                    Selected Location: Uttar Pradesh , India
-                  </Typography>
-                </div>
+        <Paper elevation={3} className="mt-3">
+          <TableContainer>
+            <Stack direction="row" spacing={1} className="p-3">
+              {inputValue.name && (
+                <Chip
+                  label={`Name: ${inputValue.name}`}
+                  onDelete={() => handleFilterChange("name", "")}
+                />
+              )}
+              {inputValue.email && (
+                <Chip
+                  label={`Email: ${inputValue.email}`}
+                  onDelete={() => handleFilterChange("email", "")}
+                />
+              )}
+              {inputValue.result && (
+                <Chip
+                  label={`Result: ${inputValue.result}`}
+                  onDelete={() => handleFilterChange("result", "")}
+                />
+              )}
+            </Stack>
 
-                <div className="col-lg-6">
-                  <div className="row gy-3 align-items-center ps-1 pt-3">
-                    <div className="col-lg-6">
-                      <Typography>A. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>B. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>C. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>D. Lorem Ipsum</Typography>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-lg-6">
-                  <div className="mt-5 d-flex justify-content-end">
-                    <Chip label=" D. Lorem Ipsum" color="success" />
-                  </div>
-                </div>
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>Q2 Lorem Ipsum</Accordion.Header>
-            <Accordion.Body>
-              <div className="row align-items-start">
-                <div className="col-lg-3">
-                  <Typography className="text-start" variant="h6">
-                    Level: 1
-                  </Typography>
-                </div>
-                <div className="col-lg-9">
-                  <Typography className="text-end" variant="h6">
-                    Selected Location: Uttar Pradesh , India
-                  </Typography>
-                </div>
+            {loading && <LinearProgress />}
 
-                <div className="col-lg-6">
-                  <div className="row gy-3 align-items-center ps-1 pt-3">
-                    <div className="col-lg-6">
-                      <Typography>A. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>B. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>C. Lorem Ipsum</Typography>
-                    </div>
-                    <div className="col-lg-6">
-                      <Typography>D. Lorem Ipsum</Typography>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-lg-6">
-                  <div className="mt-5 d-flex justify-content-end">
-                    <Chip label=" D. Lorem Ipsum" color="success" />
-                  </div>
-                </div>
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
-      </Box>
-      <Offcanvas show={show} onHide={handleClose} placement={"end"}>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Add Your Test</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <Autocomplete
-            id="controlled-demo"
-            value={value}
-            options={[
-              "Option A",
-              "Option B",
-              "Option C",
-              "Option D",
-              "Option E",
-            ]}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Add Your State"
-                variant="standard"
+            <Table>
+              <EnhancedTableHead
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
               />
-            )}
-          />
-          <div className="row gy-4 mt-4">
-            {value && (
-              <div className="col-lg-6 me-auto">
-                <FormControl size="small" className="w-100">
-                  <InputLabel id="demo-simple-select-label">
-                    Select Level
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={age}
-                    label="Select Level"
-                    onChange={handleChange}
-                  >
-                    <MenuItem value={"1"}>Level 1</MenuItem>
-                    <MenuItem value={"2"}>Level 2</MenuItem>
-                    <MenuItem value={"3"}>Level 3</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-            )}
 
-            {age && (
-              <div className="col-lg-12">
-                <TextField
-                  id="standard-basic"
-                  label="Add Your Question Here"
-                  variant="standard"
-                  className="w-100"
-                />
-              </div>
-            )}
+              <TableBody>
+                {openFilter && (
+                  <TableRow>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-name"
+                        placeholder="Name"
+                        value={inputValue.name || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("name", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-email"
+                        placeholder="Email"
+                        value={inputValue.email || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("email", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Form.Control
+                        id="filter-result"
+                        placeholder="Result"
+                        value={inputValue.result || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("result", e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell colSpan={5}></TableCell>
+                  </TableRow>
+                )}
 
-            {age && (
-              <>
-                <div className="col-lg-6">
-                  <TextField
-                    id="option1"
-                    label="Option 1"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option1}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-                <div className="col-lg-6">
-                  <TextField
-                    id="option2"
-                    label="Option 2"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option2}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-
-                <div className="col-lg-6">
-                  <TextField
-                    id="option3"
-                    label="Option 3"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option3}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-                <div className="col-lg-6">
-                  <TextField
-                    id="option4"
-                    label="Option 4"
-                    variant="standard"
-                    className="w-100"
-                    value={options.option4}
-                    onChange={handleOptionChange}
-                  />
-                </div>
-              </>
-            )}
-
-            {age && (
-              <div className="col-lg-12">
-                <Autocomplete
-                  id="answer-select"
-                  value={answerValue}
-                  options={answerOptions}
-                  disabled={!allOptionsFilled()}
-                  onChange={(event, newValue) => {
-                    setAnswerValue(newValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Add Your Answer"
-                      variant="standard"
-                    />
-                  )}
-                />
-              </div>
-            )}
-          </div>
-          <div className="row gy-4 mt-2">
-            <div className="col-lg-6">
-              <Button variant="contained" className="w-100" color="error">
-                Reset
-              </Button>
-            </div>
-            <div className="col-lg-6">
-              <Button variant="contained" className="w-100" color="success">
-                Save
-              </Button>
-            </div>
-          </div>
-        </Offcanvas.Body>
-      </Offcanvas>
+                {paginatedData.length > 0 ? (
+                  paginatedData.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.email}</TableCell>
+                      <TableCell>{item.address}</TableCell>
+                      <TableCell>{item.duration}</TableCell>
+                      <TableCell>{item.section}</TableCell>
+                      <TableCell>{item.testTaken}</TableCell>
+                      <TableCell>{item.result}</TableCell>
+                      <TableCell>
+                        <Tooltip title="View details">
+                          <VisibilityIcon
+                            onClick={() => navigate(`/test-detail/${item.id}`)}
+                            className="text-success"
+                            style={{ cursor: "pointer" }}
+                          />
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center">
+                      No records found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+        <TablePagination
+          rowsPerPageOptions={[rowsPerPage]}
+          component="div"
+          className="paginated-custom"
+          count={filteredData.length}
+          rowsPerPage={rowsPerPage}
+          page={currentPage}
+          onPageChange={handleChangePage}
+        />
+      </Box>
     </Box>
   );
 };

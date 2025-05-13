@@ -1,4 +1,5 @@
-import React, { useState, useId } from "react";
+
+import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
@@ -7,18 +8,24 @@ import {
   Dialog,
   DialogContent,
   Slide,
-  TextField,
   Chip,
   Tooltip,
   Stack,
 } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
+import Select from "@mui/material/Select";
+import Switch from '@mui/material/Switch';
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import Offcanvas from "react-bootstrap/Offcanvas";
 import ReactPlayer from "react-player";
-import Autocomplete from "@mui/material/Autocomplete";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { debounce } from "lodash";
+import { LinearProgress } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
+import { toast } from "react-toastify";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
@@ -26,220 +33,24 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-
+import { getVideos, deleteVideos, isActiveVideos } from "../api/video";
+import AddVideoOffcanvas from "./AddVideosForm";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const rowsPerPage = 10;
-const dummyVideos = [
-  {
-    id: 1,
-    title: "Video 1",
-    description: "Lorem Ipsum",
-    location: "Los Angeles",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "24 June 2025",
-    views: 0.1,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 2,
-    title: "Video 2",
-    description: "Lorem Ipsum",
-    location: "New York",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "25 June 2025",
-    views: 1.0,
-    url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  },
-  {
-    id: 3,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 4,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 5,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.9,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 6,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 7,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 8,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 9,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 10,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 11,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 12,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 13,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 14,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 15,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-  {
-    id: 16,
-    title: "Video 3",
-    description: "Lorem Ipsum",
-    location: "california",
-    uploadedBy: "SuperAdmin",
-    uploadedDate: "26 June 2025",
-    views: 0.2,
-    url: "https://www.w3schools.com/html/movie.mp4",
-  },
-];
-
-const filesizes = (bytes, decimals = 2) => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-};
-
-// Sorting functions
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
 
 const headCells = [
-  {
-    id: "id",
-    numeric: true,
-    disablePadding: false,
-    label: "S.No",
-  },
   {
     id: "title",
     numeric: false,
     disablePadding: false,
     label: "Title",
-    disableSort: true,
   },
   {
     id: "description",
@@ -249,39 +60,48 @@ const headCells = [
     disableSort: true,
   },
   {
-    id: "location",
+    id: "section",
+    numeric: false,
+    disablePadding: false,
+    label: "Section",
+    disableSort: true,
+  },
+  {
+    id: "sectionTitle",
+    numeric: false,
+    disablePadding: false,
+    label: "Section Title",
+    disableSort: true,
+  },
+  {
+    id: "locationName",
     numeric: false,
     disablePadding: false,
     label: "Location",
     disableSort: true,
   },
   {
-    id: "uploadedBy",
+    id: "durationTime",
     numeric: false,
     disablePadding: false,
-    label: "Uploaded By",
+    label: "Duration",
     disableSort: true,
   },
   {
-    id: "uploadedDate",
-    numeric: false,
-    disablePadding: false,
-    label: "Date",
-  },
-  {
-    id: "views",
+    id: "status",
     numeric: true,
     disablePadding: false,
-    label: "Views",
+    label: "Status",
+    disableSort: true,
   },
   {
     id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Actions",
+    disableSort: true,
   },
 ];
-
 function EnhancedTableHead(props) {
   const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
@@ -289,7 +109,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead>
+    <TableHead className="tableHead-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -325,31 +145,76 @@ function EnhancedTableHead(props) {
 
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [value, setValue] = React.useState(null);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [getVideo, setGetVideo] = useState([]);
   const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
-  const [selectedVideos, setSelectedVideos] = useState([]);
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("id");
+  const [orderBy, setOrderBy] = useState("");
+  const [totalData, setTotalData] = useState([]);
   const [selected, setSelected] = useState([]);
   const [openFilter, setOpenFilter] = useState(false);
-  const [filters, setFilters] = useState({
-    title: "",
-    description: "",
-    location: "",
-    uploadedBy: "",
-    uploadedDate: "",
-    views: "",
-  });
-
-  const today = dayjs().startOf("day");
-
-  const uniqueId = useId();
+  const [inputValue, setInputValue] = useState("");
+  const [filters, setFilters] = useState({});
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token");
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
+  const [level, setLevel] = useState("");
+  const navigate = useNavigate();
+  const handleChange = (event) => {
+    setLevel(event.target.value);
+  };
+  const fetchVideos = async () => {
+    const offset = currentPage * rowsPerPage;
+    const limit = rowsPerPage;
+    const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+    try {
+      setLoading(true);
+      const response = await getVideos(
+        token,
+        offset,
+        limit,
+        sortBy,
+        sortField,
+        filters
+      );
+
+      if (response.status === 200) {
+        setGetVideo(response?.data);
+        setTotalData(response?.total);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message?.[0]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteUploadedVideo = (id) => {
+    setVideoFiles((prev) => prev.filter((v) => v.id !== id));
+  };
+  const handleDelete = async (videoId) => {
+    try {
+      const res = await deleteVideos(videoId, token);
+      toast.success(res.message[0]);
+      fetchVideos();
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
+
+  const handleToggleStatus = async (videoId) => {
+    try {
+      const res = await isActiveVideos(videoId, token);
+      toast.success(res.message[0]);
+      fetchVideos();
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
 
   const handlePlayOpen = (url) => {
     setSelected(url);
@@ -363,115 +228,66 @@ const VideoDashboard = () => {
     setOrderBy(property);
   };
 
-  const handleVideoInput = (e) => {
-    const newVideos = [];
-    for (let i = 0; i < e.target.files.length; i++) {
-      const file = e.target.files[i];
-      const url = URL.createObjectURL(file);
-      newVideos.push({
-        id: `${uniqueId}-${Date.now()}-${i}`,
-        filename: file.name,
-        filetype: file.type,
-        filesize: filesizes(file.size),
-        datetime: file.lastModifiedDate?.toLocaleString("en-IN"),
-        fileurl: url,
-      });
-    }
-    setSelectedVideos((prev) => [...prev, ...newVideos]);
-  };
   const handeOpenFilter = () => {
     setOpenFilter(!openFilter);
   };
 
-  const handleVideoUpload = (e) => {
-    e.preventDefault();
-    setVideoFiles((prev) => [...prev, ...selectedVideos]);
-    setSelectedVideos([]);
-    e.target.reset();
-    setOpen(false);
-  };
-
   const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
-  const deleteUploadedVideo = (id) => {
-    if (window.confirm("Delete this video?")) {
-      setSelectedVideos((prev) => prev.filter((v) => v.id !== id));
-    }
-  };
   const handleFilterChange = (filterName, value) => {
-    setFilters((prev) => ({
+    setInputValue((prev) => ({
       ...prev,
       [filterName]: value,
     }));
+    debouncedUpdateFilters(filterName, value);
   };
 
-  // Sort videos
-  const filterVideos = (videos) => {
-    return videos.filter((video) => {
-      return (
-        video.title.toLowerCase().includes(filters.title.toLowerCase()) &&
-        video.description
-          .toLowerCase()
-          .includes(filters.description.toLowerCase()) &&
-        video.location.toLowerCase().includes(filters.location.toLowerCase()) &&
-        video.uploadedBy
-          .toLowerCase()
-          .includes(filters.uploadedBy.toLowerCase()) &&
-        (filters.uploadedDate === "" ||
-          video.uploadedDate.includes(filters.uploadedDate)) &&
-        (filters.views === "" || video.views.toString().includes(filters.views))
-      );
-    });
+  const debouncedUpdateFilters = useCallback(
+    debounce((key, value) => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [key]: value,
+      }));
+    }, 2000),
+    []
+  );
+
+  const handleDateChange = (update) => {
+    setDateRange(update);
+    setFilters((prev) => ({
+      ...prev,
+      startDate: update[0],
+      endDate: update[1],
+    }));
   };
 
-  // Modify your sortedVideos to include filtering
-  const sortedAndFilteredVideos = filterVideos(
-    [...dummyVideos].sort(getComparator(order, orderBy))
-  );
+  useEffect(() => {
+    fetchVideos();
+  }, [currentPage]);
 
-  // Update paginatedUsers to use the filtered videos
-  const paginatedUsers = sortedAndFilteredVideos.slice(
-    currentPage * rowsPerPage,
-    currentPage * rowsPerPage + rowsPerPage
-  );
-
-  console.log(filters);
+  useEffect(() => {
+    setCurrentPage(0);
+    fetchVideos();
+  }, [filters, order, orderBy]);
 
   return (
     <Box p={4}>
       <Box>
-        <div className="d-flex justify-content-between gap-2 align-items-center pad-root">
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer
-              components={["DateRangePicker"]}
-              className="d-flex flex-row gap-3"
-            >
-              <DatePicker
-                label="Start Date"
-                value={startDate}
-                sx={{ width: "200px" }}
-                size="small"
-                onChange={(newValue) => {
-                  setStartDate(newValue);
-                  if (endDate && newValue && newValue.isAfter(endDate)) {
-                    setEndDate(null); // Reset end date if it's before new start
-                  }
-                }}
-                minDate={today}
-              />
+        <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
+          <div className="custom-picker">
+            <CalendarMonthIcon className="svg-custom" />
+            <DatePicker
+              selectsRange={true}
+              startDate={startDate}
+              endDate={endDate}
+              onChange={handleDateChange}
+              isClearable={true}
+              placeholderText="Select date range"
+              className="form-control"
+              maxDate={new Date()}
+            />
+          </div>
 
-              <DatePicker
-                label="End Date"
-                value={endDate}
-                sx={{ width: "200px" }}
-                size="small"
-                onChange={setEndDate}
-                minDate={
-                  startDate ? startDate.add(1, "day") : today.add(1, "day")
-                }
-              />
-            </DemoContainer>
-          </LocalizationProvider>
           <div className="d-flex justify-content-end gap-3 align-items-center">
             <Tooltip title="filter">
               <FilterListIcon
@@ -488,52 +304,45 @@ const VideoDashboard = () => {
               className="rounded-4 d-flex gap-1 flex-row"
             >
               <AddCircleOutlineIcon />
-              Add Video
+              Video
             </Button>
+            <AddVideoOffcanvas
+              open={open}
+              setOpen={setOpen}
+              handleClose={handleClose}
+              selectedVideos={[]}
+              videoFiles={videoFiles}
+              setVideoFiles={setVideoFiles}
+              deleteUploadedVideo={deleteUploadedVideo}
+              onVideoUploaded={fetchVideos}
+            />
           </div>
         </div>
         <Paper elevation={3} className="mt-3">
           <TableContainer>
             {
+
+
               <Stack direction="row" spacing={1} className="p-3">
-                {filters.title && (
-                  <Chip
-                    label={filters.title}
-                    onDelete={() => handleFilterChange("title", "")}
-                  />
+                {inputValue.title && (
+                  <Chip label={`Title: ${inputValue.title}`} onDelete={() => handleFilterChange("title", "")} />
                 )}
-                {filters.description && (
-                  <Chip
-                    label={filters.description}
-                    onDelete={() => handleFilterChange("description", "")}
-                  />
+                {inputValue.description && (
+                  <Chip label={`Description: ${inputValue.description}`} onDelete={() => handleFilterChange("description", "")} />
                 )}
-                {filters.location && (
-                  <Chip
-                    label={filters.location}
-                    onDelete={() => handleFilterChange("location", "")}
-                  />
+                {inputValue.section && (
+                  <Chip label={`Section: ${inputValue.section}`} onDelete={() => handleFilterChange("section", "")} />
                 )}
-                {filters.uploadedBy && (
-                  <Chip
-                    label={filters.uploadedBy}
-                    onDelete={() => handleFilterChange("uploadedBy", "")}
-                  />
+                {inputValue.sectionTitle && (
+                  <Chip label={`Section Title: ${inputValue.sectionTitle}`} onDelete={() => handleFilterChange("sectionTitle", "")} />
                 )}
-                {filters.uploadedDate && (
-                  <Chip
-                    label={filters.uploadedDate}
-                    onDelete={() => handleFilterChange("uploadedDate", "")}
-                  />
-                )}
-                {filters.views && (
-                  <Chip
-                    label={filters.views}
-                    onDelete={() => handleFilterChange("views", "")}
-                  />
+                {inputValue.locationState && (
+                  <Chip label={`Location: ${inputValue.locationState}`} onDelete={() => handleFilterChange("locationState", "")} />
                 )}
               </Stack>
+
             }
+            {loading && <LinearProgress />}
             <Table>
               <EnhancedTableHead
                 order={order}
@@ -541,320 +350,142 @@ const VideoDashboard = () => {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
+
+
+
+
                 {openFilter && (
                   <TableRow>
-                    <TableCell></TableCell>
+                    {/* Title Filter */}
                     <TableCell>
                       <Form.Control
-                        id="filter-title"
                         placeholder="Title"
-                        // variant="outlined"
-                        value={filters.title}
+                        value={inputValue.title || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("title", e.target.value)
-                        }
+                        onChange={(e) => handleFilterChange("title", e.target.value)}
                       />
                     </TableCell>
+
+                    {/* Description Filter */}
                     <TableCell>
                       <Form.Control
-                        id="filter-description"
                         placeholder="Description"
-                        // variant="outlined"
-                        value={filters.description}
+                        value={inputValue.description || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) => handleFilterChange("description", e.target.value)}
+                      />
+                    </TableCell>
+
+                    {/* Section Filter (Dropdown) */}
+                    <TableCell>
+                      <FormControl
+                        size="small"
+                        style={{ width: "120px" }}
+                        variant="standard"
+                      >
+                        <InputLabel>Section</InputLabel>
+                        <Select
+                          value={inputValue.section || ""}
+                          onChange={(e) => handleFilterChange("section", e.target.value)}
+                        >
+                          <MenuItem value="section1">Section 1</MenuItem>
+                          <MenuItem value="section2">Section 2</MenuItem>
+                          <MenuItem value="section3">Section 3</MenuItem>
+                          <MenuItem value="section4">Section 4</MenuItem>
+                          <MenuItem value="section5">Section 5</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+
+                    {/* Section Title Filter */}
+                    <TableCell>
+                      <Form.Control
+                        placeholder="Section Title"
+                        value={inputValue.sectionTitle || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
-                          handleFilterChange("description", e.target.value)
+                          handleFilterChange("sectionTitle", e.target.value)
                         }
                       />
                     </TableCell>
+
+                    {/* Location Filter */}
                     <TableCell>
                       <Form.Control
-                        id="filter-location"
                         placeholder="Location"
-                        // variant="outlined"
-                        value={filters.location}
+                        value={inputValue.locationState || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
-                          handleFilterChange("location", e.target.value)
+                          handleFilterChange("locationState", e.target.value)
                         }
                       />
                     </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-uploadedBy"
-                        placeholder="Uploaded By"
-                        // variant="outlined"
-                        value={filters.uploadedBy}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("uploadedBy", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-uploadedDate"
-                        placeholder="Uploaded Date"
-                        // variant="outlined"
-                        value={filters.uploadedDate}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("uploadedDate", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-views"
-                        placeholder="Views"
-                        className="rounded-0 custom-input"
-                        // variant="outlined"
-                        value={filters.views}
-                        onChange={(e) =>
-                          handleFilterChange("views", e.target.value)
-                        }
-                        type="number"
-                      />
-                    </TableCell>
+
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 )}
-                {paginatedUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>{user.title}</TableCell>
-                    <TableCell>{user.description}</TableCell>
-                    <TableCell>{user.location}</TableCell>
-                    <TableCell>{user.uploadedBy}</TableCell>
-                    <TableCell>{user.uploadedDate}</TableCell>
-                    <TableCell>{user.views}</TableCell>
+
+                {getVideo.map((item, index) => (
+                  <TableRow key={item.video._id || index}>
+                    <TableCell
+                      onClick={() => navigate('/assessment', { state: { title: item.video.title, videoId: item.video._id } })}
+                      style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+                    >
+                      {item.video.title}
+                    </TableCell>
+                    <TableCell>{item.video.description}</TableCell>
+                    <TableCell>{item.section}</TableCell>
+                    <TableCell>{item.sectionTitle}</TableCell>
+                    <TableCell>{item.locationName}</TableCell>
+                    <TableCell>{item.video.durationTime}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={item.video.isActive}
+                        onChange={() => handleToggleStatus(item.video._id)}
+                        color="primary"
+                        inputProps={{ 'aria-label': 'toggle video status' }}
+                      />
+                    </TableCell>
                     <TableCell>
                       <PlayArrowIcon
                         color="success"
-                        onClick={() => handlePlayOpen(user.url)}
+                        onClick={() => handlePlayOpen(item.video.url)}
+                        style={{ cursor: "pointer" }}
                       />
-                      <DeleteIcon color="error" />
+                      <DeleteIcon
+                        color="error"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleDelete(item.video._id)}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
+
+
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[rowsPerPage]}
-            component="div"
-            className="paginated-custom"
-            count={dummyVideos.length}
-            rowsPerPage={rowsPerPage}
-            page={currentPage}
-            onPageChange={handleChangePage}
-          />
         </Paper>
-
-        <Box mt={4}>
-          {videoFiles.length > 0 &&
-            videoFiles.map((vid) => (
-              <Box
-                key={vid.id}
-                mb={2}
-                p={2}
-                border={"1px solid #ccc"}
-                borderRadius={2}
-              >
-                <video
-                  width="100%"
-                  height="240"
-                  controls
-                  src={vid.fileurl}
-                ></video>
-                <p>
-                  <strong>{vid.filename}</strong> ({vid.filesize}) -{" "}
-                  {vid.datetime}
-                </p>
-                <Button
-                  onClick={() => deleteUploadedVideo(vid.id)}
-                  color="error"
-                >
-                  Delete
-                </Button>
-                <a
-                  href={vid.fileurl}
-                  download={vid.filename}
-                  style={{ marginLeft: 10 }}
-                >
-                  <Button color="success">Download</Button>
-                </a>
-              </Box>
-            ))}
-        </Box>
-
-        <Offcanvas show={open} onHide={handleClose} placement={"end"}>
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Add Video</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <form onSubmit={handleVideoUpload}>
-              <div className="fileupload-view">
-                <div className="kb-data-box">
-                  <form onSubmit={handleVideoUpload}>
-                    <div className="kb-file-upload">
-                      <div className="file-upload-box">
-                        <input
-                          type="file"
-                          accept="video/*"
-                          id="fileupload"
-                          className="file-upload-input"
-                          onChange={handleVideoInput}
-                          multiple
-                        />
-                        <span>
-                          Drag and drop or{" "}
-                          <span className="file-link">Choose your files</span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="kb-attach-box mb-3">
-                      {selectedVideos.map((vid) => (
-                        <div className="file-atc-box" key={vid.id}>
-                          <div className="file-image">
-                            <video
-                              width="100"
-                              height="60"
-                              controls
-                              src={vid.fileurl}
-                            ></video>
-                          </div>
-                          <div className="file-detail">
-                            <h6>{vid.filename}</h6>
-                            <p>
-                              <span>Size : {vid.filesize}</span>
-                              <span className="ml-2">
-                                Modified Time : {vid.datetime}
-                              </span>
-                            </p>
-                            <div className="file-actions">
-                              <button
-                                type="button"
-                                className="file-action-btn"
-                                onClick={() => deleteUploadedVideo(vid.id)}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="row gy-4 mb-4">
-                      <div className="col-lg-12">
-                        <TextField
-                          variant="outlined"
-                          size="small"
-                          className="w-100"
-                          placeholder="Enter video title.."
-                        />
-                      </div>
-                      <div className="col-lg-12">
-                        <Autocomplete
-                          id="controlled-demo"
-                          size="small"
-                          value={value}
-                          options={[
-                            "Option A",
-                            "Option B",
-                            "Option C",
-                            "Option D",
-                            "Option E",
-                          ]}
-                          onChange={(event, newValue) => {
-                            setValue(newValue);
-                          }}
-                          renderInput={(params) => (
-                            <TextField {...params} label="Add Your State" />
-                          )}
-                        />
-                      </div>
-                      <div className="col-lg-12">
-                        <TextField
-                          variant="outlined"
-                          size="small"
-                          placeholder="Enter video title.."
-                          className="w-100"
-                        />
-                      </div>
-                    </div>
-                    <div className="kb-buttons-box d-flex justify-content-center gap-2">
-                      <Button
-                        onClick={handleClose}
-                        color="error"
-                        variant="contained"
-                      >
-                        Cancel
-                      </Button>
-                      <Button type="submit" color="success" variant="contained">
-                        Save
-                      </Button>
-                    </div>
-                  </form>
-
-                  {videoFiles.length > 0 && (
-                    <div className="kb-attach-box">
-                      <hr />
-                      {videoFiles.map((vid) => (
-                        <div className="file-atc-box" key={vid.id}>
-                          <div className="file-image">
-                            <video
-                              width="100"
-                              height="60"
-                              controls
-                              src={vid.fileurl}
-                            ></video>
-                          </div>
-                          <div className="file-detail">
-                            <h6>{vid.filename}</h6>
-                            <p>
-                              <span>Size : {vid.filesize}</span>
-                              <span className="ml-3">
-                                Modified Time : {vid.datetime}
-                              </span>
-                            </p>
-                            <div className="file-actions">
-                              <button
-                                className="file-action-btn"
-                                onClick={() => deleteUploadedVideo(vid.id)}
-                              >
-                                Delete
-                              </button>
-                              <a
-                                href={vid.fileurl}
-                                className="file-action-btn"
-                                download={vid.filename}
-                              >
-                                Download
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </form>
-          </Offcanvas.Body>
-        </Offcanvas>
-
+        <TablePagination
+          rowsPerPageOptions={[rowsPerPage]}
+          component="div"
+          className="paginated-custom"
+          count={totalData}
+          rowsPerPage={rowsPerPage}
+          page={currentPage}
+          onPageChange={handleChangePage}
+        />
         <Dialog
           open={playOpen}
           TransitionComponent={Transition}
           keepMounted
           onClose={(event, reason) => {
-            // Prevent closing on backdrop click or Escape key
             if (reason === "backdropClick" || reason === "escapeKeyDown") {
               return;
             }
-            handlePlayClose(); // Only close when explicitly called
+            handlePlayClose();
           }}
           maxWidth="sm"
           fullWidth

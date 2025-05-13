@@ -28,6 +28,35 @@ code {
 
   box-shadow: none !important;
 }
+.update-loader .global-loader {
+  top: auto !important;
+  left: auto !important;
+  bottom: 4px !important;
+  right: 0px !important;
+  width: 82.4% !important;
+  height: 89% !important;
+}
+.react-datepicker-wrapper input {
+  width: 280px !important;
+  padding-left: 30px !important;
+}
+.custom-picker {
+  position: relative !important;
+}
+
+.custom-picker .svg-custom {
+  position: absolute !important;
+  left: 5px !important;
+  top: 6px !important;
+  z-index: 1;
+}
+.accordion-button button {
+  background-color: inherit !important;
+}
+
+.tableHead-custom th span:hover {
+  cursor: all-scroll !important;
+}
 .pad-root .MuiFormControl-root {
   margin-top: 0 !important;
 }
@@ -43,6 +72,9 @@ code {
 }
 .accordion-button:not(.collapsed) {
   box-shadow: none !important;
+}
+.custom-accordion h2::after {
+  display: none !important;
 }
 .data-table-changes .MuiDataGrid-footerContainer p {
   margin: 0 !important;
@@ -138,6 +170,22 @@ code {
   line-height: 20px;
   margin-bottom: 8px;
 }
+.table-custom-level .easy {
+  background-color: #d4edda !important;
+  color: #155724 !important;
+}
+.table-custom-level .hard {
+  background-color: #f8d7e2 !important;
+  color: #721c24 !important;
+}
+
+.table-custom-level .medium {
+  background-color: #fff3cd !important;
+  color: #856404 !important;
+}
+.MuiTableContainer-root th {
+  font-weight: 600;
+}
 .file-detail p {
   font-size: 12px;
   color: #8194aa;
@@ -151,6 +199,9 @@ code {
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   align-items: center;
+}
+.full-height .MuiInputBase-root {
+  height: 100% !important;
 }
 .file-action-btn {
   font-size: 12px;
@@ -172,12 +223,10 @@ code {
 .file-atc-box:last-child {
   margin-bottom: 0;
 }
-
+.appbar-open {
+  width: calc(100% - 65px) !important;
+}
 @media screen and (min-width: 800px) {
-  .content-open {
-    width: calc(100% - 240px) !important;
-    margin-left: auto !important;
-  }
 }
 @media screen and (max-width: 800px) {
   .css-dkbq3b-MuiDrawer-docked .MuiDrawer-paper {

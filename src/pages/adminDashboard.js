@@ -3,7 +3,9 @@ import { Box, Paper, Chip, Tooltip, Stack } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { debounce } from "lodash";
 import { LinearProgress } from "@mui/material";
-import { toast } from "react-toastify";
+import Switch from "@mui/material/Switch";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -14,19 +16,16 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getAllUsers } from "../api/users";
+import { getAdmin } from "../api/auth";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import Button from "@mui/material/Button";
+import AddAdminForm from "./AddAdminForm";
+import { toast } from "react-toastify";
 const rowsPerPage = 10;
 
 const headCells = [
-  {
-    id: "id",
-    numeric: true,
-    disablePadding: false,
-    label: "S.No",
-    disableSort: true,
-  },
   {
     id: "Name",
     numeric: false,
@@ -41,24 +40,29 @@ const headCells = [
     disableSort: false,
   },
   {
-    id: "Phone",
-    numeric: false,
-    disablePadding: false,
-    label: "phone",
-    disableSort: false,
-  },
-  {
     id: "Address",
     numeric: false,
     disablePadding: false,
     label: "Address",
-    disableSort: true,
+    disableSort: false,
   },
   {
-    id: "uploadDate",
+    id: "Number",
     numeric: false,
     disablePadding: false,
-    label: "Date",
+    label: "Number",
+  },
+  {
+    id: "Status",
+    numeric: false,
+    disablePadding: false,
+    label: "Status",
+  },
+  {
+    id: "Role",
+    numeric: false,
+    disablePadding: false,
+    label: "Role",
   },
 ];
 
@@ -103,7 +107,7 @@ function EnhancedTableHead(props) {
   );
 }
 
-const VideoDashboard = () => {
+export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(0);
   const [getVideo, setGetVideo] = useState([]);
   const [order, setOrder] = useState("asc");
@@ -115,14 +119,17 @@ const VideoDashboard = () => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const [dateRange, setDateRange] = useState([null, null]);
+  const [open, setOpen] = useState(false);
   const [startDate, endDate] = dateRange;
-  const fetchVideos = async () => {
-    const offset = currentPage * rowsPerPage;
-    const limit = rowsPerPage;
-    const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+  const [data, setData] = useState([]);
+
+  const handleAdmin = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await getAllUsers(
+      const offset = currentPage * rowsPerPage;
+      const limit = rowsPerPage;
+      const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+      const response = await getAdmin(
         token,
         offset,
         limit,
@@ -130,11 +137,9 @@ const VideoDashboard = () => {
         sortField,
         filters
       );
-
-      if (response.status === 200) {
-        setGetVideo(response?.data);
-        setTotalData(response?.total);
-      }
+      setData(response.data);
+      setTotalData(response.total);
+      setLoading(false);
     } catch (error) {
       toast.error(error?.response?.data?.message?.[0]);
     } finally {
@@ -142,12 +147,18 @@ const VideoDashboard = () => {
     }
   };
 
+  useEffect(() => {
+    handleAdmin();
+  }, []);
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const handeOpenFilter = () => {
     setOpenFilter(!openFilter);
   };
@@ -182,14 +193,13 @@ const VideoDashboard = () => {
   };
 
   useEffect(() => {
-    fetchVideos();
+    // fetchVideos();
   }, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(0);
-    fetchVideos();
+    // fetchVideos();
   }, [filters, order, orderBy]);
-
   return (
     <Box p={4}>
       <Box>
@@ -216,6 +226,25 @@ const VideoDashboard = () => {
                 style={{ cursor: "pointer" }}
               />
             </Tooltip>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleClickOpen}
+              className="rounded-4 d-flex gap-1 flex-row"
+            >
+              <AddCircleOutlineIcon />
+              Admin
+            </Button>
+            <AddAdminForm
+              open={open}
+              setOpen={setOpen}
+              handleClose={handleClose}
+              selectedVideos={[]}
+              //   videoFiles={videoFiles}
+              //   setVideoFiles={setVideoFiles}
+              //   deleteUploadedVideo={deleteUploadedVideo}
+              //   onVideoUploaded={fetchVideos}
+            />
           </div>
         </div>
         <Paper elevation={3} className="mt-3">
@@ -292,32 +321,30 @@ const VideoDashboard = () => {
                         }
                       />
                     </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-state"
-                        placeholder="Address"
-                        value={inputValue.state}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("state", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell></TableCell>
                   </TableRow>
                 )}
-                {getVideo.map((video, index) => (
+                {data.map((video, index) => (
                   <TableRow key={video._id || index}>
-                    <TableCell>
-                      {currentPage * rowsPerPage + index + 1}
-                    </TableCell>
                     <TableCell>{video.name}</TableCell>
                     <TableCell>{video.email}</TableCell>
+                    <TableCell>{video.locationDetails.name}</TableCell>
                     <TableCell>{video.mobile}</TableCell>
-                    <TableCell>{video.state}</TableCell>
                     <TableCell>
-                      {new Date(video.updatedAt).toLocaleDateString()}
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={video.isActive}
+                              onChange={() => {
+                                // Add your status change handler here
+                              }}
+                            />
+                          }
+                          label={video.isActive ? "Active" : "Inactive"}
+                        />
+                      </FormGroup>
                     </TableCell>
+                    <TableCell>{video.role}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -336,6 +363,4 @@ const VideoDashboard = () => {
       </Box>
     </Box>
   );
-};
-
-export default VideoDashboard;
+}

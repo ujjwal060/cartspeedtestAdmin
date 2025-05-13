@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Card,
@@ -17,27 +17,60 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useNavigate } from "react-router-dom";
+import { getAll } from "../api/dashboard";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const Dashboard = () => {
-  const data = {
-    totalUsers: 1024,
-    newUsersThisMonth: 123,
-    activeUsers: 240,
-    totalTests: 87,
-    passedTests: 66,
-    certificatesIssued: 54,
+  const navigate = useNavigate();
+  const [data, setData] = useState({
+    totalUsers: 0,
+    thisMonthUsers: 0,
+    activeUsers: 10,
+    topStates: [],
+    newUsersThisMonth: 0,
+    totalTests: 10,
+    passedTests: 10,
+    certificatesIssued: 10,
+  });
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await getAll(token);
+      setData(res);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
   };
 
+  useEffect(() => {
+    fetchData();
+  });
+  const sortedStates = [...data.topStates].sort((a, b) =>
+    a.state.localeCompare(b.state)
+  );
   const chartData = {
-    labels: ["Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata"],
+    labels: sortedStates.map((state) => state.state),
     datasets: [
       {
-        label: "Active Users",
-        data: [40, 60, 30, 20, 50],
-        backgroundColor: "rgba(63, 81, 181, 0.6)",
-        borderColor: "rgba(63, 81, 181, 1)",
+        label: "Users",
+        data: sortedStates.map((state) => state.count),
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+        ],
+        borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+        ],
         borderWidth: 1,
       },
     ],
@@ -52,8 +85,11 @@ const Dashboard = () => {
 
         {/* Top Summary Cards */}
         <Grid container spacing={3} sx={{ marginBottom: 2 }}>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <Card sx={{ backgroundColor: "#f0f4ff" }}>
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <Card
+              sx={{ backgroundColor: "#f0f4ff" }}
+              onClick={() => navigate("/users")}
+            >
               <CardActionArea>
                 <CardContent>
                   <Typography variant="subtitle2" color="textSecondary">
@@ -66,7 +102,7 @@ const Dashboard = () => {
               </CardActionArea>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <Card sx={{ backgroundColor: "#e3fce3" }}>
               <CardActionArea>
                 <CardContent>
@@ -74,13 +110,13 @@ const Dashboard = () => {
                     New This Month
                   </Typography>
                   <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.newUsersThisMonth}
+                    {data.newUsersThisMonth || 0}
                   </Typography>
                 </CardContent>
               </CardActionArea>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <Card sx={{ backgroundColor: "#fff4e5" }}>
               <CardActionArea>
                 <CardContent>
@@ -88,7 +124,7 @@ const Dashboard = () => {
                     Active Users
                   </Typography>
                   <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.activeUsers}
+                    {data.activeUsers || 0}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -112,37 +148,41 @@ const Dashboard = () => {
           <div className="col-lg-4">
             <Grid size={{ xs: 12 }} className="mb-2">
               <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Tests Overview
-                  </Typography>
-                  <Typography variant="body1">
-                    Total Tests: {data.totalTests}
-                  </Typography>
-                  <Typography variant="body1">
-                    Passed: {data.passedTests}
-                  </Typography>
-                </CardContent>
+                <CardActionArea>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Tests Overview
+                    </Typography>
+                    <Typography variant="body1">
+                      Total Tests: {data.totalTests || 0}
+                    </Typography>
+                    <Typography variant="body1">
+                      Passed: {data.passedTests || 0}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
               </Card>
             </Grid>
 
             {/* Certificates Issued */}
             <Grid size={{ xs: 12 }} className="mb-2">
               <Card>
-                <CardContent>
-                  <Typography variant="h6">Certificates Issued</Typography>
-                  <Typography variant="body1">
-                    Total Certificates: {data.certificatesIssued}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    href="/issue-certificate"
-                    className="mt-2 w-100"
-                  >
-                    Issue Certificate
-                  </Button>
-                </CardContent>
+                <CardActionArea>
+                  <CardContent>
+                    <Typography variant="h6">Certificates Issued</Typography>
+                    <Typography variant="body1">
+                      Total Certificates: {data.certificatesIssued || 0}
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      href="/issue-certificate"
+                      className="mt-2 w-100"
+                    >
+                      Issue Certificate
+                    </Button>
+                  </CardContent>
+                </CardActionArea>
               </Card>
             </Grid>
 
@@ -154,10 +194,49 @@ const Dashboard = () => {
                   <Button
                     variant="contained"
                     color="secondary"
-                    href="/videos"
+                    onClick={() => navigate("/videos")}
                     className="mt-2 w-100"
                   >
                     View Videos
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+
+
+
+   {/* Manage LSV */}
+
+            <Grid size={{ xs: 12 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">ADD LSV</Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    // onClick={() => navigate("/lsv-rules")}
+                    onClick={() => navigate("/add-lsvrules")}
+                    className="mt-2 w-100"
+                  >
+                    View LSV
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+
+
+   {/* Manage Low speed vehicle */}
+            <Grid size={{ xs: 12 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">ADD Low Speed Vehicle</Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => navigate("/addlsv-laws")}
+                    className="mt-2 w-100"
+                  >
+                    View Low Speed Vehicle
                   </Button>
                 </CardContent>
               </Card>
