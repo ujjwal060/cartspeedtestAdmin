@@ -111,7 +111,7 @@ const AssesmentDashboard = () => {
 
   return loading ? (
     <div className="">
-      <div className="global-loader">
+      <div className="global-loader margin-loader ">
         <div className="loader-animation">
           <span></span>
           <span></span>
