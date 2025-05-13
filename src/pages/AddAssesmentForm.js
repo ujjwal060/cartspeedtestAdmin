@@ -38,6 +38,7 @@ export default function AddAssesmentFormFile({
   const [editingIndex, setEditingIndex] = useState(null);
   const token = localStorage.getItem("token");
 
+
   useEffect(() => {
     if (age) {
       const fetchVideos = async () => {
@@ -53,6 +54,7 @@ export default function AddAssesmentFormFile({
   }, [age]);
 
   const handleChange = (event) => {
+    debugger
     setAge(event.target.value);
     setSelectedVideo(null);
     setVideoOptions([]);
@@ -145,39 +147,48 @@ export default function AddAssesmentFormFile({
     setAnswerValue(null);
   };
 
-  const handleSubmit = async () => {
-    if (questionsList.length === 0) {
-      toast.error("Please add at least one question");
-      return;
-    }
+const handleSubmit = async () => {
+  if (questionsList.length === 0) {
+    toast.error("Please add at least one question");
+    return;
+  }
+const adminId = localStorage.getItem("userId"); 
+  if (!adminId) {
+    toast.error("Admin ID not found");
+    return;
+  }
 
-    try {
-      const promises = questionsList.map((q) =>
-        addQA(
-          token,
-          age,
-          q.question,
-          q.options,
-          q.answer,
-          selectedVideo._id,
-          selectedVideo.locationState
-        )
-      );
+  try {
+    const promises = questionsList.map((q) =>
+      addQA(
+        token,
+        age, 
+        q.question,
+        q.options,
+        q.answer,
+        selectedVideo.vId,
+        selectedVideo.location,
+        selectedVideo.sId,
+        adminId
+      )
+    );
 
-      await Promise.all(promises);
+    await Promise.all(promises);
 
-      handleClose();
-      modalClose();
-      onVideoUploaded();
-      toast.success(`${questionsList.length} Questions Added Successfully`, {
-        autoClose: 3000,
-      });
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message?.[0] || "Failed to add questions"
-      );
-    }
-  };
+    handleClose();
+    modalClose();
+    onVideoUploaded();
+    toast.success(`${questionsList.length} Questions Added Successfully`, {
+      autoClose: 3000,
+    });
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message?.[0] || "Failed to add questions"
+    );
+  }
+};
+
+
 
   const modalClose = () => {
     setAge("");
@@ -206,11 +217,11 @@ export default function AddAssesmentFormFile({
               label="Select Section"
               onChange={handleChange}
             >
-              <MenuItem value={"Section1"}>Section1</MenuItem>
-              <MenuItem value={"Section2"}>Section2</MenuItem>
-              <MenuItem value={"Section3"}>Section3</MenuItem>
-              <MenuItem value={"Section4"}>Section4</MenuItem>
-              <MenuItem value={"Section5"}>Section5</MenuItem>
+              <MenuItem value={0}>Section1</MenuItem>
+              <MenuItem value={1}>Section2</MenuItem>
+              <MenuItem value={2}>Section3</MenuItem>
+              <MenuItem value={3}>Section4</MenuItem>
+              <MenuItem value={4}>Section5</MenuItem>
             </Select>
           </FormControl>
         </div>

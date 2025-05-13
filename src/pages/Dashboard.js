@@ -130,17 +130,30 @@ const Dashboard = () => {
               </CardActionArea>
             </Card>
           </Grid>
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <Card sx={{ backgroundColor: "#fff4e5" }}>
+              <CardActionArea>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary">
+       Certificates Issued                  </Typography>
+                  <Typography variant="h5" style={{ marginTop: "30px" }}>
+                    {data.certificatesIssued || 0}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
         </Grid>
 
         <div className="row gy-4">
           <div className="col-lg-8">
-            <Grid size={{ xs: 8 }}>
+            <Grid style={{ height: "100%" }} size={{ xs: 8 }}>
               <Card style={{ height: "100%" }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     Location-wise Activity
                   </Typography>
-                  <Bar data={chartData} />
+                  <Bar data={chartData} options={{ responsive: true }} style={{ height: "100%" }}  />
                 </CardContent>
               </Card>
             </Grid>
@@ -164,30 +177,8 @@ const Dashboard = () => {
               </Card>
             </Grid>
 
-            {/* Certificates Issued */}
-            <Grid size={{ xs: 12 }} className="mb-2">
-              <Card>
-                <CardActionArea>
-                  <CardContent>
-                    <Typography variant="h6">Certificates Issued</Typography>
-                    <Typography variant="body1">
-                      Total Certificates: {data.certificatesIssued || 0}
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      href="/issue-certificate"
-                      className="mt-2 w-100"
-                    >
-                      Issue Certificate
-                    </Button>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
-
             {/* Manage Videos */}
-            <Grid size={{ xs: 12 }}>
+            <Grid size={{ xs: 12 }}  className="mb-2">
               <Card>
                 <CardContent>
                   <Typography variant="h6">Manage Training Videos</Typography>
@@ -203,18 +194,15 @@ const Dashboard = () => {
               </Card>
             </Grid>
 
+            {/* Manage LSV */}
 
-
-   {/* Manage LSV */}
-
-            <Grid size={{ xs: 12 }}>
+            <Grid size={{ xs: 12 }}  className="mb-2">
               <Card>
                 <CardContent>
                   <Typography variant="h6">ADD LSV</Typography>
                   <Button
                     variant="contained"
                     color="secondary"
-                    // onClick={() => navigate("/lsv-rules")}
                     onClick={() => navigate("/add-lsvrules")}
                     className="mt-2 w-100"
                   >
@@ -224,8 +212,7 @@ const Dashboard = () => {
               </Card>
             </Grid>
 
-
-   {/* Manage Low speed vehicle */}
+            {/* Manage Low speed vehicle */}
             <Grid size={{ xs: 12 }}>
               <Card>
                 <CardContent>

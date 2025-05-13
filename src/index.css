@@ -193,12 +193,19 @@ code {
   font-weight: 400;
   margin-bottom: 8px;
 }
+.margin-loader {
+      z-index: 1 !important;
+  margin-top: 65px !important;
+}
 .file-actions {
   display: -ms-flexbox;
   display: flex;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   align-items: center;
+}
+.accordion-button {
+  position: static !important;
 }
 .full-height .MuiInputBase-root {
   height: 100% !important;

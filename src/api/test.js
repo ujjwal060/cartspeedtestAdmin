@@ -1,4 +1,5 @@
 import axios from "./axios";
+  let adminId = localStorage.getItem('userId')
 
 export const getQA = async (token, offset, limit, filters) => {
   try {
@@ -18,7 +19,18 @@ export const getQA = async (token, offset, limit, filters) => {
   }
 };
 
-export const addQA = async (token, level, question, options, answer,videoId,state) => {
+
+export const addQA = async (
+  token, 
+  sectionName,  
+  question, 
+  options, 
+  answer,
+  videoId,
+  locationId,
+  sectionId,
+  adminId
+) => {
   try {
     const formattedOptions = options.map((option) => ({
       text: option,
@@ -28,9 +40,12 @@ export const addQA = async (token, level, question, options, answer,videoId,stat
     const data = {
       question,
       options: formattedOptions,
-      level,
+      sectionNumber: sectionName,  
       videoId,
-      state
+      locationId,
+      sectionId,
+      adminId,
+  
     };
 
     const response = await axios.post("/admin/QA/add", data, {
@@ -46,11 +61,11 @@ export const addQA = async (token, level, question, options, answer,videoId,stat
   }
 };
 
-export const getVideos = async (token,level) => {
+export const getVideos = async (token,section) => {
   try {
     const response = await axios.post(
       "/admin/QA/getVideos",
-      {level},
+      {section},
       {
         headers: {
           "Content-Type": "application/json",

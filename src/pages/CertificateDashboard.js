@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -23,14 +21,14 @@ import {
   Typography,
   CircularProgress,
   Chip,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import {
   Search as SearchIcon,
   Visibility as VisibilityIcon,
   Block as BlockIcon,
   Add as AddIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import AddCertificateOffcanvas from "./AddCertificateForm";
@@ -39,7 +37,7 @@ import AddCertificateOffCanvas from "./AddCertificateForm";
 
 export default function CertificateDashboard() {
   const [certificates, setCertificates] = useState([]);
-    const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
   const handleClickOpen = () => setOpen(true);
   const [loading, setLoading] = useState(true);
@@ -63,7 +61,7 @@ export default function CertificateDashboard() {
           issueDate: "2023-05-15",
           expiryDate: "2024-05-15",
           status: "active",
-          certificateId: "CERT-001"
+          certificateId: "CERT-001",
         },
         {
           id: 2,
@@ -72,7 +70,7 @@ export default function CertificateDashboard() {
           issueDate: "2023-06-20",
           expiryDate: "2024-06-20",
           status: "active",
-          certificateId: "CERT-002"
+          certificateId: "CERT-002",
         },
         {
           id: 3,
@@ -81,7 +79,7 @@ export default function CertificateDashboard() {
           issueDate: "2023-03-10",
           expiryDate: "2023-09-10",
           status: "expired",
-          certificateId: "CERT-003"
+          certificateId: "CERT-003",
         },
         {
           id: 4,
@@ -90,7 +88,7 @@ export default function CertificateDashboard() {
           issueDate: "2023-07-01",
           expiryDate: "2024-07-01",
           status: "active",
-          certificateId: "CERT-004"
+          certificateId: "CERT-004",
         },
         {
           id: 5,
@@ -99,10 +97,10 @@ export default function CertificateDashboard() {
           issueDate: "2023-01-15",
           expiryDate: "2023-07-15",
           status: "expired",
-          certificateId: "CERT-005"
-        }
+          certificateId: "CERT-005",
+        },
       ];
-      
+
       setCertificates(mockData);
       setLoading(false);
     } catch (error) {
@@ -111,21 +109,20 @@ export default function CertificateDashboard() {
     }
   };
 
-  const filteredCertificates = certificates.filter(cert => {
-    const matchesSearch = cert.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         cert.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         cert.certificateId.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const filteredCertificates = certificates.filter((cert) => {
+    const matchesSearch =
+      cert.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cert.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cert.certificateId.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesFilter = filter === "all" || cert.status === filter;
-    
+
     return matchesSearch && matchesFilter;
   });
 
   const handleViewCertificate = (id) => {
     navigate(`/certificate/${id}`);
   };
-
-
 
   const handleRevokeCertificate = (id) => {
     // In a real app, you would call an API to revoke the certificate
@@ -138,7 +135,14 @@ export default function CertificateDashboard() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
         <Box>
           <Typography variant="h4" component="h1" gutterBottom>
             Certificate Dashboard
@@ -147,15 +151,6 @@ export default function CertificateDashboard() {
             View, generate, and manage certificates
           </Typography>
         </Box>
-        {/* <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleGenerateCertificate}
-          sx={{ height: 'fit-content' }}
-        >
-          Generate Certificate
-        </Button> */}
-
                     <Button
                       variant="contained"
                       color="primary"
@@ -169,15 +164,14 @@ export default function CertificateDashboard() {
                       setOpen={setOpen}
                       handleClose={handleClose}
                       selectedVideos={[]}
-                      // videoFiles={videoFiles}
-                      // setVideoFiles={setVideoFiles}
-                      // deleteUploadedVideo={deleteUploadedVideo}
-                      // onVideoUploaded={fetchVideos}
+                    
                     />
+
+                        
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={4}>
+      <div className="row mb-3">
+        <div className="col-lg-4">
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
@@ -188,35 +182,42 @@ export default function CertificateDashboard() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </div>
+        <div className="col-lg-4">
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
                 Active Certificates
               </Typography>
               <Typography variant="h4" color="success.main">
-                {certificates.filter(c => c.status === 'active').length}
+                {certificates.filter((c) => c.status === "active").length}
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </div>
+        <div className="col-lg-4">
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
                 Expired Certificates
               </Typography>
               <Typography variant="h4" color="error.main">
-                {certificates.filter(c => c.status === 'expired').length}
+                {certificates.filter((c) => c.status === "expired").length}
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </div>
+      </div>
 
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 2,
+            mb: 3,
+          }}
+        >
           <TextField
             fullWidth
             variant="outlined"
@@ -231,7 +232,14 @@ export default function CertificateDashboard() {
               ),
             }}
           />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 200 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              minWidth: 200,
+            }}
+          >
             <Typography variant="body1">Filter:</Typography>
             <Select
               value={filter}
@@ -250,7 +258,7 @@ export default function CertificateDashboard() {
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -278,8 +286,11 @@ export default function CertificateDashboard() {
                       <TableCell>{cert.expiryDate}</TableCell>
                       <TableCell>
                         <Chip
-                          label={cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
-                          color={cert.status === 'active' ? 'success' : 'error'}
+                          label={
+                            cert.status.charAt(0).toUpperCase() +
+                            cert.status.slice(1)
+                          }
+                          color={cert.status === "active" ? "success" : "error"}
                           size="small"
                         />
                       </TableCell>
