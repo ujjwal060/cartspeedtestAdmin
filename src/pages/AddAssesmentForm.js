@@ -217,11 +217,11 @@ const adminId = localStorage.getItem("userId");
               label="Select Section"
               onChange={handleChange}
             >
-              <MenuItem value={1}>Section1</MenuItem>
-              <MenuItem value={2}>Section2</MenuItem>
-              <MenuItem value={3}>Section3</MenuItem>
-              <MenuItem value={4}>Section4</MenuItem>
-              <MenuItem value={5}>Section5</MenuItem>
+              <MenuItem value={0}>Section1</MenuItem>
+              <MenuItem value={1}>Section2</MenuItem>
+              <MenuItem value={2}>Section3</MenuItem>
+              <MenuItem value={3}>Section4</MenuItem>
+              <MenuItem value={4}>Section5</MenuItem>
             </Select>
           </FormControl>
         </div>
