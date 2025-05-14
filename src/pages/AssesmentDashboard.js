@@ -114,6 +114,13 @@ const AssesmentDashboard = () => {
       </Breadcrumbs>
     );
   };
+const sectionStyles = {
+  section1: { backgroundColor: "#fff3e0", color: "#ef6c00" }, 
+  section2: { backgroundColor: "#e3f2fd", color: "#1565c0" }, 
+  section3: { backgroundColor: "#e8f5e9", color: "#2e7d32" },
+  section4: { backgroundColor: "#ffebee", color: "#c62828" }, 
+  section5: { backgroundColor: "#f3e5f5", color: "#6a1b9a" }, 
+};
 
   const handleDateChange = (update) => {
     setDateRange(update);
@@ -196,11 +203,15 @@ const AssesmentDashboard = () => {
         <Accordion className="d-flex flex-column gap-3 custom-accordion" flush>
           {getData?.map((item, index) => (
             <Accordion.Item eventKey={index.toString()} key={item._id}>
-              <Accordion.Header
-                className={`accordion-button p-0 ${item.level?.toLowerCase()}`}
-              >
-                Q{currentPage * rowsPerPage + index + 1}. {item.question}
-              </Accordion.Header>
+
+           <Accordion.Header
+  className="accordion-button p-0"
+  style={sectionStyles[`section${item.sectionNumber}`?.toLowerCase()] || {}}
+>
+  Q{currentPage * rowsPerPage + index + 1}. {item.question}
+</Accordion.Header>
+
+
               <Accordion.Body>
 
                 <div className="d-flex justify-content-between align-items-center">

@@ -38,8 +38,8 @@ import AddCertificateOffCanvas from "./AddCertificateForm";
 export default function CertificateDashboard() {
   const [certificates, setCertificates] = useState([]);
   const [open, setOpen] = useState(false);
-  const handleClose = () => setOpen(false);
-  const handleClickOpen = () => setOpen(true);
+  // const handleClose = () => setOpen(false);
+  // const handleClickOpen = () => setOpen(true);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
@@ -151,21 +151,7 @@ export default function CertificateDashboard() {
             View, generate, and manage certificates
           </Typography>
         </Box>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleClickOpen}
-                      className="rounded-4 d-flex gap-1 flex-row"
-                    >
-                      <AddCircleOutlineIcon />
-                      Generate Certificate </Button>
-                    <AddCertificateOffCanvas
-                      open={open}
-                      setOpen={setOpen}
-                      handleClose={handleClose}
-                      selectedVideos={[]}
-                    
-                    />
+                  
 
                         
       </Box>
