@@ -226,7 +226,7 @@ const adminId = localStorage.getItem("userId");
           </FormControl>
         </div>
 
-        {age && videoOptions.length > 0 && (
+        {age  && (
           <div className="col-lg-12 mt-4">
             <Autocomplete
               id="video-select"
