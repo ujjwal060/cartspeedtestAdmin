@@ -54,6 +54,7 @@ export default function AddAssesmentFormFile({
   }, [age]);
 
   const handleChange = (event) => {
+    debugger
     setAge(event.target.value);
     setSelectedVideo(null);
     setVideoOptions([]);
@@ -225,7 +226,7 @@ const adminId = localStorage.getItem("userId");
           </FormControl>
         </div>
 
-        {age && (
+        {age && videoOptions.length > 0 && (
           <div className="col-lg-12 mt-4">
             <Autocomplete
               id="video-select"

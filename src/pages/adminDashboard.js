@@ -324,7 +324,7 @@ export default function AdminDashboard() {
                   <TableRow key={video._id || index}>
                     <TableCell>{video.name}</TableCell>
                     <TableCell>{video.email}</TableCell>
-                    <TableCell>{video.locationDetails.name}</TableCell>
+                        <TableCell>{video.locationDetails?.name}</TableCell>
                     <TableCell>{video.mobile}</TableCell>
                     <TableCell>
                       <FormGroup>
