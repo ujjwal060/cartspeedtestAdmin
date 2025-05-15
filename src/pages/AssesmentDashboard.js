@@ -151,9 +151,15 @@ const clearSectionFilter = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <Typography variant="h6">Loading...</Typography>
-      </Box>
+     <div className="">
+      <div className="global-loader margin-loader ">
+        <div className="loader-animation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
     );
   }
 
