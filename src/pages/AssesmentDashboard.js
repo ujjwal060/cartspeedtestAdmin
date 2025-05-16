@@ -18,6 +18,7 @@ import {
   TablePagination,
   TextField,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import Accordion from "react-bootstrap/Accordion";
 import { useLocation } from "react-router-dom";
 import { getQA } from "../api/test";
@@ -31,6 +32,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -114,7 +116,6 @@ const AssessmentDashboard = () => {
     }));
   };
 
-
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
@@ -140,15 +141,101 @@ const AssessmentDashboard = () => {
     fetchQA();
   }, [currentPage, filters]);
 
-  const renderBreadcrumb = () => {
-    if (!title) return null;
-    return (
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-        <Typography color="text.primary">{title}</Typography>
-      </Breadcrumbs>
-    );
-  };
 
+const renderBreadcrumb = () => {
+  const selectedSection = sectionOptions.find(opt => opt.value === sectionNumber);
+  
+  return (
+    <Box display="flex" alignItems="center" gap={1} mb={2}>
+ 
+      {title && (
+        <Box 
+          display="flex" 
+          alignItems="center" 
+          sx={{
+            backgroundColor: '#1976d2',
+            padding: '4px 12px',
+            borderRadius: '15px',
+            border: '1px solid #e0e0e0',
+            boxShadow: '0px 1px 3px rgba(0,0,0,0.1)'
+          }}
+        >
+          <Typography 
+            variant="subtitle2"      
+            fontWeight="bold"
+            sx={{
+              color: 'white',
+              fontSize: '0.875rem',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {title}
+          </Typography>
+        </Box>
+      )}
+
+     
+      {title && selectedSection && (
+        <NavigateNextIcon sx={{ color: '#1976d2' }} />
+      )}
+
+      
+      {selectedSection && (
+        <Box 
+          display="flex" 
+          alignItems="center" 
+          justifyContent="space-between"
+          sx={{
+            backgroundColor: '#1976d2',
+            padding: '4px 12px',
+            borderRadius: '15px',
+            border: '1px solid #e0e0e0',
+            boxShadow: '0px 1px 3px rgba(0,0,0,0.1)'
+          }}
+        >
+          <Typography 
+            variant="subtitle2"      
+            fontWeight="bold"
+            sx={{
+              color: 'white',
+              fontSize: '0.875rem',
+              textTransform: 'lowercase',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              paddingRight: '8px'
+            }}
+          >
+            {selectedSection.label.replace('Section ', 'section')}
+          </Typography>
+          
+          <Box 
+            sx={{ 
+              cursor: 'pointer',
+              color: 'white',
+              '&:hover': { color: '#ff3d3d' },
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            onClick={() => {
+              setSectionNumber('');
+              setFilters(prev => {
+                const { sectionNumber, ...rest } = prev;
+                return rest;
+              });
+            }}
+          >
+            <CloseIcon sx={{ fontSize: '16px' }} />
+            <Typography sx={{ fontSize: '0.75rem' }}>Clear</Typography>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+};
   if (loading) {
     return (
       <div className="">
@@ -166,9 +253,9 @@ const AssessmentDashboard = () => {
   return (
     <Box p={4}>
       <Box>
-        {renderBreadcrumb()}
+         {renderBreadcrumb()}
+     
     
-
         <Box display="flex" justifyContent="flex-end" gap={2} mb={4} alignItems="center">
           <div className="d-flex justify-content-between align-items-center w-100">
             <Box display="flex" gap={2} alignItems="center" flexWrap="wrap">
@@ -189,7 +276,7 @@ const AssessmentDashboard = () => {
                       onClick={() => handleSectionFilter(section.value)}
                     />
                   </Tooltip>
-                    <Typography variant="caption">{section.label}</Typography>
+                  <Typography variant="caption">{section.label}</Typography>
                 </Box>
               ))}
             </Box>
@@ -241,11 +328,8 @@ const AssessmentDashboard = () => {
               </Button>
             </div>
           </div>
-          {/* Section color indicators moved here */}
-
-
-
         </Box>
+        
         <Accordion className="d-flex flex-column gap-3 custom-accordion" flush>
           {getData.map((item, index) => (
             <Accordion.Item eventKey={index.toString()} key={item._id}>
@@ -284,35 +368,35 @@ const AssessmentDashboard = () => {
                 </Box>
            
                 <Box mt={2}>
-  <Box display="flex" justifyContent="space-between">
-    <Box width="48%">
-      {item.options.slice(0, 2).map((option, optIndex) => (
-        <Typography key={option._id} sx={{ mb: 1 }}>
-          {String.fromCharCode(65 + optIndex)}. {option.text}
-        </Typography>
-      ))}
-    </Box>
-    <Box width="48%">
-      {item.options.slice(2, 4).map((option, optIndex) => (
-        <Typography key={option._id} sx={{ mb: 1 }}>
-          {String.fromCharCode(65 + optIndex + 2)}. {option.text}
-        </Typography>
-      ))}
-    </Box>
-  </Box>
-  <Box display="flex" justifyContent="flex-end" mt={2}>
-    {item.options
-      .filter(option => option.isCorrect)
-      .map((option, optIndex) => (
-        <Chip
-          key={option._id}
-          label={`${String.fromCharCode(65 + item.options.indexOf(option))}. ${option.text}`}
-          color="success"
-          sx={{ ml: 1 }}
-        />
-      ))}
-  </Box>
-</Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Box width="48%">
+                      {item.options.slice(0, 2).map((option, optIndex) => (
+                        <Typography key={option._id} sx={{ mb: 1 }}>
+                          {String.fromCharCode(65 + optIndex)}. {option.text}
+                        </Typography>
+                      ))}
+                    </Box>
+                    <Box width="48%">
+                      {item.options.slice(2, 4).map((option, optIndex) => (
+                        <Typography key={option._id} sx={{ mb: 1 }}>
+                          {String.fromCharCode(65 + optIndex + 2)}. {option.text}
+                        </Typography>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box display="flex" justifyContent="flex-end" mt={2}>
+                    {item.options
+                      .filter(option => option.isCorrect)
+                      .map((option, optIndex) => (
+                        <Chip
+                          key={option._id}
+                          label={`${String.fromCharCode(65 + item.options.indexOf(option))}. ${option.text}`}
+                          color="success"
+                          sx={{ ml: 1 }}
+                        />
+                      ))}
+                  </Box>
+                </Box>
               </Accordion.Body>
             </Accordion.Item>
           ))}
@@ -366,5 +450,3 @@ const AssessmentDashboard = () => {
 };
 
 export default AssessmentDashboard;
-
-
