@@ -64,11 +64,16 @@ const AssessmentDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
   const [sectionNumber, setSectionNumber] = useState("");
+const location = useLocation();
+const { title: initialTitle, videoId } = location.state || {};
+const [title, setTitle] = useState(initialTitle || '');
+
+
 
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const location = useLocation();
-  const { title, videoId } = location.state || {};
+ 
+  // const { title, videoId } = location.state || {};
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
   const token = localStorage.getItem("token");
@@ -144,98 +149,74 @@ const AssessmentDashboard = () => {
 
 const renderBreadcrumb = () => {
   const selectedSection = sectionOptions.find(opt => opt.value === sectionNumber);
-  
+
   return (
-    <Box display="flex" alignItems="center" gap={1} mb={2}>
- 
+    <Box display="flex" alignItems="center" gap={1} mb={2} flexWrap="wrap">
       {title && (
-        <Box 
-          display="flex" 
-          alignItems="center" 
+        <Chip
+          label={title}
           sx={{
-            backgroundColor: '#1976d2',
-            padding: '4px 12px',
-            borderRadius: '15px',
-            border: '1px solid #e0e0e0',
-            boxShadow: '0px 1px 3px rgba(0,0,0,0.1)'
+            backgroundColor: '#2E5AAC',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '0.875rem',
+            maxWidth: 200,
+            textOverflow: 'ellipsis',
+            overflow: 'hidden'
           }}
-        >
-          <Typography 
-            variant="subtitle2"      
-            fontWeight="bold"
-            sx={{
-              color: 'white',
-              fontSize: '0.875rem',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {title}
-          </Typography>
-        </Box>
+        />
       )}
 
-     
-      {title && selectedSection && (
-        <NavigateNextIcon sx={{ color: '#1976d2' }} />
-      )}
-
-      
       {selectedSection && (
-        <Box 
-          display="flex" 
-          alignItems="center" 
-          justifyContent="space-between"
+        <Chip
+          label={selectedSection.label.replace('Section ', 'section')}
           sx={{
-            backgroundColor: '#1976d2',
-            padding: '4px 12px',
-            borderRadius: '15px',
-            border: '1px solid #e0e0e0',
-            boxShadow: '0px 1px 3px rgba(0,0,0,0.1)'
+            backgroundColor: '#2E5AAC',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '0.875rem',
+            textTransform: 'lowercase',
+            maxWidth: 150,
+            textOverflow: 'ellipsis',
+            overflow: 'hidden'
           }}
-        >
-          <Typography 
-            variant="subtitle2"      
-            fontWeight="bold"
-            sx={{
-              color: 'white',
-              fontSize: '0.875rem',
-              textTransform: 'lowercase',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              paddingRight: '8px'
-            }}
-          >
-            {selectedSection.label.replace('Section ', 'section')}
-          </Typography>
-          
-          <Box 
-            sx={{ 
-              cursor: 'pointer',
-              color: 'white',
-              '&:hover': { color: '#ff3d3d' },
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-            onClick={() => {
-              setSectionNumber('');
-              setFilters(prev => {
-                const { sectionNumber, ...rest } = prev;
-                return rest;
-              });
-            }}
-          >
-            <CloseIcon sx={{ fontSize: '16px' }} />
-            <Typography sx={{ fontSize: '0.75rem' }}>Clear</Typography>
-          </Box>
-        </Box>
+        />
+      )}
+
+      {(title || selectedSection) && (
+    
+        <Chip
+  icon={<CloseIcon fontSize="small" />}
+  label="Clear"
+  onClick={() => {
+    setSectionNumber('');
+    setTitle('');
+    setFilters(prev => {
+      const { sectionNumber, title, ...rest } = prev;
+      return rest;
+    });
+  }}
+  sx={{
+    backgroundColor: '#e0e0e0',
+    color: '#2E5AAC',
+    fontWeight: 500,
+    fontSize: '0.85rem',
+    '& .MuiChip-icon': {
+      color: '#2E5AAC',
+    },
+    ml: 1
+  }}
+/>
+
       )}
     </Box>
   );
 };
+
+
+
+
+
   if (loading) {
     return (
       <div className="">
