@@ -18,6 +18,7 @@ import {
   TablePagination,
   TextField,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import Accordion from "react-bootstrap/Accordion";
 import { useLocation } from "react-router-dom";
 import { getQA } from "../api/test";
@@ -31,6 +32,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -61,7 +63,7 @@ const AssessmentDashboard = () => {
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
- const [sectionNumber, setSectionNumber] = useState("");
+  const [sectionNumber, setSectionNumber] = useState("");
 
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -82,28 +84,28 @@ const AssessmentDashboard = () => {
   };
   const handlePlayClose = () => setPlayOpen(false);
 
-const handleSectionChange = (event) => {
-  const selectedSection = event.target.value;
-  setSectionNumber(selectedSection);
-  setFilters((prev) => ({ ...prev, sectionNumber: selectedSection }));
-};
+  const handleSectionChange = (event) => {
+    const selectedSection = event.target.value;
+    setSectionNumber(selectedSection);
+    setFilters((prev) => ({ ...prev, sectionNumber: selectedSection }));
+  };
 
-const handleSectionFilter = (sectionValue) => {
-  if (sectionNumber === sectionValue) {
-    clearSectionFilter();
-  } else {
-    setSectionNumber(sectionValue);
-    setFilters((prev) => ({ ...prev, sectionNumber: sectionValue }));
-  }
-};
+  const handleSectionFilter = (sectionValue) => {
+    if (sectionNumber === sectionValue) {
+      clearSectionFilter();
+    } else {
+      setSectionNumber(sectionValue);
+      setFilters((prev) => ({ ...prev, sectionNumber: sectionValue }));
+    }
+  };
 
-const clearSectionFilter = () => {
-  setSectionNumber("");
-  setFilters((prev) => {
-    const { sectionNumber, ...rest } = prev;
-    return rest;
-  });
-};
+  const clearSectionFilter = () => {
+    setSectionNumber("");
+    setFilters((prev) => {
+      const { sectionNumber, ...rest } = prev;
+      return rest;
+    });
+  };
 
   const handleDateChange = (update) => {
     setDateRange(update);
@@ -113,7 +115,6 @@ const clearSectionFilter = () => {
       endDate: update[1],
     }));
   };
-
 
   const fetchQA = async () => {
     const offset = currentPage * rowsPerPage;
@@ -140,115 +141,195 @@ const clearSectionFilter = () => {
     fetchQA();
   }, [currentPage, filters]);
 
-  const renderBreadcrumb = () => {
-    if (!title) return null;
-    return (
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-        <Typography color="text.primary">{title}</Typography>
-      </Breadcrumbs>
-    );
-  };
 
+const renderBreadcrumb = () => {
+  const selectedSection = sectionOptions.find(opt => opt.value === sectionNumber);
+  
+  return (
+    <Box display="flex" alignItems="center" gap={1} mb={2}>
+ 
+      {title && (
+        <Box 
+          display="flex" 
+          alignItems="center" 
+          sx={{
+            backgroundColor: '#1976d2',
+            padding: '4px 12px',
+            borderRadius: '15px',
+            border: '1px solid #e0e0e0',
+            boxShadow: '0px 1px 3px rgba(0,0,0,0.1)'
+          }}
+        >
+          <Typography 
+            variant="subtitle2"      
+            fontWeight="bold"
+            sx={{
+              color: 'white',
+              fontSize: '0.875rem',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {title}
+          </Typography>
+        </Box>
+      )}
+
+     
+      {title && selectedSection && (
+        <NavigateNextIcon sx={{ color: '#1976d2' }} />
+      )}
+
+      
+      {selectedSection && (
+        <Box 
+          display="flex" 
+          alignItems="center" 
+          justifyContent="space-between"
+          sx={{
+            backgroundColor: '#1976d2',
+            padding: '4px 12px',
+            borderRadius: '15px',
+            border: '1px solid #e0e0e0',
+            boxShadow: '0px 1px 3px rgba(0,0,0,0.1)'
+          }}
+        >
+          <Typography 
+            variant="subtitle2"      
+            fontWeight="bold"
+            sx={{
+              color: 'white',
+              fontSize: '0.875rem',
+              textTransform: 'lowercase',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              paddingRight: '8px'
+            }}
+          >
+            {selectedSection.label.replace('Section ', 'section')}
+          </Typography>
+          
+          <Box 
+            sx={{ 
+              cursor: 'pointer',
+              color: 'white',
+              '&:hover': { color: '#ff3d3d' },
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            onClick={() => {
+              setSectionNumber('');
+              setFilters(prev => {
+                const { sectionNumber, ...rest } = prev;
+                return rest;
+              });
+            }}
+          >
+            <CloseIcon sx={{ fontSize: '16px' }} />
+            <Typography sx={{ fontSize: '0.75rem' }}>Clear</Typography>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+};
   if (loading) {
     return (
-     <div className="">
-      <div className="global-loader margin-loader ">
-        <div className="loader-animation">
-          <span></span>
-          <span></span>
-          <span></span>
+      <div className="">
+        <div className="global-loader margin-loader ">
+          <div className="loader-animation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
       </div>
-    </div>
     );
   }
 
   return (
     <Box p={4}>
       <Box>
-        {renderBreadcrumb()}
+         {renderBreadcrumb()}
+     
+    
         <Box display="flex" justifyContent="flex-end" gap={2} mb={4} alignItems="center">
-          {openFilter && (
-            <>
-              <TextField
-                label="Search by Location"
-                variant="outlined"
-                size="small"
-                onChange={(e) => 
-                  setFilters(prev => ({ ...prev, location: e.target.value }))
-                }
-              />
-              <FormControl sx={{ width: "200px" }} size="small">
-                <InputLabel>Filter By Section</InputLabel>
-               <Select
-  value={sectionNumber}
-  label="Filter By Section"
-  onChange={handleSectionChange}
->
-
-                  {sectionOptions.map((section) => (
-                    <MenuItem key={section.value} value={section.value}>
-                      {section.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Box className="custom-picker">
-                <CalendarMonthIcon className="svg-custom" />
-                <DatePicker
-                  selectsRange
-                  startDate={startDate}
-                  endDate={endDate}
-                  onChange={handleDateChange}
-                  isClearable
-                  placeholderText="Select date range"
-                  className="form-control"
-                  maxDate={new Date()}
-                />
-              </Box>
-            </>
-          )}
-          <Tooltip title="Filter">
-            <FilterListIcon
-              onClick={toggleFilter}
-              color="primary"
-              style={{ cursor: "pointer" }}
-            />
-          </Tooltip>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddCircleOutlineIcon />}
-            onClick={handleShow}
-          >
-            Assessment
-          </Button>
-        </Box>
-
-        <Box display="flex" gap={2} mb={3} alignItems="center" flexWrap="wrap">
-          {sectionOptions.map((section) => (
-            <Box key={section.key} textAlign="center">
-              <Tooltip title={section.label} arrow>
-                <Box
-                  sx={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "4px",
-                    backgroundColor: sectionStyles[section.key].backgroundColor,
-                    border: `2px solid ${
-                      sectionNumber  === section.value ? "#000" : sectionStyles[section.key].color
-                    }`,
-                    cursor: "pointer",
-                    mx: "auto",
-                  }}
-                  onClick={() => handleSectionFilter(section.value)}
-                />
-              </Tooltip>
-              <Typography variant="caption">{section.label}</Typography>
+          <div className="d-flex justify-content-between align-items-center w-100">
+            <Box display="flex" gap={2} alignItems="center" flexWrap="wrap">
+              {sectionOptions.map((section) => (
+                <Box key={section.key} textAlign="center">
+                  <Tooltip title={section.label} arrow>
+                    <Box
+                      sx={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: "4px",
+                        backgroundColor: sectionStyles[section.key].backgroundColor,
+                        border: `2px solid ${sectionNumber === section.value ? "#000" : sectionStyles[section.key].color
+                          }`,
+                        cursor: "pointer",
+                        mx: "auto",
+                      }}
+                      onClick={() => handleSectionFilter(section.value)}
+                    />
+                  </Tooltip>
+                  <Typography variant="caption">{section.label}</Typography>
+                </Box>
+              ))}
             </Box>
-          ))}
-        </Box>
+            <div className="d-flex gap-3 flex-row">
+              {openFilter && (
+                <>
+                  <TextField
+                    label="Search by Location"
+                    variant="outlined"
+                    size="small"
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, location: e.target.value }))
+                    }
+                  />
 
+                  <Box className="custom-picker">
+                    <CalendarMonthIcon className="svg-custom" />
+                    <DatePicker
+                      selectsRange
+                      startDate={startDate}
+                      endDate={endDate}
+                      onChange={handleDateChange}
+                      isClearable
+                      placeholderText="Select date range"
+                      className="form-control"
+                      maxDate={new Date()}
+                    />
+                  </Box>
+                </>
+              )}
+
+              <Tooltip title="Filter" placement="top">
+                <Box display="flex" alignItems="center">
+                  <FilterListIcon
+                    onClick={toggleFilter}
+                    color="primary"
+                    style={{ cursor: "pointer" }}
+                  />
+                </Box>
+              </Tooltip>
+
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddCircleOutlineIcon />}
+                onClick={handleShow}
+              >
+                Assessment
+              </Button>
+            </div>
+          </div>
+        </Box>
+        
         <Accordion className="d-flex flex-column gap-3 custom-accordion" flush>
           {getData.map((item, index) => (
             <Accordion.Item eventKey={index.toString()} key={item._id}>
@@ -267,9 +348,9 @@ const clearSectionFilter = () => {
                     </Box>
                   </Box>
                   {item.videoData?.title && (
-                    <Box 
-                      display="flex" 
-                      alignItems="center" 
+                    <Box
+                      display="flex"
+                      alignItems="center"
                       gap={2}
                       sx={{ cursor: "pointer" }}
                       onClick={() => handlePlayOpen(item.videoData?.url)}
@@ -285,26 +366,35 @@ const clearSectionFilter = () => {
                     </Box>
                   </Box>
                 </Box>
+           
                 <Box mt={2}>
                   <Box display="flex" justifyContent="space-between">
-                    <Box width="50%">
-                      {item.options.map((option, optIndex) => (
-                        <Typography key={option._id}>
+                    <Box width="48%">
+                      {item.options.slice(0, 2).map((option, optIndex) => (
+                        <Typography key={option._id} sx={{ mb: 1 }}>
                           {String.fromCharCode(65 + optIndex)}. {option.text}
                         </Typography>
                       ))}
                     </Box>
-                    <Box width="50%" display="flex" justifyContent="flex-end" gap={1}>
-                      {item.options
-                        .filter(option => option.isCorrect)
-                        .map((option, optIndex) => (
-                          <Chip
-                            key={option._id}
-                            label={`${String.fromCharCode(65 + optIndex)}. ${option.text}`}
-                            color="success"
-                          />
-                        ))}
+                    <Box width="48%">
+                      {item.options.slice(2, 4).map((option, optIndex) => (
+                        <Typography key={option._id} sx={{ mb: 1 }}>
+                          {String.fromCharCode(65 + optIndex + 2)}. {option.text}
+                        </Typography>
+                      ))}
                     </Box>
+                  </Box>
+                  <Box display="flex" justifyContent="flex-end" mt={2}>
+                    {item.options
+                      .filter(option => option.isCorrect)
+                      .map((option, optIndex) => (
+                        <Chip
+                          key={option._id}
+                          label={`${String.fromCharCode(65 + item.options.indexOf(option))}. ${option.text}`}
+                          color="success"
+                          sx={{ ml: 1 }}
+                        />
+                      ))}
                   </Box>
                 </Box>
               </Accordion.Body>
@@ -331,16 +421,16 @@ const clearSectionFilter = () => {
         fullWidth
       >
         <DialogContent>
-          <ReactPlayer 
-            url={selectedVideo} 
-            controls 
+          <ReactPlayer
+            url={selectedVideo}
+            controls
             width="100%"
             style={{ margin: "0 auto" }}
           />
           <Box textAlign="center" mt={2}>
-            <Button 
-              variant="contained" 
-              color="error" 
+            <Button
+              variant="contained"
+              color="error"
               onClick={handlePlayClose}
               sx={{ px: 5 }}
             >
@@ -360,5 +450,3 @@ const clearSectionFilter = () => {
 };
 
 export default AssessmentDashboard;
-
-
