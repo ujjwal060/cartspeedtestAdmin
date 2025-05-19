@@ -31,20 +31,20 @@ const headCells = [
     id: "Name",
     numeric: false,
     disablePadding: false,
-    label: "name",
+    label: "Name",
   },
   {
     id: "Email",
     numeric: false,
     disablePadding: false,
-    label: "email",
+    label: "Email",
     disableSort: false,
   },
   {
     id: "Phone",
     numeric: false,
     disablePadding: false,
-    label: "phone",
+    label: "Phone",
     disableSort: false,
   },
   {
@@ -314,7 +314,7 @@ const VideoDashboard = () => {
                     <TableCell>{video.name}</TableCell>
                     <TableCell>{video.email}</TableCell>
                     <TableCell>{video.mobile}</TableCell>
-                    <TableCell>{video.state}</TableCell>
+                    <TableCell>{video.address}</TableCell>
                     <TableCell>
                       {new Date(video.updatedAt).toLocaleDateString()}
                     </TableCell>

@@ -199,7 +199,7 @@ const Dashboard = () => {
             <Grid size={{ xs: 12 }}  className="mb-2">
               <Card>
                 <CardContent>
-                  <Typography variant="h6">ADD LSV</Typography>
+                  <Typography variant="h6">Rules and Regulations for LSV</Typography>
                   <Button
                     variant="contained"
                     color="secondary"
