@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -18,7 +16,7 @@ import {
   TablePagination,
   TextField,
 } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import Accordion from "react-bootstrap/Accordion";
 import { useLocation } from "react-router-dom";
 import { getQA } from "../api/test";
@@ -32,7 +30,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -64,15 +62,13 @@ const AssessmentDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
   const [sectionNumber, setSectionNumber] = useState("");
-const location = useLocation();
-const { title: initialTitle, videoId } = location.state || {};
-const [title, setTitle] = useState(initialTitle || '');
-
-
+  const location = useLocation();
+  const { title: initialTitle, videoId } = location.state || {};
+  const [title, setTitle] = useState(initialTitle || "");
 
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
- 
+
   // const { title, videoId } = location.state || {};
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -146,76 +142,74 @@ const [title, setTitle] = useState(initialTitle || '');
     fetchQA();
   }, [currentPage, filters]);
 
+  const renderBreadcrumb = () => {
+    const selectedSection = sectionOptions.find(
+      (opt) => opt.value === sectionNumber
+    );
 
-const renderBreadcrumb = () => {
-  const selectedSection = sectionOptions.find(opt => opt.value === sectionNumber);
+    return (
+      <Box display="flex" alignItems="center" mb={2} flexWrap="wrap">
+        {title && (
+          <Chip
+            label={title}
+            sx={{
+              backgroundColor: "#2E5AAC",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              maxWidth: 200,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              padding: "0 20px",
+            }}
+          />
+        )}
 
-  return (
-    <Box display="flex" alignItems="center" gap={1} mb={2} flexWrap="wrap">
-      {title && (
-        <Chip
-          label={title}
-          sx={{
-            backgroundColor: '#2E5AAC',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '0.875rem',
-            maxWidth: 200,
-            textOverflow: 'ellipsis',
-            overflow: 'hidden'
-          }}
-        />
-      )}
+        {selectedSection && (
+          <Chip
+            label={selectedSection.label.replace("Section ", "section")}
+            className="custom-design-chip"
+            sx={{
+              backgroundColor: "#2E5AAC",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              textTransform: "lowercase",
+              maxWidth: 150,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              padding: "0 20px",
+            }}
+          />
+        )}
 
-      {selectedSection && (
-        <Chip
-          label={selectedSection.label.replace('Section ', 'section')}
-          sx={{
-            backgroundColor: '#2E5AAC',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '0.875rem',
-            textTransform: 'lowercase',
-            maxWidth: 150,
-            textOverflow: 'ellipsis',
-            overflow: 'hidden'
-          }}
-        />
-      )}
-
-      {(title || selectedSection) && (
-    
-        <Chip
-  icon={<CloseIcon fontSize="small" />}
-  label="Clear"
-  onClick={() => {
-    setSectionNumber('');
-    setTitle('');
-    setFilters(prev => {
-      const { sectionNumber, title, ...rest } = prev;
-      return rest;
-    });
-  }}
-  sx={{
-    backgroundColor: '#e0e0e0',
-    color: '#2E5AAC',
-    fontWeight: 500,
-    fontSize: '0.85rem',
-    '& .MuiChip-icon': {
-      color: '#2E5AAC',
-    },
-    ml: 1
-  }}
-/>
-
-      )}
-    </Box>
-  );
-};
-
-
-
-
+        {(title || selectedSection) && (
+          <Chip
+            icon={<CloseIcon fontSize="small" />}
+            label="Clear"
+            onClick={() => {
+              setSectionNumber("");
+              setTitle("");
+              setFilters((prev) => {
+                const { sectionNumber, title, ...rest } = prev;
+                return rest;
+              });
+            }}
+            sx={{
+              backgroundColor: "#e0e0e0",
+              color: "#2E5AAC",
+              fontWeight: 500,
+              fontSize: "0.85rem",
+              "& .MuiChip-icon": {
+                color: "#2E5AAC",
+              },
+              ml: 1,
+            }}
+          />
+        )}
+      </Box>
+    );
+  };
 
   if (loading) {
     return (
@@ -234,12 +228,17 @@ const renderBreadcrumb = () => {
   return (
     <Box p={4}>
       <Box>
-         {renderBreadcrumb()}
-     
-    
-        <Box display="flex" justifyContent="flex-end" gap={2} mb={4} alignItems="center">
+        {renderBreadcrumb()}
+
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          gap={2}
+          mb={4}
+          alignItems="center"
+        >
           <div className="d-flex justify-content-between align-items-center w-100">
-            <Box display="flex" gap={2} alignItems="center" flexWrap="wrap">
+            <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
               {sectionOptions.map((section) => (
                 <Box key={section.key} textAlign="center">
                   <Tooltip title={section.label} arrow>
@@ -248,9 +247,13 @@ const renderBreadcrumb = () => {
                         width: 28,
                         height: 28,
                         borderRadius: "4px",
-                        backgroundColor: sectionStyles[section.key].backgroundColor,
-                        border: `2px solid ${sectionNumber === section.value ? "#000" : sectionStyles[section.key].color
-                          }`,
+                        backgroundColor:
+                          sectionStyles[section.key].backgroundColor,
+                        border: `2px solid ${
+                          sectionNumber === section.value
+                            ? "#000"
+                            : sectionStyles[section.key].color
+                        }`,
                         cursor: "pointer",
                         mx: "auto",
                       }}
@@ -269,7 +272,10 @@ const renderBreadcrumb = () => {
                     variant="outlined"
                     size="small"
                     onChange={(e) =>
-                      setFilters(prev => ({ ...prev, location: e.target.value }))
+                      setFilters((prev) => ({
+                        ...prev,
+                        location: e.target.value,
+                      }))
                     }
                   />
 
@@ -310,7 +316,7 @@ const renderBreadcrumb = () => {
             </div>
           </div>
         </Box>
-        
+
         <Accordion className="d-flex flex-column gap-3 custom-accordion" flush>
           {getData.map((item, index) => (
             <Accordion.Item eventKey={index.toString()} key={item._id}>
@@ -321,7 +327,11 @@ const renderBreadcrumb = () => {
                 Q{currentPage * rowsPerPage + index + 1}. {item.question}
               </Accordion.Header>
               <Accordion.Body>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Box>
                     <Box display="flex" gap={1} alignItems="center">
                       <Typography variant="h6">Section:</Typography>
@@ -337,7 +347,9 @@ const renderBreadcrumb = () => {
                       onClick={() => handlePlayOpen(item.videoData?.url)}
                     >
                       <PlayArrowIcon color="success" />
-                      <Typography color="primary">{item.videoData.title}</Typography>
+                      <Typography color="primary">
+                        {item.videoData.title}
+                      </Typography>
                     </Box>
                   )}
                   <Box>
@@ -347,37 +359,41 @@ const renderBreadcrumb = () => {
                     </Box>
                   </Box>
                 </Box>
-           
-                <Box mt={2}>
-                  <Box display="flex" justifyContent="space-between">
-                    <Box width="48%">
-                      {item.options.slice(0, 2).map((option, optIndex) => (
-                        <Typography key={option._id} sx={{ mb: 1 }}>
-                          {String.fromCharCode(65 + optIndex)}. {option.text}
-                        </Typography>
-                      ))}
-                    </Box>
-                    <Box width="48%">
-                      {item.options.slice(2, 4).map((option, optIndex) => (
-                        <Typography key={option._id} sx={{ mb: 1 }}>
-                          {String.fromCharCode(65 + optIndex + 2)}. {option.text}
-                        </Typography>
-                      ))}
-                    </Box>
-                  </Box>
-                  <Box display="flex" justifyContent="flex-end" mt={2}>
-                    {item.options
-                      .filter(option => option.isCorrect)
-                      .map((option, optIndex) => (
-                        <Chip
-                          key={option._id}
-                          label={`${String.fromCharCode(65 + item.options.indexOf(option))}. ${option.text}`}
-                          color="success"
-                          sx={{ ml: 1 }}
-                        />
-                      ))}
-                  </Box>
-                </Box>
+
+                <div className="row gy-4 mt-3">
+                  <div className="col-lg-4">
+                    {item.options.slice(0, 2).map((option, optIndex) => (
+                      <Typography key={option._id} sx={{ mb: 1 }}>
+                        {String.fromCharCode(65 + optIndex)}. {option.text}
+                      </Typography>
+                    ))}
+                  </div>
+
+                  <div className="col-lg-4">
+                    {item.options.slice(2, 4).map((option, optIndex) => (
+                      <Typography key={option._id} sx={{ mb: 1 }}>
+                        {String.fromCharCode(65 + optIndex + 2)}. {option.text}
+                      </Typography>
+                    ))}
+                  </div>
+
+                  <div className="col-lg-4">
+                    <div className="d-flex align-items-end justify-content-end h-100">
+                      {item.options
+                        .filter((option) => option.isCorrect)
+                        .map((option, optIndex) => (
+                          <Chip
+                            key={option._id}
+                            label={`${String.fromCharCode(
+                              65 + item.options.indexOf(option)
+                            )}. ${option.text}`}
+                            color="success"
+                            sx={{ ml: 1 }}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                </div>
               </Accordion.Body>
             </Accordion.Item>
           ))}
