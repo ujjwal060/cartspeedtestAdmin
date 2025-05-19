@@ -31,6 +31,7 @@ import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { Link, useNavigate } from 'react-router-dom'; 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -73,6 +74,7 @@ const AssessmentDashboard = () => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
   const token = localStorage.getItem("token");
+const navigate = useNavigate();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -148,66 +150,77 @@ const AssessmentDashboard = () => {
     );
 
     return (
+   
       <Box display="flex" alignItems="center" mb={2} flexWrap="wrap">
-        {title && (
-          <Chip
-            label={title}
-            sx={{
-              backgroundColor: "#2E5AAC",
-              color: "white",
-              fontWeight: "bold",
-              fontSize: "0.875rem",
-              maxWidth: 200,
-              textOverflow: "ellipsis",
-              overflow: "hidden",
-              padding: "0 20px",
-            }}
-          />
-        )}
+  {title && (
+    <Link to="/videos" style={{ textDecoration: 'none' }}>
+      <Chip
+        label={title}
+        onClick={(e) => {
+          e.preventDefault();
+          navigate('/videos'); 
+        }}
+        sx={{
+          backgroundColor: "#2E5AAC",
+          color: "white",
+          fontWeight: "bold",
+          fontSize: "0.875rem",
+          maxWidth: 200,
+          textOverflow: "ellipsis",
+          overflow: "hidden",
+          padding: "0 20px",
+          cursor: 'pointer',
+          '&:hover': {
+            backgroundColor: '#1d4a9c' 
+          }
+        }}
+      />
+    </Link>
+  )}
 
-        {selectedSection && (
-          <Chip
-            label={selectedSection.label.replace("Section ", "section")}
-            className="custom-design-chip"
-            sx={{
-              backgroundColor: "#2E5AAC",
-              color: "white",
-              fontWeight: "bold",
-              fontSize: "0.875rem",
-              textTransform: "lowercase",
-              maxWidth: 150,
-              textOverflow: "ellipsis",
-              overflow: "hidden",
-              padding: "0 20px",
-            }}
-          />
-        )}
+  {selectedSection && (
+    <Chip
+      label={selectedSection.label.replace("Section ", "section")}
+      className="custom-design-chip"
+      sx={{
+        backgroundColor: "#2E5AAC",
+        color: "white",
+        fontWeight: "bold",
+        fontSize: "0.875rem",
+        textTransform: "lowercase",
+        maxWidth: 150,
+        textOverflow: "ellipsis",
+        overflow: "hidden",
+        padding: "0 20px",
+      }}
+    />
+  )}
 
-        {(title || selectedSection) && (
-          <Chip
-            icon={<CloseIcon fontSize="small" />}
-            label="Clear"
-            onClick={() => {
-              setSectionNumber("");
-              setTitle("");
-              setFilters((prev) => {
-                const { sectionNumber, title, ...rest } = prev;
-                return rest;
-              });
-            }}
-            sx={{
-              backgroundColor: "#e0e0e0",
-              color: "#2E5AAC",
-              fontWeight: 500,
-              fontSize: "0.85rem",
-              "& .MuiChip-icon": {
-                color: "#2E5AAC",
-              },
-              ml: 1,
-            }}
-          />
-        )}
-      </Box>
+  {(title || selectedSection) && (
+    <Chip
+      icon={<CloseIcon fontSize="small" />}
+      label="Clear"
+      onClick={() => {
+        setSectionNumber("");
+        setTitle("");
+        setFilters((prev) => {
+          const { sectionNumber, title, ...rest } = prev;
+          return rest;
+        });
+      }}
+      sx={{
+        backgroundColor: "#e0e0e0",
+        color: "#2E5AAC",
+        fontWeight: 500,
+        fontSize: "0.85rem",
+        "& .MuiChip-icon": {
+          color: "#2E5AAC",
+        },
+        ml: 1,
+      }}
+    />
+  )}
+</Box>
     );
   };
 
