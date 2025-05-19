@@ -152,6 +152,7 @@ const navigate = useNavigate();
     return (
    
       <Box display="flex" alignItems="center" mb={2} flexWrap="wrap">
+
   {title && (
     <Link to="/videos" style={{ textDecoration: 'none' }}>
       <Chip
@@ -181,7 +182,7 @@ const navigate = useNavigate();
   {selectedSection && (
     <Chip
       label={selectedSection.label.replace("Section ", "section")}
-      className="custom-design-chip"
+       className={`${title && "custom-design-chip"}`}
       sx={{
         backgroundColor: "#2E5AAC",
         color: "white",
