@@ -168,7 +168,7 @@ const AssessmentDashboard = () => {
         {selectedSection && (
           <Chip
             label={selectedSection.label.replace("Section ", "section")}
-            className="custom-design-chip"
+            className={`${title && "custom-design-chip"}`}
             sx={{
               backgroundColor: "#2E5AAC",
               color: "white",
