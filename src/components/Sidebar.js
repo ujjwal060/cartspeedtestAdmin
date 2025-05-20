@@ -104,8 +104,13 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+
+   const rawRole = localStorage.getItem("role") || "";
+const role = rawRole.toLowerCase();
+const userRole = localStorage.getItem("role"); // 👈 Define it first
+
   const user = {
-    role: "Admin",
+    role: role,
     companyName: "Cart Speed Test",
     logo: "/logo.jpg",
   };
@@ -129,24 +134,24 @@ const Sidebar = () => {
     navigate("/login");
   };
 
-  const menuItems = [
-    { text: "Dashboard", link: "/dashboard", icon: <DashboardIcon /> },
-    { text: "Users", link: "/users", icon: <PeopleIcon /> },
-    { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
-    { text: "Assessment ", link: "/assessment", icon: <AssignmentIcon /> },
-    { text: "Test ", link: "/test", icon: <PendingActionsIcon /> },
-    {
-      text: "Certificate ",
-      link: "/certificate",
-      icon: <WorkspacePremiumIcon />,
-    },
-    {
-      text: "Admin ",
-      link: "/admin",
-      icon: <SupervisorAccountIcon />,
-    },
-  ];
 
+
+ const baseMenuItems = [
+  { text: "Dashboard", link: "/dashboard", icon: <DashboardIcon /> },
+  { text: "Users", link: "/users", icon: <PeopleIcon /> },
+  { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
+  { text: "Assessment", link: "/assessment", icon: <AssignmentIcon /> },
+  { text: "Test", link: "/test", icon: <PendingActionsIcon /> },
+  { text: "Certificate", link: "/certificate", icon: <WorkspacePremiumIcon /> },
+ 
+  { text: "Admin", link: "/admin", icon: <SupervisorAccountIcon />, role: "superAdmin" },
+];
+
+
+const menuItems = baseMenuItems.filter((item) => {
+
+  return !item.role || item.role === userRole;
+});
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />

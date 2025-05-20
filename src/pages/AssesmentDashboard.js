@@ -17,6 +17,7 @@ import {
   TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { FaEdit, FaTrash } from "react-icons/fa"
 import Accordion from "react-bootstrap/Accordion";
 import { useLocation } from "react-router-dom";
 import { getQA } from "../api/test";
@@ -31,7 +32,10 @@ import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom';
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CancelIcon from "@mui/icons-material/Cancel";
+import Radio from "@mui/material/Radio";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -66,6 +70,8 @@ const AssessmentDashboard = () => {
   const location = useLocation();
   const { title: initialTitle, videoId } = location.state || {};
   const [title, setTitle] = useState(initialTitle || "");
+  const [editData, setEditData] = useState(null);
+  const [data, setData] = useState([]);
 
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -73,8 +79,14 @@ const AssessmentDashboard = () => {
   // const { title, videoId } = location.state || {};
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    question: "",
+    options: [],
+  });
+
   const token = localStorage.getItem("token");
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -119,7 +131,11 @@ const navigate = useNavigate();
     }));
   };
 
+
+
+
   const fetchQA = async () => {
+   
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
     setLoading(true);
@@ -144,84 +160,119 @@ const navigate = useNavigate();
     fetchQA();
   }, [currentPage, filters]);
 
+
+  const handleCancelEdit = () => {
+    setEditId(null);
+    setEditForm({ question: "", options: [] });
+  };
+
+  const handleSaveEdit = () => {
+    setGetData((prevData) =>
+      prevData.map((q) =>
+        q._id === editId
+          ? {
+            ...q,
+            question: editForm.question,
+            options: editForm.options,
+          }
+          : q
+      )
+    );
+
+    toast.success("Question updated!");
+    setEditId(null);
+    setEditForm({ question: "", options: [] });
+  };
+
+
+  const handleEditClick = (item) => {
+     console.log("Rendering options for:", item._id, item.options);
+    setEditId(item._id);
+    setEditForm({
+      question: item.question,
+      options: item.options.map(opt => ({ ...opt })),
+      
+    });
+  };
+
   const renderBreadcrumb = () => {
     const selectedSection = sectionOptions.find(
       (opt) => opt.value === sectionNumber
     );
 
     return (
-   
+
       <Box display="flex" alignItems="center" mb={2} flexWrap="wrap">
 
-  {title && (
-    <Link to="/videos" style={{ textDecoration: 'none' }}>
-      <Chip
-        label={title}
-        onClick={(e) => {
-          e.preventDefault();
-          navigate('/videos'); 
-        }}
-        sx={{
-          backgroundColor: "#2E5AAC",
-          color: "white",
-          fontWeight: "bold",
-          fontSize: "0.875rem",
-          maxWidth: 200,
-          textOverflow: "ellipsis",
-          overflow: "hidden",
-          padding: "0 20px",
-          cursor: 'pointer',
-          '&:hover': {
-            backgroundColor: '#1d4a9c' 
-          }
-        }}
-      />
-    </Link>
-  )}
+        {title && (
+          <Link to="/videos" style={{ textDecoration: 'none' }}>
+            <Chip
+              label={title}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/videos');
+              }}
+              sx={{
+                backgroundColor: "#2E5AAC",
+                color: "white",
+                fontWeight: "bold",
+                fontSize: "0.875rem",
+                maxWidth: 200,
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                padding: "0 20px",
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: '#1d4a9c'
+                }
+              }}
+            />
+          </Link>
+        )}
 
-  {selectedSection && (
-    <Chip
-      label={selectedSection.label.replace("Section ", "section")}
-       className={`${title && "custom-design-chip"}`}
-      sx={{
-        backgroundColor: "#2E5AAC",
-        color: "white",
-        fontWeight: "bold",
-        fontSize: "0.875rem",
-        textTransform: "lowercase",
-        maxWidth: 150,
-        textOverflow: "ellipsis",
-        overflow: "hidden",
-        padding: "0 20px",
-      }}
-    />
-  )}
+        {selectedSection && (
+          <Chip
+            label={selectedSection.label.replace("Section ", "section")}
+            className={`${title && "custom-design-chip"}`}
+            sx={{
+              backgroundColor: "#2E5AAC",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              textTransform: "lowercase",
+              maxWidth: 150,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              padding: "0 20px",
+            }}
+          />
+        )}
 
-  {(title || selectedSection) && (
-    <Chip
-      icon={<CloseIcon fontSize="small" />}
-      label="Clear"
-      onClick={() => {
-        setSectionNumber("");
-        setTitle("");
-        setFilters((prev) => {
-          const { sectionNumber, title, ...rest } = prev;
-          return rest;
-        });
-      }}
-      sx={{
-        backgroundColor: "#e0e0e0",
-        color: "#2E5AAC",
-        fontWeight: 500,
-        fontSize: "0.85rem",
-        "& .MuiChip-icon": {
-          color: "#2E5AAC",
-        },
-        ml: 1,
-      }}
-    />
-  )}
-</Box>
+        {(title || selectedSection) && (
+          <Chip
+            icon={<CloseIcon fontSize="small" />}
+            label="Clear"
+            onClick={() => {
+              setSectionNumber("");
+              setTitle("");
+              setFilters((prev) => {
+                const { sectionNumber, title, ...rest } = prev;
+                return rest;
+              });
+            }}
+            sx={{
+              backgroundColor: "#e0e0e0",
+              color: "#2E5AAC",
+              fontWeight: 500,
+              fontSize: "0.85rem",
+              "& .MuiChip-icon": {
+                color: "#2E5AAC",
+              },
+              ml: 1,
+            }}
+          />
+        )}
+      </Box>
     );
   };
 
@@ -234,6 +285,8 @@ const navigate = useNavigate();
             <span></span>
             <span></span>
           </div>
+
+      
         </div>
       </div>
     );
@@ -263,11 +316,10 @@ const navigate = useNavigate();
                         borderRadius: "4px",
                         backgroundColor:
                           sectionStyles[section.key].backgroundColor,
-                        border: `2px solid ${
-                          sectionNumber === section.value
-                            ? "#000"
-                            : sectionStyles[section.key].color
-                        }`,
+                        border: `2px solid ${sectionNumber === section.value
+                          ? "#000"
+                          : sectionStyles[section.key].color
+                          }`,
                         cursor: "pointer",
                         mx: "auto",
                       }}
@@ -335,81 +387,158 @@ const navigate = useNavigate();
           {getData.map((item, index) => (
             <Accordion.Item eventKey={index.toString()} key={item._id}>
               <Accordion.Header
-                className="accordion-button p-0"
+                className="accordion-button p-0 d-flex justify-content-between align-items-center"
                 style={sectionStyles[`section${item.sectionNumber}`] || {}}
               >
-                Q{currentPage * rowsPerPage + index + 1}. {item.question}
-              </Accordion.Header>
-              <Accordion.Body>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                >
-                  <Box>
-                    <Box display="flex" gap={1} alignItems="center">
-                      <Typography variant="h6">Section:</Typography>
-                      <Typography>{item.sectionNumber}</Typography>
-                    </Box>
-                  </Box>
-                  {item.videoData?.title && (
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      gap={2}
-                      sx={{ cursor: "pointer" }}
-                      onClick={() => handlePlayOpen(item.videoData?.url)}
-                    >
-                      <PlayArrowIcon color="success" />
-                      <Typography color="primary">
-                        {item.videoData.title}
-                      </Typography>
-                    </Box>
-                  )}
-                  <Box>
-                    <Box display="flex" gap={1} alignItems="center">
-                      <LocationPinIcon />
-                      <Typography>{item.locationName}</Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                <div className="d-flex align-items-center w-100 justify-content-between">
+                  <span className="text-truncate" style={{ maxWidth: "70%" }}>
+                    Q{currentPage * rowsPerPage + index + 1}.{" "}
+                    {editId === item._id ? (
+                      <TextField
+                        fullWidth
+                        variant="standard"
+                        value={editForm.question}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, question: e.target.value }))
+                        }
+                      />
+                    ) : (
+                      item.question
+                    )}
+                  </span>
 
-                <div className="row gy-4 mt-3">
-                  <div className="col-lg-4">
-                    {item.options.slice(0, 2).map((option, optIndex) => (
-                      <Typography key={option._id} sx={{ mb: 1 }}>
-                        {String.fromCharCode(65 + optIndex)}. {option.text}
-                      </Typography>
-                    ))}
-                  </div>
+                  <div
+                    className="d-flex align-items-center me-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {editId === item._id ? (
+                      <>
+                        {/* <Button
+                          size="small"
+                          color="success"
+                          onClick={handleSaveEdit}
+                          className="me-2"
+                        >
+                          Save
+                        </Button> */}
+                       <CheckCircleOutlineIcon
+  onClick={handleSaveEdit}
+  fontSize="medium"
+  color="success"
+  className="me-2 cursor-pointer"
+/>
+<CancelIcon
+  onClick={handleCancelEdit}
+  fontSize="medium"
+  color="error"
+  className="cursor-pointer"
+/>
 
-                  <div className="col-lg-4">
-                    {item.options.slice(2, 4).map((option, optIndex) => (
-                      <Typography key={option._id} sx={{ mb: 1 }}>
-                        {String.fromCharCode(65 + optIndex + 2)}. {option.text}
-                      </Typography>
-                    ))}
-                  </div>
-
-                  <div className="col-lg-4">
-                    <div className="d-flex align-items-end justify-content-end h-100">
-                      {item.options
-                        .filter((option) => option.isCorrect)
-                        .map((option, optIndex) => (
-                          <Chip
-                            key={option._id}
-                            label={`${String.fromCharCode(
-                              65 + item.options.indexOf(option)
-                            )}. ${option.text}`}
-                            color="success"
-                            sx={{ ml: 1 }}
-                          />
-                        ))}
-                    </div>
+                      </>
+                    ) : (
+                      <>
+                        <FaEdit
+                          size={16}
+                          color="blue"
+                          className="me-3 cursor-pointer"
+                          onClick={() => handleEditClick(item)}
+                        />
+                        <FaTrash
+                          size={16}
+                          color="red"
+                          className="cursor-pointer"
+                          onClick={() => {
+                            alert("Delete API not implemented");
+                          }}
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
-              </Accordion.Body>
+              </Accordion.Header>
+
+           
+      <Accordion.Body>
+  <div className="row gy-4 mt-3">
+    <div className="col-lg-8"> 
+      <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+        {item.options.map((option, optIndex) => (
+          <Box 
+            key={optIndex} 
+            display="flex" 
+            alignItems="center" 
+            sx={{ 
+              mb: 1,
+              p: 1,
+              border: '1px solid',
+              borderColor: option.isCorrect ? 'success.main' : 'divider',
+              borderRadius: 1,
+          
+            }}
+          >
+            <Typography sx={{ mr: 1, fontWeight: 'bold' }}>
+              {String.fromCharCode(65 + optIndex)}.
+            </Typography>
+
+            {editId === item._id ? (
+              <>
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  value={editForm.options[optIndex]?.text || ""}
+                  onChange={(e) =>
+                    setEditForm((prev) => {
+                      const updatedOptions = [...prev.options];
+                      updatedOptions[optIndex].text = e.target.value;
+                      return { ...prev, options: updatedOptions };
+                    })
+                  }
+                  sx={{ flexGrow: 1, mr: 1 }}
+                />
+                <Radio
+                  checked={editForm.options[optIndex]?.isCorrect}
+                  onChange={() =>
+                    setEditForm((prev) => {
+                      const updatedOptions = prev.options.map((opt, i) => ({
+                        ...opt,
+                        isCorrect: i === optIndex,
+                      }));
+                      return { ...prev, options: updatedOptions };
+                    })
+                  }
+                  color="success"
+                />
+              </>
+            ) : (
+              <>
+                <Typography sx={{ flexGrow: 1 }}>{option.text}</Typography>
+                <Radio checked={option.isCorrect} color="success" disabled />
+              </>
+            )}
+          </Box>
+        ))}
+      </Box>
+    </div>
+
+    <div className="col-lg-4 d-flex align-items-end justify-content-end">
+      {!editId &&
+        item.options
+          .filter((option) => option.isCorrect)
+          .map((option) => (
+            <Chip
+              key={option._id}
+              label={`${String.fromCharCode(
+                65 + item.options.indexOf(option)
+              )}. ${option.text}`}
+              color="success"
+              sx={{ ml: 1 }}
+            />
+          ))}
+    </div>
+  </div>
+</Accordion.Body>
             </Accordion.Item>
+
           ))}
         </Accordion>
 
@@ -452,10 +581,15 @@ const navigate = useNavigate();
       </Dialog>
 
       <AddAssesmentFormFile
-        handleClose={handleClose}
+        handleClose={() => {
+          setEditData(null);
+          setShow(false);
+        }}
         show={show}
         onVideoUploaded={fetchQA}
+        editData={editData}
       />
+
     </Box>
   );
 };
