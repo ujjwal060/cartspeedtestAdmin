@@ -44,7 +44,7 @@ const AddLsvRules = () => {
     }
   ];
 
-  const handleSave = async () => {
+const handleSave = async () => {
     if (title.trim() === '' || content.trim() === '') {
       toast.error('Title and Content are required fields', {
         position: 'top-right',
@@ -56,6 +56,13 @@ const AddLsvRules = () => {
     setIsLoading(true);
 
     try {
+    
+      const token = localStorage.getItem('token'); // or from your auth context
+      console.log(token,'...token')
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
     
       const requestData = {
         questions: {
@@ -77,22 +84,24 @@ const AddLsvRules = () => {
         ]
       };
 
-  
-      const response = await fetch('http://18.209.91.97:1114/api/admin/lsv/addGLSVR', {
+    
+      const response = await fetch('http://18.209.91.97:9090/api/admin/lsv/addGLSVR', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(requestData)
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save data');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save data');
       }
 
       const result = await response.json();
 
+      
       const newSection = {
         id: Date.now(),
         type: sectionType,
@@ -112,7 +121,7 @@ const AddLsvRules = () => {
       });
     } catch (error) {
       console.error('Error saving section:', error);
-      toast.error('Failed to save section. Please try again.', {
+      toast.error(error.message || 'Failed to save section. Please try again.', {
         position: 'top-right',
         autoClose: 2000,
       });
