@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { FaEye, FaPlus, FaInfoCircle, FaTrash, FaEdit } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { addGLSVR } from "../api/lsv";
 const AddLsvRules = () => {
   const [showModal, setShowModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
@@ -44,92 +44,75 @@ const AddLsvRules = () => {
     }
   ];
 
+
 const handleSave = async () => {
-    if (title.trim() === '' || content.trim() === '') {
-      toast.error('Title and Content are required fields', {
-        position: 'top-right',
-        autoClose: 2000,
-      });
-      return;
+  if (title.trim() === '' || content.trim() === '') {
+    toast.error('Title and Content are required fields', {
+      position: 'top-right',
+      autoClose: 2000,
+    });
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const token = localStorage.getItem('token');
+    console.log(token, '...token');
+    if (!token) {
+      throw new Error('No authentication token found');
     }
 
-    setIsLoading(true);
+    const requestData = {
+      questions: {
+        whatIsLSV: staticSections.find(s => s.title === 'What is LSV?')?.content || '',
+        importance: staticSections.find(s => s.title === 'Importance')?.content || '',
+        safety: staticSections.find(s => s.title === 'Safety')?.content || ''
+      },
+      sections: [
+        ...tableData.map(section => ({
+          title: section.title,
+          description: section.content,
+          isActive: true
+        })),
+        {
+          title: title,
+          description: content,
+          isActive: true
+        }
+      ]
+    };
 
-    try {
-    
-      const token = localStorage.getItem('token'); // or from your auth context
-      console.log(token,'...token')
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+    // Using the service instead of direct fetch
+    const result = await addGLSVR(token, requestData);
 
-    
-      const requestData = {
-        questions: {
-          whatIsLSV: staticSections.find(s => s.title === 'What is LSV?')?.content || '',
-          importance: staticSections.find(s => s.title === 'Importance')?.content || '',
-          safety: staticSections.find(s => s.title === 'Safety')?.content || ''
-        },
-        sections: [
-          ...tableData.map(section => ({
-            title: section.title,
-            description: section.content,
-            isActive: true
-          })),
-          {
-            title: title,
-            description: content,
-            isActive: true
-          }
-        ]
-      };
+    const newSection = {
+      id: Date.now(),
+      type: sectionType,
+      title,
+      subtitle,
+      question,
+      content
+    };
 
-    
-      const response = await fetch('http://18.209.91.97:9090/api/admin/lsv/addGLSVR', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(requestData)
-      });
+    setTableData([...tableData, newSection]);
+    resetForm();
+    setShowModal(false);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save data');
-      }
-
-      const result = await response.json();
-
-      
-      const newSection = {
-        id: Date.now(),
-        type: sectionType,
-        title,
-        subtitle,
-        question,
-        content
-      };
-
-      setTableData([...tableData, newSection]);
-      resetForm();
-      setShowModal(false);
-
-      toast.success('Section added successfully!', {
-        position: 'top-right',
-        autoClose: 2000,
-      });
-    } catch (error) {
-      console.error('Error saving section:', error);
-      toast.error(error.message || 'Failed to save section. Please try again.', {
-        position: 'top-right',
-        autoClose: 2000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+    toast.success('Section added successfully!', {
+      position: 'top-right',
+      autoClose: 2000,
+    });
+  } catch (error) {
+    console.error('Error saving section:', error);
+    toast.error(error.message || 'Failed to save section. Please try again.', {
+      position: 'top-right',
+      autoClose: 2000,
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
   const resetForm = () => {
     setSectionType('traffic');
     setTitle('');
@@ -330,7 +313,7 @@ const handleSave = async () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Sections Table */}
+
       <Card className="shadow-sm">
         <Card.Body className="p-0">
           <div className="table-responsive">
