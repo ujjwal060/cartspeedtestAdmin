@@ -79,11 +79,7 @@ const Dashboard = () => {
   return (
     <div className="container-fluid">
       <Box sx={{ padding: "24px" }}>
-        <Typography variant="h4" gutterBottom>
-          Admin Dashboard
-        </Typography>
 
-        {/* Top Summary Cards */}
         <Grid container spacing={3} sx={{ marginBottom: 2 }}>
           <Grid size={{ xs: 12, sm: 3 }}>
             <Card

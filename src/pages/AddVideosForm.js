@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
@@ -10,7 +9,13 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import { sectionVideos } from "../api/video";
 
-const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
+const AddVideoOffcanvas = ({
+  open,
+  setOpen,
+  handleClose,
+  onVideoUploaded,
+  setUploadingLoading,
+}) => {
   const [value, setValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [section, setSection] = useState("");
@@ -36,9 +41,9 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
       file: file,
     }));
 
-    setVideoSection(prev => ({
+    setVideoSection((prev) => ({
       ...prev,
-      videoFiles: [...updatedFiles]
+      videoFiles: [...updatedFiles],
     }));
   };
 
@@ -52,7 +57,7 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
           setSectionTitle(response.data.title);
           setTitleError(false);
         } else {
-          setSectionTitle('');
+          setSectionTitle("");
           setTitleError(true);
         }
       }
@@ -62,24 +67,23 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
     }
   };
 
- 
-
   const handleVideoUpload = async (e) => {
     e.preventDefault();
-  
+
     if (!section || !sectionTitle) {
       toast.error("Please select a section and enter section title");
       return;
     }
-  
+
     if (videoSection.videoFiles.length === 0) {
       toast.error("Please select at least one video file");
       return;
     }
-  
+
     setIsSubmitting(true);
+    setUploadingLoading(true);
     const token = localStorage.getItem("token");
-  
+
     try {
       const uploadPromises = videoSection.videoFiles.map((vid) => {
         const formData = new FormData();
@@ -88,40 +92,48 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
         formData.append("image", vid.file);
         formData.append("sectionNumber", section);
         formData.append("sectionTitle", sectionTitle);
-  
+
         return addVideos(formData, token);
       });
-  
+
       const responses = await Promise.all(uploadPromises);
       console.log("API Responses:", responses); // Debugging
-  
-      const allSuccess = responses.every(response => {
+
+      const allSuccess = responses.every((response) => {
         if (!response) return false;
         // Some APIs return success on 200, not just 201
         return response.status === 200 || response.status === 201;
       });
-  
+
       if (allSuccess) {
-        toast.success(`${videoSection.videoFiles.length} Video(s) Uploaded Successfully`, {
-          autoClose: 3000,
-        });
+        toast.success(
+          `${videoSection.videoFiles.length} Video(s) Uploaded Successfully`,
+          {
+            autoClose: 3000,
+          }
+        );
+        setUploadingLoading(false);
         resetForm();
         setOpen(false);
         handleClose();
         onVideoUploaded();
       } else {
-        const firstError = responses.find(r => !r || r.status !== 201);
-        throw new Error(firstError?.data?.message || "Some videos failed to upload");
+        const firstError = responses.find((r) => !r || r.status !== 201);
+        setUploadingLoading(false);
+
+        throw new Error(
+          firstError?.data?.message || "Some videos failed to upload"
+        );
       }
     } catch (error) {
       console.error("Full error object:", error);
-      
+
       let errorMessage = "Error uploading videos";
       if (error.response) {
         // Handle different backend error formats
-        errorMessage = 
-          (Array.isArray(error.response.data?.message) 
-            ? error.response.data.message[0] 
+        errorMessage =
+          (Array.isArray(error.response.data?.message)
+            ? error.response.data.message[0]
             : error.response.data?.message) ||
           error.response.data?.error ||
           error.response.statusText ||
@@ -129,10 +141,11 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-  
+
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
+      setUploadingLoading(false);
     }
   };
   const resetForm = () => {
@@ -149,16 +162,16 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
   };
 
   const updateSectionField = (field, value) => {
-    setVideoSection(prev => ({
+    setVideoSection((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const deleteUploadedVideo = (videoId) => {
-    setVideoSection(prev => ({
+    setVideoSection((prev) => ({
       ...prev,
-      videoFiles: prev.videoFiles.filter(vid => vid.id !== videoId)
+      videoFiles: prev.videoFiles.filter((vid) => vid.id !== videoId),
     }));
   };
 
@@ -187,7 +200,9 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
                   }}
                 >
                   {[1, 2, 3, 4, 5].map((num) => (
-                    <MenuItem key={num} value={num}>Section{num}</MenuItem>
+                    <MenuItem key={num} value={num}>
+                      Section{num}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -310,7 +325,7 @@ const AddVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
               className="rounded-4"
               disabled={isSubmitting}
             >
-              Reset Form
+              Reset
             </Button>
             <Button
               type="submit"

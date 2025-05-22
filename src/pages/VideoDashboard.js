@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
@@ -12,9 +11,9 @@ import {
   Tooltip,
   Stack,
 } from "@mui/material";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import Select from "@mui/material/Select";
-import Switch from '@mui/material/Switch';
+import Switch from "@mui/material/Switch";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -163,6 +162,7 @@ const VideoDashboard = () => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
   const [level, setLevel] = useState("");
+  const [uploadingloading, setUploadingLoading] = useState(false);
   const navigate = useNavigate();
   const handleChange = (event) => {
     setLevel(event.target.value);
@@ -270,6 +270,20 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy]);
 
+  if (uploadingloading) {
+    return (
+      <div className="">
+        <div className="global-loader margin-loader ">
+          <div className="loader-animation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Box p={4}>
       <Box>
@@ -311,6 +325,8 @@ const VideoDashboard = () => {
               setOpen={setOpen}
               handleClose={handleClose}
               selectedVideos={[]}
+              setUploadingLoading={setUploadingLoading}
+              uploadingloading={uploadingloading}
               videoFiles={videoFiles}
               setVideoFiles={setVideoFiles}
               deleteUploadedVideo={deleteUploadedVideo}
@@ -321,26 +337,38 @@ const VideoDashboard = () => {
         <Paper elevation={3} className="mt-3">
           <TableContainer>
             {
-
-
               <Stack direction="row" spacing={1} className="p-3">
                 {inputValue.title && (
-                  <Chip label={`Title: ${inputValue.title}`} onDelete={() => handleFilterChange("title", "")} />
+                  <Chip
+                    label={`Title: ${inputValue.title}`}
+                    onDelete={() => handleFilterChange("title", "")}
+                  />
                 )}
                 {inputValue.description && (
-                  <Chip label={`Description: ${inputValue.description}`} onDelete={() => handleFilterChange("description", "")} />
+                  <Chip
+                    label={`Description: ${inputValue.description}`}
+                    onDelete={() => handleFilterChange("description", "")}
+                  />
                 )}
                 {inputValue.section && (
-                  <Chip label={`Section: ${inputValue.section}`} onDelete={() => handleFilterChange("section", "")} />
+                  <Chip
+                    label={`Section: ${inputValue.section}`}
+                    onDelete={() => handleFilterChange("section", "")}
+                  />
                 )}
                 {inputValue.sectionTitle && (
-                  <Chip label={`Section Title: ${inputValue.sectionTitle}`} onDelete={() => handleFilterChange("sectionTitle", "")} />
+                  <Chip
+                    label={`Section Title: ${inputValue.sectionTitle}`}
+                    onDelete={() => handleFilterChange("sectionTitle", "")}
+                  />
                 )}
                 {inputValue.locationState && (
-                  <Chip label={`Location: ${inputValue.locationState}`} onDelete={() => handleFilterChange("locationState", "")} />
+                  <Chip
+                    label={`Location: ${inputValue.locationState}`}
+                    onDelete={() => handleFilterChange("locationState", "")}
+                  />
                 )}
               </Stack>
-
             }
             {loading && <LinearProgress />}
             <Table>
@@ -350,10 +378,6 @@ const VideoDashboard = () => {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
-
-
-
-
                 {openFilter && (
                   <TableRow>
                     {/* Title Filter */}
@@ -362,7 +386,9 @@ const VideoDashboard = () => {
                         placeholder="Title"
                         value={inputValue.title || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) => handleFilterChange("title", e.target.value)}
+                        onChange={(e) =>
+                          handleFilterChange("title", e.target.value)
+                        }
                       />
                     </TableCell>
 
@@ -372,7 +398,9 @@ const VideoDashboard = () => {
                         placeholder="Description"
                         value={inputValue.description || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) => handleFilterChange("description", e.target.value)}
+                        onChange={(e) =>
+                          handleFilterChange("description", e.target.value)
+                        }
                       />
                     </TableCell>
 
@@ -386,7 +414,9 @@ const VideoDashboard = () => {
                         <InputLabel>Section</InputLabel>
                         <Select
                           value={inputValue.section || ""}
-                          onChange={(e) => handleFilterChange("section", e.target.value)}
+                          onChange={(e) =>
+                            handleFilterChange("section", e.target.value)
+                          }
                         >
                           <MenuItem value="section1">Section 1</MenuItem>
                           <MenuItem value="section2">Section 2</MenuItem>
@@ -430,8 +460,19 @@ const VideoDashboard = () => {
                 {getVideo.map((item, index) => (
                   <TableRow key={item.video._id || index}>
                     <TableCell
-                      onClick={() => navigate('/assessment', { state: { title: item.video.title, videoId: item.video._id } })}
-                      style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+                      onClick={() =>
+                        navigate("/assessment", {
+                          state: {
+                            title: item.video.title,
+                            videoId: item.video._id,
+                          },
+                        })
+                      }
+                      style={{
+                        cursor: "pointer",
+                        color: "#1976d2",
+                        textDecoration: "underline",
+                      }}
                     >
                       {item.video.title}
                     </TableCell>
@@ -445,7 +486,7 @@ const VideoDashboard = () => {
                         checked={item.video.isActive}
                         onChange={() => handleToggleStatus(item.video._id)}
                         color="primary"
-                        inputProps={{ 'aria-label': 'toggle video status' }}
+                        inputProps={{ "aria-label": "toggle video status" }}
                       />
                     </TableCell>
                     <TableCell>
@@ -462,8 +503,6 @@ const VideoDashboard = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-
-
               </TableBody>
             </Table>
           </TableContainer>
