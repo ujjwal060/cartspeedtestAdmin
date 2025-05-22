@@ -77,3 +77,23 @@ export const sectionVideos = async (id, number, token , userId) => {
   );
   return response.data;
 };
+
+
+export const addSafetyVideo = async (token, formData) => {
+  try {
+    const response = await axios.post(
+      "/admin/video/addSafityVideo",
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding safety video:", error);
+    throw error;
+  }
+};

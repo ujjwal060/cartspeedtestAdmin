@@ -57,7 +57,6 @@ const AddLsvRules = () => {
         console.error("Error fetching data:", error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -415,7 +414,7 @@ const AddLsvRules = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Sections Table */}
+
       <Card className="shadow-sm">
         <Card.Body className="p-0">
           <div className="table-responsive">
