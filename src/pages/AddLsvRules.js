@@ -13,9 +13,17 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { FaEye, FaPlus, FaInfoCircle, FaTrash, FaEdit } from "react-icons/fa";
+import {
+  FaEye,
+  FaPlus,
+  FaInfoCircle,
+  FaTrash,
+  FaEdit,
+  FaMinus,
+} from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "../api/axios";
+import { BsGeoAlt } from "react-icons/bs";
 const AddLsvRules = () => {
   const [showModal, setShowModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
@@ -31,11 +39,9 @@ const AddLsvRules = () => {
     importance: "",
     safety: "",
   });
-  const [tableData, setTableData] = useState([]);
-  const [sectionData, setSectionData] = useState({
-    title: "",
-    description: "",
-  });
+  const [sectionData, setSectionData] = useState([
+    { title: "", description: "" }, // Initial section as an array with one object
+  ]);
   const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +51,7 @@ const AddLsvRules = () => {
         });
         if (response.status === 200) {
           console.log(response.data);
-          setData(response.data);
+          setData(response.data.data);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -59,21 +65,17 @@ const AddLsvRules = () => {
     try {
       setIsLoading(true);
 
-      // 2. Create the payload with proper structure
       const payload = {
         questions: content,
-        sections: [
-          {
-            title: sectionData.title,
-            description: sectionData.description,
-            isActive: true,
-          },
-        ],
+        sections: sectionData.map((section) => ({
+          title: section.title,
+          description: section.description,
+          isActive: true,
+        })),
       };
 
-      console.log("Final Payload:", JSON.stringify(payload, null, 2)); // Debug output
+      console.log("Final Payload:", JSON.stringify(payload, null, 2));
 
-      // 3. Make the API call
       const response = await axios.post("/admin/lsv/addGLSVR", payload, {
         headers: {
           "Content-Type": "application/json",
@@ -81,16 +83,14 @@ const AddLsvRules = () => {
         },
       });
 
-      if (response.status === 200) {
-        toast.success("Section added successfully!");
-        setSectionData({ title: "", description: "" });
+      if (response.status === 201) {
+        toast.success("Sections added successfully!");
+        setSectionData([{ title: "", description: "" }]); // Reset to initial state
         setShowModal(false);
-        // Optionally refresh data
-        // await fetchData();
       }
     } catch (error) {
-      console.error("Error saving section:", error);
-      toast.error(error.response?.data?.message || "Failed to add section.");
+      console.error("Error saving sections:", error);
+      toast.error(error.response?.data?.message || "Failed to add sections.");
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +100,12 @@ const AddLsvRules = () => {
     setTitle("");
     setSubtitle("");
     setQuestion("");
-    setContent("");
+    setContent({
+      whatIsLSV: "",
+      importance: "",
+      safety: "",
+    });
+    setSectionData([{ title: "", description: "" }]); // Reset to initial single section
   };
 
   return (
@@ -108,7 +113,7 @@ const AddLsvRules = () => {
       <ToastContainer />
       <Card className="shadow-sm mb-4">
         <Card.Body>
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="d-flex justify-content-between align-items-center">
             <div>
               <h2 className="fw-bold mb-1">LSV Rules Management</h2>
               <p className="text-muted">
@@ -125,13 +130,13 @@ const AddLsvRules = () => {
             </Button>
           </div>
 
-          <div className="alert alert-info d-flex align-items-center">
+          {/* <div className="alert alert-info d-flex align-items-center">
             <FaInfoCircle className="me-2" size={20} />
             <span>
               Static sections (marked with <Badge bg="info">General</Badge>)
               cannot be edited or deleted
             </span>
-          </div>
+          </div> */}
         </Card.Body>
       </Card>
 
@@ -162,9 +167,10 @@ const AddLsvRules = () => {
                     </Accordion.Header>
                     <Accordion.Body className="small p-1">
                       <Form.Control
+                        className="rounded-0"
                         required
                         type="text"
-                        placeholder="Enter Section Title"
+                        placeholder="Enter LSV"
                         value={content.whatIsLSV}
                         onChange={(e) =>
                           setContent({
@@ -182,8 +188,9 @@ const AddLsvRules = () => {
                     <Accordion.Body className="small p-1">
                       <Form.Control
                         required
+                        className="rounded-0"
                         type="text"
-                        placeholder="Enter Section Title"
+                        placeholder="Enter  Importance"
                         value={content.importance}
                         onChange={(e) =>
                           setContent({
@@ -201,8 +208,9 @@ const AddLsvRules = () => {
                     <Accordion.Body className="small p-1">
                       <Form.Control
                         required
+                        className="rounded-0"
                         type="text"
-                        placeholder="Enter Section Title"
+                        placeholder="Enter Safety"
                         value={content.safety}
                         onChange={(e) =>
                           setContent({
@@ -218,89 +226,93 @@ const AddLsvRules = () => {
             </div>
             <div className="col-md-6">
               <Form>
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <Form.Group>
+                {sectionData.map((section, index) => (
+                  <div key={index} className="mb-4 border-bottom pb-3">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h5>Section {index + 1}</h5>
+                      {sectionData.length > 1 && (
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSectionData((prevSections) =>
+                              prevSections.filter((_, i) => i !== index)
+                            );
+                          }}
+                        >
+                          <FaMinus /> Remove
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="row mb-3">
+                      <div className="col-md-8">
+                        <Form.Group>
+                          <Form.Label>
+                            Section Title <span className="text-danger">*</span>
+                          </Form.Label>
+                          <Form.Control
+                            required
+                            type="text"
+                            placeholder="Enter Section Title"
+                            value={section.title}
+                            onChange={(e) => {
+                              const updatedSections = [...sectionData];
+                              updatedSections[index].title = e.target.value;
+                              setSectionData(updatedSections);
+                            }}
+                          />
+                        </Form.Group>
+                      </div>
+                    </div>
+
+                    <Form.Group className="mb-3">
                       <Form.Label>
-                        Section Title <span className="text-danger">*</span>
+                        Content <span className="text-danger">*</span>
                       </Form.Label>
-                      <Form.Control
-                        required
-                        type="text"
-                        placeholder="Enter Section Title"
-                        value={sectionData?.title}
-                        onChange={(e) =>
-                          setSectionData({
-                            ...sectionData,
-                            title: e.target.value,
-                          })
-                        }
-                      />
-                      {/* {sectionTypes.map((type) => (
-                          <option key={type.value} value={type.value}>
-                            {type.label}
-                          </option>
-                        ))} */}
+                      <div className="border rounded overflow-hidden">
+                        <CKEditor
+                          editor={ClassicEditor}
+                          data={section.description}
+                          onChange={(event, editor) => {
+                            const data = editor.getData();
+                            const updatedSections = [...sectionData];
+                            updatedSections[index].description = data;
+                            setSectionData(updatedSections);
+                          }}
+                          config={{
+                            toolbar: [
+                              "heading",
+                              "|",
+                              "bold",
+                              "italic",
+                              "link",
+                              "bulletedList",
+                              "numberedList",
+                              "blockQuote",
+                              "undo",
+                              "redo",
+                            ],
+                          }}
+                        />
+                      </div>
                     </Form.Group>
                   </div>
-                </div>
+                ))}
 
-                {/* <Form.Group className="mb-3">
-                  <Form.Label>
-                    Title <span className="text-danger">*</span>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter section title"
-                    size="lg"
-                  />
-                </Form.Group>*/}
-
-                {/* <Form.Group className="mb-3">
-                  <Form.Label>Add Question</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={subtitle}
-                    onChange={(e) => setSubtitle(e.target.value)}
-                    placeholder="Enter Question"
-                  />
-                </Form.Group> */}
-
-                <Form.Group className="mb-3">
-                  <Form.Label>
-                    Content <span className="text-danger">*</span>
-                  </Form.Label>
-                  <div className="border rounded overflow-hidden">
-                    <CKEditor
-                      editor={ClassicEditor}
-                      data={sectionData?.description}
-                      value={sectionData?.description}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        setSectionData({
-                          ...sectionData,
-                          description: data,
-                        });
-                      }}
-                      config={{
-                        toolbar: [
-                          "heading",
-                          "|",
-                          "bold",
-                          "italic",
-                          "link",
-                          "bulletedList",
-                          "numberedList",
-                          "blockQuote",
-                          "undo",
-                          "redo",
-                        ],
-                      }}
-                    />
-                  </div>
-                </Form.Group>
+                <Button
+                  variant="outline-primary"
+                  onClick={() => {
+                    setSectionData([
+                      ...sectionData,
+                      { title: "", description: "" },
+                    ]);
+                  }}
+                  className="mb-3"
+                >
+                  <FaPlus /> Add Section
+                </Button>
               </Form>
             </div>
           </div>
@@ -338,20 +350,56 @@ const AddLsvRules = () => {
         <Modal.Body>
           {selectedSection && (
             <div>
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <h4>{selectedSection.title}</h4>
-                  {selectedSection.subtitle && (
-                    <h6 className="text-muted">{selectedSection.subtitle}</h6>
-                  )}
+              <b className="">
+                <BsGeoAlt className="me-1" />
+                {selectedSection?.locationId?.name}
+              </b>
+              <div className="row gy-3 pt-3">
+                <div className="col-lg-12">
+                  <div className="d-flex flex-column gap-2 align-items-start mb-3">
+                    <div>
+                      <h5>What is LSV?</h5>
+                      <h6>{selectedSection?.questions?.whatIsLSV}</h6>
+                    </div>
+                    <div>
+                      <h5>Importance?</h5>
+                      <h6>{selectedSection?.questions?.importance}</h6>
+                    </div>
+                    <div>
+                      <h5>Safety?</h5>
+                      <h6>{selectedSection?.questions?.safety}</h6>
+                    </div>
+                    {/* <div>{getTypeBadge(selectedSection.type)}</div> */}
+                  </div>
                 </div>
-                {/* <div>{getTypeBadge(selectedSection.type)}</div> */}
-              </div>
+                <div className="col-lg-12">
+                  <div className="d-flex flex-column gap-2 align-items-start mb-3">
+                    <h4>Section</h4>
+                    {selectedSection.sections && (
+                      <Accordion defaultActiveKey="0" className="w-100">
+                        {selectedSection.sections.map((section, index) => (
+                          <Accordion.Item
+                            eventKey={index.toString()}
+                            key={section?._id}
+                          >
+                            <Accordion.Header>
+                              <h5 className="mb-0">{section?.title}</h5>
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: section?.description,
+                                }}
+                              />
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        ))}
+                      </Accordion>
+                    )}
 
-              <div className="border-top pt-3">
-                <div
-                  dangerouslySetInnerHTML={{ __html: selectedSection.content }}
-                />
+                    {/* <div>{getTypeBadge(selectedSection.type)}</div> */}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -375,82 +423,71 @@ const AddLsvRules = () => {
               <thead className="table-light">
                 <tr>
                   <th width="50">#</th>
-                  <th width="150">Type</th>
-                  <th>Title</th>
-                  <th>Subtitle</th>
+                  <th>What Is LSV?</th>
+                  <th width="150">Importance</th>
+                  <th>Safety</th>
+                  <th>Location</th>
                   <th width="120">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {/* {[...staticSections, ...tableData].map((section, index) => (
-                  <tr key={section.id || index}>
-                    <td className="text-center">{index + 1}</td>
-                    <td>{getTypeBadge(section.type)}</td>
-                    <td>
-                      <div className="fw-semibold">{section.title}</div>
-                      <div
-                        className="text-muted small"
-                        style={{ maxHeight: "40px", overflow: "hidden" }}
+                {Array.isArray(data) ? (
+                  data.map((section, index) => (
+                    <tr key={section.id || index}>
+                      <td className="text-center">{index + 1}</td>
+                      <td
+                        className="text-truncate"
+                        style={{ maxWidth: "200px" }}
                       >
-                        {section.subtitle || "No subtitle"}
-                      </div>
-                    </td>
-                    <td>
-                      <div
-                        className="text-muted small"
-                        style={{ maxHeight: "40px", overflow: "hidden" }}
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            section.content.substring(0, 100) +
-                            (section.content.length > 100 ? "..." : ""),
-                        }}
-                      />
-                    </td>
-                    <td className="text-center">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-1"
-                        onClick={() => {
-                          setSelectedSection(section);
-                          setViewModal(true);
-                        }}
-                        title="View"
-                        disabled={isLoading}
+                        {section.questions.whatIsLSV}
+                      </td>
+                      <td
+                        className="text-truncate"
+                        style={{ maxWidth: "200px" }}
                       >
-                        <FaEye />
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedSection(section);
-                          setViewModal(true);
-                        }}
-                        title="Delete"
-                        disabled={isLoading}
+                        {" "}
+                        {section.questions.importance}
+                      </td>
+                      <td
+                        className="text-truncate"
+                        style={{ maxWidth: "200px" }}
                       >
-                        <FaEdit />
-                      </Button>
-                      {!staticSections.some((s) => s.id === section.id) && (
+                        {section.questions.safety}
+                      </td>
+                      <td>{section.locationId.name}</td>
+                      <td className="text-start">
                         <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="me-1"
+                          onClick={() => {
+                            setSelectedSection(section);
+                            setViewModal(true);
+                          }}
+                          title="View"
+                          disabled={isLoading}
+                        >
+                          <FaEye />
+                        </Button>
+                        {/* <Button
                           variant="outline-danger"
                           size="sm"
-                          onClick={() => handleDelete(section.id)}
+                          onClick={() => {
+                            setSelectedSection(section);
+                            setViewModal(true);
+                          }}
                           title="Delete"
                           disabled={isLoading}
                         >
-                          <FaTrash />
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))} */}
-                {tableData.length === 0 && (
+                          <FaEdit />
+                        </Button> */}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
                   <tr>
                     <td colSpan="5" className="text-center py-4 text-muted">
-                      No custom sections added yet. Click "Add Section" to
-                      create one.
+                      No data available or data is not in expected format
                     </td>
                   </tr>
                 )}
