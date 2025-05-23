@@ -390,9 +390,11 @@ const VideoDashboard = () => {
       <Box>
         <div className="d-flex justify-content-between align-items-center pad-root mb-3">
     
+
+
 <Box sx={{ 
   backgroundColor: '#f4f6f8',
-  borderRadius: 2,
+  borderRadius: '16px', 
   padding: '4px',
   boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
   display: 'inline-flex'
@@ -404,13 +406,13 @@ const VideoDashboard = () => {
         textTransform: 'none',
         fontWeight: 500,
         border: 'none',
-        borderRadius: 2,
+        borderRadius: '16px',
         px: 3,
         py: 1,
         color: '#fff',
-        backgroundColor: '#1976d2', // Blue color for active state
+        backgroundColor: '#1976d2', 
         '&:hover': {
-          backgroundColor: '#1565c0', // Darker blue on hover
+          backgroundColor: '#1565c0',
         }
       }}
     >
@@ -423,13 +425,13 @@ const VideoDashboard = () => {
         textTransform: 'none',
         fontWeight: 500,
         border: 'none',
-        borderRadius: 2,
+        borderRadius: '16px', // Rounded corners
         px: 3,
         py: 1,
         color: '#fff',
-        backgroundColor: '#1976d2', // Blue color for active state
+        backgroundColor: '#4CAF50', // Green color for Safety Videos button
         '&:hover': {
-          backgroundColor: '#1565c0', // Darker blue on hover
+          backgroundColor: '#388E3C', // Darker green on hover
         }
       }}
     >
