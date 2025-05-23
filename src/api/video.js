@@ -97,3 +97,49 @@ export const addSafetyVideo = async (token, formData) => {
     throw error;
   }
 };
+
+
+// export const getSafetyVideos = async (token) => {
+//   try {
+//     const response = await axios.get(
+//       "admin/video/addSafityVideos",
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           'Content-Type': 'multipart/form-data'
+//         }
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error adding safety video:", error);
+//     throw error;
+//   }
+// }
+
+
+
+export const getSafetyVideos = async (token, offset = 0, limit = 10, sortBy = 1, sortField = "createdAt", filters = {}) => {
+  try {
+    const response = await axios.post(
+      "http://18.209.91.97:9090/api/admin/video/getSeftyVideo",
+      {
+        offset,
+        limit,
+        sortBy,
+        sortField,
+        ...filters
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching safety videos:", error);
+    throw error;
+  }
+}

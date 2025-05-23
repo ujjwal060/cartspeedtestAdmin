@@ -40,7 +40,9 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
 import { getVideos, deleteVideos, isActiveVideos } from "../api/video";
-// import { getSafetyVideos, deleteSafetyVideos, isActiveSafetyVideos } from "../api/safetyVideo"; // Add safety video APIs
+import { getSafetyVideos } from "../api/video";
+
+// import {deleteSafetyVideos, isActiveSafetyVideos }  from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 import AddSafetyVideoOffcanvas from "./AddSafetyVideosForm";
 import DatePicker from "react-datepicker";
@@ -253,19 +255,19 @@ const VideoDashboard = () => {
           setTotalData(response?.total);
         }
       } else {
-        // const response = await getSafetyVideos(
-        //   token,
-        //   offset,
-        //   limit,
-        //   sortBy,
-        //   sortField,
-        //   filters
-        // );
+        const response = await getSafetyVideos(
+          token,
+          offset,
+          limit,
+          sortBy,
+          sortField,
+          filters
+        );
 
-        // if (response.status === 200) {
-        //   setGetSafetyVideo(response?.data);
-        //   setTotalData(response?.total);
-        // }
+        if (response.status === 200) {
+          setGetSafetyVideo(response?.data);
+          setTotalData(response?.total);
+        }
       }
     } catch (error) {
       toast.error(error?.response?.data?.message?.[0]);
@@ -387,46 +389,54 @@ const VideoDashboard = () => {
     <Box p={4}>
       <Box>
         <div className="d-flex justify-content-between align-items-center pad-root mb-3">
-      
-             <ToggleButtonGroup
-      value={viewType}
-      exclusive
-      onChange={handleViewTypeChange}
-      aria-label="video type"
+    
+<Box sx={{ 
+  backgroundColor: '#f4f6f8',
+  borderRadius: 2,
+  padding: '4px',
+  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+  display: 'inline-flex'
+}}>
+  {viewType === 'safetyVideos' ? (
+    <Button
+      onClick={() => handleViewTypeChange(null, 'videos')}
       sx={{
-        backgroundColor: '#f4f6f8',
+        textTransform: 'none',
+        fontWeight: 500,
+        border: 'none',
         borderRadius: 2,
-        padding: '4px',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-        '& .MuiToggleButton-root': {
-          textTransform: 'none',
-          fontWeight: 500,
-          border: 'none',
-          borderRadius: 2,
-          px: 3,
-          py: 1,
-          color: '#555',
-          '&.Mui-selected': {
-            backgroundColor: '#1976d2',
-            color: '#fff',
-            '&:hover': {
-              backgroundColor: '#1565c0',
-            },
-          },
-          '&:hover': {
-            backgroundColor: '#e0e0e0',
-          },
+        px: 3,
+        py: 1,
+        color: '#fff',
+        backgroundColor: '#1976d2', // Blue color for active state
+        '&:hover': {
+          backgroundColor: '#1565c0', // Darker blue on hover
         }
       }}
     >
-      <ToggleButton value="videos" aria-label="videos">
-        Videos
-      </ToggleButton>
-      <ToggleButton value="safetyVideos" aria-label="safety videos">
-        Safety Videos
-      </ToggleButton>
-    </ToggleButtonGroup>
-          
+      Videos
+    </Button>
+  ) : (
+    <Button
+      onClick={() => handleViewTypeChange(null, 'safetyVideos')}
+      sx={{
+        textTransform: 'none',
+        fontWeight: 500,
+        border: 'none',
+        borderRadius: 2,
+        px: 3,
+        py: 1,
+        color: '#fff',
+        backgroundColor: '#1976d2', // Blue color for active state
+        '&:hover': {
+          backgroundColor: '#1565c0', // Darker blue on hover
+        }
+      }}
+    >
+      Safety Videos
+    </Button>
+  )}
+</Box>
           <div className="d-flex gap-2 align-items-center">
             <div className="custom-picker">
               <CalendarMonthIcon className="svg-custom" />
