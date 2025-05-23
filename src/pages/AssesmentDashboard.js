@@ -17,7 +17,7 @@ import {
   TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { FaEdit, FaTrash } from "react-icons/fa"
+import { FaEdit, FaTrash } from "react-icons/fa";
 import Accordion from "react-bootstrap/Accordion";
 import { useLocation } from "react-router-dom";
 import { getQA } from "../api/test";
@@ -32,7 +32,7 @@ import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Radio from "@mui/material/Radio";
@@ -131,11 +131,7 @@ const AssessmentDashboard = () => {
     }));
   };
 
-
-
-
   const fetchQA = async () => {
-   
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
     setLoading(true);
@@ -160,7 +156,6 @@ const AssessmentDashboard = () => {
     fetchQA();
   }, [currentPage, filters]);
 
-
   const handleCancelEdit = () => {
     setEditId(null);
     setEditForm({ question: "", options: [] });
@@ -171,10 +166,10 @@ const AssessmentDashboard = () => {
       prevData.map((q) =>
         q._id === editId
           ? {
-            ...q,
-            question: editForm.question,
-            options: editForm.options,
-          }
+              ...q,
+              question: editForm.question,
+              options: editForm.options,
+            }
           : q
       )
     );
@@ -184,14 +179,12 @@ const AssessmentDashboard = () => {
     setEditForm({ question: "", options: [] });
   };
 
-
   const handleEditClick = (item) => {
-     console.log("Rendering options for:", item._id, item.options);
+    console.log("Rendering options for:", item._id, item.options);
     setEditId(item._id);
     setEditForm({
       question: item.question,
-      options: item.options.map(opt => ({ ...opt })),
-      
+      options: item.options.map((opt) => ({ ...opt })),
     });
   };
 
@@ -201,16 +194,14 @@ const AssessmentDashboard = () => {
     );
 
     return (
-
       <Box display="flex" alignItems="center" mb={2} flexWrap="wrap">
-
         {title && (
-          <Link to="/videos" style={{ textDecoration: 'none' }}>
+          <Link to="/videos" style={{ textDecoration: "none" }}>
             <Chip
               label={title}
               onClick={(e) => {
                 e.preventDefault();
-                navigate('/videos');
+                navigate("/videos");
               }}
               sx={{
                 backgroundColor: "#2E5AAC",
@@ -221,10 +212,10 @@ const AssessmentDashboard = () => {
                 textOverflow: "ellipsis",
                 overflow: "hidden",
                 padding: "0 20px",
-                cursor: 'pointer',
-                '&:hover': {
-                  backgroundColor: '#1d4a9c'
-                }
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#1d4a9c",
+                },
               }}
             />
           </Link>
@@ -285,8 +276,6 @@ const AssessmentDashboard = () => {
             <span></span>
             <span></span>
           </div>
-
-      
         </div>
       </div>
     );
@@ -316,10 +305,11 @@ const AssessmentDashboard = () => {
                         borderRadius: "4px",
                         backgroundColor:
                           sectionStyles[section.key].backgroundColor,
-                        border: `2px solid ${sectionNumber === section.value
-                          ? "#000"
-                          : sectionStyles[section.key].color
-                          }`,
+                        border: `2px solid ${
+                          sectionNumber === section.value
+                            ? "#000"
+                            : sectionStyles[section.key].color
+                        }`,
                         cursor: "pointer",
                         mx: "auto",
                       }}
@@ -399,7 +389,10 @@ const AssessmentDashboard = () => {
                         variant="standard"
                         value={editForm.question}
                         onChange={(e) =>
-                          setEditForm((prev) => ({ ...prev, question: e.target.value }))
+                          setEditForm((prev) => ({
+                            ...prev,
+                            question: e.target.value,
+                          }))
                         }
                       />
                     ) : (
@@ -421,19 +414,18 @@ const AssessmentDashboard = () => {
                         >
                           Save
                         </Button> */}
-                       <CheckCircleOutlineIcon
-  onClick={handleSaveEdit}
-  fontSize="medium"
-  color="success"
-  className="me-2 cursor-pointer"
-/>
-<CancelIcon
-  onClick={handleCancelEdit}
-  fontSize="medium"
-  color="error"
-  className="cursor-pointer"
-/>
-
+                        <CheckCircleOutlineIcon
+                          onClick={handleSaveEdit}
+                          fontSize="medium"
+                          color="success"
+                          className="me-2 cursor-pointer"
+                        />
+                        <CancelIcon
+                          onClick={handleCancelEdit}
+                          fontSize="medium"
+                          color="error"
+                          className="cursor-pointer"
+                        />
                       </>
                     ) : (
                       <>
@@ -457,88 +449,104 @@ const AssessmentDashboard = () => {
                 </div>
               </Accordion.Header>
 
-           
-      <Accordion.Body>
-  <div className="row gy-4 mt-3">
-    <div className="col-lg-8"> 
-      <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
-        {item.options.map((option, optIndex) => (
-          <Box 
-            key={optIndex} 
-            display="flex" 
-            alignItems="center" 
-            sx={{ 
-              mb: 1,
-              p: 1,
-              border: '1px solid',
-              borderColor: option.isCorrect ? 'success.main' : 'divider',
-              borderRadius: 1,
-          
-            }}
-          >
-            <Typography sx={{ mr: 1, fontWeight: 'bold' }}>
-              {String.fromCharCode(65 + optIndex)}.
-            </Typography>
+              <Accordion.Body>
+                <div className="row gy-4 ">
+                  <div className="col-lg-12">
+                    <p>
+                      <LocationPinIcon />
+                      {item.locationName}
+                    </p>
+                    <Box
+                      display="grid"
+                      gridTemplateColumns="repeat(4, 1fr)"
+                      gap={2}
+                    >
+                      {item.options.map((option, optIndex) => (
+                        <Box
+                          key={optIndex}
+                          display="flex"
+                          alignItems="center"
+                          sx={{
+                            mb: 1,
+                            p: 1,
+                            border: "1px solid",
+                            borderColor: option.isCorrect
+                              ? "success.main"
+                              : "divider",
+                            borderRadius: 1,
+                          }}
+                        >
+                          <Typography sx={{ mr: 1, fontWeight: "bold" }}>
+                            {String.fromCharCode(65 + optIndex)}.
+                          </Typography>
 
-            {editId === item._id ? (
-              <>
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  value={editForm.options[optIndex]?.text || ""}
-                  onChange={(e) =>
-                    setEditForm((prev) => {
-                      const updatedOptions = [...prev.options];
-                      updatedOptions[optIndex].text = e.target.value;
-                      return { ...prev, options: updatedOptions };
-                    })
-                  }
-                  sx={{ flexGrow: 1, mr: 1 }}
-                />
-                <Radio
-                  checked={editForm.options[optIndex]?.isCorrect}
-                  onChange={() =>
-                    setEditForm((prev) => {
-                      const updatedOptions = prev.options.map((opt, i) => ({
-                        ...opt,
-                        isCorrect: i === optIndex,
-                      }));
-                      return { ...prev, options: updatedOptions };
-                    })
-                  }
-                  color="success"
-                />
-              </>
-            ) : (
-              <>
-                <Typography sx={{ flexGrow: 1 }}>{option.text}</Typography>
-                <Radio checked={option.isCorrect} color="success" disabled />
-              </>
-            )}
-          </Box>
-        ))}
-      </Box>
-    </div>
+                          {editId === item._id ? (
+                            <>
+                              <TextField
+                                variant="outlined"
+                                size="small"
+                                value={editForm.options[optIndex]?.text || ""}
+                                onChange={(e) =>
+                                  setEditForm((prev) => {
+                                    const updatedOptions = [...prev.options];
+                                    updatedOptions[optIndex].text =
+                                      e.target.value;
+                                    return { ...prev, options: updatedOptions };
+                                  })
+                                }
+                                sx={{ flexGrow: 1, mr: 1 }}
+                              />
+                              <Radio
+                                checked={editForm.options[optIndex]?.isCorrect}
+                                onChange={() =>
+                                  setEditForm((prev) => {
+                                    const updatedOptions = prev.options.map(
+                                      (opt, i) => ({
+                                        ...opt,
+                                        isCorrect: i === optIndex,
+                                      })
+                                    );
+                                    return { ...prev, options: updatedOptions };
+                                  })
+                                }
+                                color="success"
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <Typography sx={{ flexGrow: 1 }}>
+                                {option.text}
+                              </Typography>
+                              <Radio
+                                checked={option.isCorrect}
+                                color="success"
+                                disabled
+                              />
+                            </>
+                          )}
+                        </Box>
+                      ))}
+                    </Box>
+                  </div>
 
-    <div className="col-lg-4 d-flex align-items-end justify-content-end">
-      {!editId &&
-        item.options
-          .filter((option) => option.isCorrect)
-          .map((option) => (
-            <Chip
-              key={option._id}
-              label={`${String.fromCharCode(
-                65 + item.options.indexOf(option)
-              )}. ${option.text}`}
-              color="success"
-              sx={{ ml: 1 }}
-            />
-          ))}
-    </div>
-  </div>
-</Accordion.Body>
+                  {/* <div className="col-lg-4 d-flex align-items-end justify-content-end">
+                    {!editId &&
+                      item.options
+                        .filter((option) => option.isCorrect)
+                        .map((option) => (
+                          <Chip
+                            key={option._id}
+                            label={`${String.fromCharCode(
+                              65 + item.options.indexOf(option)
+                            )}. ${option.text}`}
+                            color="success"
+                            sx={{ ml: 1 }}
+                          />
+                        ))}
+                  </div> */}
+                </div>
+              </Accordion.Body>
             </Accordion.Item>
-
           ))}
         </Accordion>
 
@@ -589,7 +597,6 @@ const AssessmentDashboard = () => {
         onVideoUploaded={fetchQA}
         editData={editData}
       />
-
     </Box>
   );
 };

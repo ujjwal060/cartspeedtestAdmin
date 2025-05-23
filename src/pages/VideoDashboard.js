@@ -1,6 +1,6 @@
-
 import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import SafetyCheckIcon from '@mui/icons-material/SafetyCheck'; // New icon for safety videos
 import {
   Box,
   Paper,
@@ -12,9 +12,9 @@ import {
   Tooltip,
   Stack,
 } from "@mui/material";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import Select from "@mui/material/Select";
-import Switch from '@mui/material/Switch';
+import Switch from "@mui/material/Switch";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -37,8 +37,10 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
 import { getVideos, deleteVideos, isActiveVideos } from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
+import AddSafetyVideoOffcanvas from "./AddSafetyVideosForm"; // New component for safety videos
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -102,6 +104,7 @@ const headCells = [
     disableSort: true,
   },
 ];
+
 function EnhancedTableHead(props) {
   const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
@@ -147,8 +150,10 @@ const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [getVideo, setGetVideo] = useState([]);
   const [open, setOpen] = useState(false);
+  const [openSafetyVideo, setOpenSafetyVideo] = useState(false); // New state for safety videos
   const [playOpen, setPlayOpen] = useState(false);
   const [videoFiles, setVideoFiles] = useState([]);
+  const [safetyVideoFiles, setSafetyVideoFiles] = useState([]); // New state for safety video files
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
   const [totalData, setTotalData] = useState([]);
@@ -157,16 +162,20 @@ const VideoDashboard = () => {
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({});
   const handleClickOpen = () => setOpen(true);
+  const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true); // New handler for safety videos
   const handleClose = () => setOpen(false);
+  const handleSafetyVideoClose = () => setOpenSafetyVideo(false); // New handler for safety videos
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
   const [level, setLevel] = useState("");
+  const [uploadingloading, setUploadingLoading] = useState(false);
   const navigate = useNavigate();
   const handleChange = (event) => {
     setLevel(event.target.value);
   };
+  
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
@@ -196,6 +205,11 @@ const VideoDashboard = () => {
   const deleteUploadedVideo = (id) => {
     setVideoFiles((prev) => prev.filter((v) => v.id !== id));
   };
+
+  const deleteUploadedSafetyVideo = (id) => {
+    setSafetyVideoFiles((prev) => prev.filter((v) => v.id !== id));
+  };
+
   const handleDelete = async (videoId) => {
     try {
       const res = await deleteVideos(videoId, token);
@@ -270,6 +284,20 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy]);
 
+  if (uploadingloading) {
+    return (
+      <div className="">
+        <div className="global-loader margin-loader ">
+          <div className="loader-animation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Box p={4}>
       <Box>
@@ -300,20 +328,45 @@ const VideoDashboard = () => {
             <Button
               variant="contained"
               color="primary"
+              onClick={handleSafetyVideoClickOpen}
+              className="rounded-4 d-flex gap-1 flex-row"
+              style={{ backgroundColor: '#4caf50' }} // Green color for safety videos
+            >
+              <SafetyCheckIcon />
+              Safety Videos
+            </Button>
+
+            <Button
+              variant="contained"
+              color="primary"
               onClick={handleClickOpen}
               className="rounded-4 d-flex gap-1 flex-row"
             >
               <AddCircleOutlineIcon />
               Video
             </Button>
+            
             <AddVideoOffcanvas
               open={open}
               setOpen={setOpen}
               handleClose={handleClose}
               selectedVideos={[]}
+              setUploadingLoading={setUploadingLoading}
+              uploadingloading={uploadingloading}
               videoFiles={videoFiles}
               setVideoFiles={setVideoFiles}
               deleteUploadedVideo={deleteUploadedVideo}
+              onVideoUploaded={fetchVideos}
+            />
+
+            <AddSafetyVideoOffcanvas
+              open={openSafetyVideo}
+              setOpen={setOpenSafetyVideo}
+              handleClose={handleSafetyVideoClose}
+              selectedVideos={[]}
+              videoFiles={safetyVideoFiles}
+              setVideoFiles={setSafetyVideoFiles}
+              deleteUploadedVideo={deleteUploadedSafetyVideo}
               onVideoUploaded={fetchVideos}
             />
           </div>
@@ -321,26 +374,38 @@ const VideoDashboard = () => {
         <Paper elevation={3} className="mt-3">
           <TableContainer>
             {
-
-
               <Stack direction="row" spacing={1} className="p-3">
                 {inputValue.title && (
-                  <Chip label={`Title: ${inputValue.title}`} onDelete={() => handleFilterChange("title", "")} />
+                  <Chip
+                    label={`Title: ${inputValue.title}`}
+                    onDelete={() => handleFilterChange("title", "")}
+                  />
                 )}
                 {inputValue.description && (
-                  <Chip label={`Description: ${inputValue.description}`} onDelete={() => handleFilterChange("description", "")} />
+                  <Chip
+                    label={`Description: ${inputValue.description}`}
+                    onDelete={() => handleFilterChange("description", "")}
+                  />
                 )}
                 {inputValue.section && (
-                  <Chip label={`Section: ${inputValue.section}`} onDelete={() => handleFilterChange("section", "")} />
+                  <Chip
+                    label={`Section: ${inputValue.section}`}
+                    onDelete={() => handleFilterChange("section", "")}
+                  />
                 )}
                 {inputValue.sectionTitle && (
-                  <Chip label={`Section Title: ${inputValue.sectionTitle}`} onDelete={() => handleFilterChange("sectionTitle", "")} />
+                  <Chip
+                    label={`Section Title: ${inputValue.sectionTitle}`}
+                    onDelete={() => handleFilterChange("sectionTitle", "")}
+                  />
                 )}
                 {inputValue.locationState && (
-                  <Chip label={`Location: ${inputValue.locationState}`} onDelete={() => handleFilterChange("locationState", "")} />
+                  <Chip
+                    label={`Location: ${inputValue.locationState}`}
+                    onDelete={() => handleFilterChange("locationState", "")}
+                  />
                 )}
               </Stack>
-
             }
             {loading && <LinearProgress />}
             <Table>
@@ -350,33 +415,28 @@ const VideoDashboard = () => {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
-
-
-
-
                 {openFilter && (
                   <TableRow>
-                    {/* Title Filter */}
                     <TableCell>
                       <Form.Control
                         placeholder="Title"
                         value={inputValue.title || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) => handleFilterChange("title", e.target.value)}
+                        onChange={(e) =>
+                          handleFilterChange("title", e.target.value)
+                        }
                       />
                     </TableCell>
-
-                    {/* Description Filter */}
                     <TableCell>
                       <Form.Control
                         placeholder="Description"
                         value={inputValue.description || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) => handleFilterChange("description", e.target.value)}
+                        onChange={(e) =>
+                          handleFilterChange("description", e.target.value)
+                        }
                       />
                     </TableCell>
-
-                    {/* Section Filter (Dropdown) */}
                     <TableCell>
                       <FormControl
                         size="small"
@@ -386,7 +446,9 @@ const VideoDashboard = () => {
                         <InputLabel>Section</InputLabel>
                         <Select
                           value={inputValue.section || ""}
-                          onChange={(e) => handleFilterChange("section", e.target.value)}
+                          onChange={(e) =>
+                            handleFilterChange("section", e.target.value)
+                          }
                         >
                           <MenuItem value="section1">Section 1</MenuItem>
                           <MenuItem value="section2">Section 2</MenuItem>
@@ -396,8 +458,6 @@ const VideoDashboard = () => {
                         </Select>
                       </FormControl>
                     </TableCell>
-
-                    {/* Section Title Filter */}
                     <TableCell>
                       <Form.Control
                         placeholder="Section Title"
@@ -408,8 +468,6 @@ const VideoDashboard = () => {
                         }
                       />
                     </TableCell>
-
-                    {/* Location Filter */}
                     <TableCell>
                       <Form.Control
                         placeholder="Location"
@@ -420,7 +478,6 @@ const VideoDashboard = () => {
                         }
                       />
                     </TableCell>
-
                     <TableCell></TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
@@ -430,8 +487,19 @@ const VideoDashboard = () => {
                 {getVideo.map((item, index) => (
                   <TableRow key={item.video._id || index}>
                     <TableCell
-                      onClick={() => navigate('/assessment', { state: { title: item.video.title, videoId: item.video._id } })}
-                      style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+                      onClick={() =>
+                        navigate("/assessment", {
+                          state: {
+                            title: item.video.title,
+                            videoId: item.video._id,
+                          },
+                        })
+                      }
+                      style={{
+                        cursor: "pointer",
+                        color: "#1976d2",
+                        textDecoration: "underline",
+                      }}
                     >
                       {item.video.title}
                     </TableCell>
@@ -445,7 +513,7 @@ const VideoDashboard = () => {
                         checked={item.video.isActive}
                         onChange={() => handleToggleStatus(item.video._id)}
                         color="primary"
-                        inputProps={{ 'aria-label': 'toggle video status' }}
+                        inputProps={{ "aria-label": "toggle video status" }}
                       />
                     </TableCell>
                     <TableCell>
@@ -462,8 +530,6 @@ const VideoDashboard = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-
-
               </TableBody>
             </Table>
           </TableContainer>
