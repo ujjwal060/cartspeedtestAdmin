@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaPlus, FaTrash, FaEdit, FaInfoCircle, FaBook, FaImage } from 'react-icons/fa';
-import axios from 'axios'; // Make sure axios is installed
+import axios from 'axios'; 
 
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
@@ -109,7 +109,7 @@ const handleSave = async () => {
   if (title.trim() !== '' && validLaws.length > 0) {
     const formData = new FormData();
 
-    // Static questions object
+   
     const questions = {
       cartingRule: staticHeadings.caring,
       tips: staticHeadings.tips,
@@ -117,7 +117,7 @@ const handleSave = async () => {
     };
     formData.append('questions', JSON.stringify(questions));
 
-    // Sections array
+  
     const sections = [
       {
         title,
@@ -127,14 +127,12 @@ const handleSave = async () => {
     ];
     formData.append('sections', JSON.stringify(sections));
 
-    // Laws as guidelines (or adapt structure as per backend expectation)
     const guidelines = validLaws.map((law, index) => ({
       title: `Guideline ${index + 1}`,
       description: law.content
     }));
     formData.append('guidelines', JSON.stringify(guidelines));
 
-    // Add image if available
     if (guidance.image) {
       formData.append('image', guidance.image);
     }
@@ -152,7 +150,7 @@ const handleSave = async () => {
         autoClose: 2000,
       });
 
-      // Locally update the table
+    
       const newSection = {
         id: Date.now(),
         type: sectionType,
@@ -307,7 +305,7 @@ const handleSave = async () => {
               </div>
             </Form.Group>
 
-            {/* Guidance Section */}
+      
             <Card className="mb-4 border-0 shadow-sm">
               <Card.Header className="bg-info text-white d-flex align-items-center">
                 <FaInfoCircle className="me-2" />
