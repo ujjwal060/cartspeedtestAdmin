@@ -142,6 +142,8 @@ const AddLsvRules = () => {
     }
   };
 
+
+  
   const resetForm = () => {
     setSectionType("traffic");
     setTitle("");

@@ -17,6 +17,8 @@ const AddLsvLaws = () => {
   const [description, setDescription] = useState('');
   const [laws, setLaws] = useState([{ id: 1, content: '' }]);
   const [tableData, setTableData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+const [images, setImages] = useState([]);
   const [guidance, setGuidance] = useState({
     text: '',
     image: null,
@@ -65,124 +67,99 @@ const AddLsvLaws = () => {
     }
   };
 
-  // const handleSave = () => {
-  //   const validLaws = laws.filter(law => law.content.trim() !== '');
-
-  //   if (title.trim() !== '' && validLaws.length > 0) {
-  //     const newSection = {
-  //       id: Date.now(),
-  //       type: sectionType,
-  //       title,
-  //       description,
-  //       laws: validLaws.map(law => law.content),
-  //       headings: staticHeadings,
-  //       guidance: {
-  //         text: guidance.text,
-  //         image: guidance.image ? guidance.image.name : null,
-  //         imagePreview: guidance.imagePreview
-  //       },
-  //       createdAt: new Date().toISOString()
-  //     };
-
-  //     setTableData([...tableData, newSection]);
-  //     resetForm();
-  //     setShowModal(false);
-
-  //     toast.success('Law section added successfully!', {
-  //       position: 'top-right',
-  //       autoClose: 2000,
-  //     });
-  //   } else {
-  //     toast.error('Please fill all required fields', {
-  //       position: 'top-right',
-  //       autoClose: 2000,
-  //     });
-  //   }
-  // };
-
 
 
 
 const handleSave = async () => {
-  const validLaws = laws.filter(law => law.content.trim() !== '');
+  try {
+    setIsLoading(true);
 
-  if (title.trim() !== '' && validLaws.length > 0) {
     const formData = new FormData();
 
-   
-    const questions = {
-      cartingRule: staticHeadings.caring,
-      tips: staticHeadings.tips,
-      safety: staticHeadings.safety
-    };
-    formData.append('questions', JSON.stringify(questions));
-
   
-    const sections = [
-      {
-        title,
-        description,
-        isActive: true
-      }
-    ];
-    formData.append('sections', JSON.stringify(sections));
-
-    const guidelines = validLaws.map((law, index) => ({
-      title: `Guideline ${index + 1}`,
-      description: law.content
-    }));
-    formData.append('guidelines', JSON.stringify(guidelines));
-
-    if (guidance.image) {
-      formData.append('image', guidance.image);
-    }
-
-    try {
-      const response = await axios.post('http://localhost:9090/api/admin/lsv/addRRLSVR', formData, {
-        headers: {
-          'Authorization': 'Bearer YOUR_JWT_TOKEN_HERE',
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      toast.success('Law section added successfully to server!', {
-        position: 'top-right',
-        autoClose: 2000,
-      });
+    formData.append(
+      "questions",
+      JSON.stringify({
+        cartingRule: staticHeadings.caring,
+        tips: staticHeadings.tips,
+        safety: staticHeadings.safety,
+      })
+    );
 
     
+    formData.append(
+      "sections",
+      JSON.stringify([
+        {
+          title,
+          description,
+          isActive: true,
+        },
+      ])
+    );
+
+   
+    const validLaws = laws.filter((law) => law.content.trim() !== "");
+    const guidelines = validLaws.map((law, index) => ({
+      title: `Guideline ${index + 1}`,
+      description: law.content,
+    }));
+    formData.append("guidelines", JSON.stringify(guidelines));
+
+  
+    if (Array.isArray(images)) {
+      images.forEach((image) => {
+        formData.append("image", image);
+      });
+    } else if (guidance.image) {
+      formData.append("image", guidance.image); 
+    }
+
+
+    const token = localStorage.getItem("token");
+
+  
+    const response = await axios.post(
+      "http://18.209.91.97:9090/api/admin/lsv/addRRLSVR",
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response.status === 201 || response.status === 200) {
+      toast.success("Law section added successfully!");
+
       const newSection = {
         id: Date.now(),
         type: sectionType,
         title,
         description,
-        laws: validLaws.map(law => law.content),
+        laws: validLaws.map((law) => law.content),
         headings: staticHeadings,
         guidance: {
           text: guidance.text,
-          image: guidance.image ? guidance.image.name : null,
-          imagePreview: guidance.imagePreview
+          image: guidance.image?.name || null,
+          imagePreview: guidance.imagePreview,
         },
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
       setTableData([...tableData, newSection]);
       resetForm();
       setShowModal(false);
-    } catch (error) {
-      console.error('Upload failed:', error);
-      toast.error('Failed to save section on server.', {
-        position: 'top-right',
-        autoClose: 2000,
-      });
     }
-  } else {
-    toast.error('Please fill all required fields', {
-      position: 'top-right',
-      autoClose: 2000,
-    });
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast.error(error.response?.data?.message || "Failed to save section.");
+  } finally {
+    setIsLoading(false);
   }
 };
+
 
   const resetForm = () => {
     setSectionType('driver');
