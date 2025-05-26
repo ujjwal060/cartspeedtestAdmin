@@ -24,6 +24,7 @@ import {
 import "react-toastify/dist/ReactToastify.css";
 import axios from "../api/axios";
 import { BsGeoAlt } from "react-icons/bs";
+
 const AddLsvRules = () => {
   const [showModal, setShowModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
@@ -38,11 +39,17 @@ const AddLsvRules = () => {
     whatIsLSV: "",
     importance: "",
     safety: "",
+    guidance: "",
   });
   const [sectionData, setSectionData] = useState([
-    { title: "", description: "" }, // Initial section as an array with one object
+    { title: "", description: "" },
   ]);
+  const [guidelines, setGuidelines] = useState([
+    { title: "", description: "" },
+  ]);
+  const [images, setImages] = useState([]);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,32 +67,72 @@ const AddLsvRules = () => {
     fetchData();
   }, []);
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(files);
+  };
+
+  const handleAddGuideline = () => {
+    setGuidelines([...guidelines, { title: "", description: "" }]);
+  };
+
+  const handleRemoveGuideline = (index) => {
+    if (guidelines.length > 1) {
+      setGuidelines(guidelines.filter((_, i) => i !== index));
+    }
+  };
+
   const handleSave = async () => {
     try {
       setIsLoading(true);
 
-      const payload = {
-        questions: content,
-        sections: sectionData.map((section) => ({
+      const formData = new FormData();
+      
+      
+      formData.append("questions", JSON.stringify({
+        whatIsLSV: content.whatIsLSV,
+        importance: content.importance,
+        safety: content.safety,
+        // guidance: content.guidance
+      }));
+      
+      
+      formData.append("sections", JSON.stringify(
+        sectionData.map(section => ({
           title: section.title,
           description: section.description,
-          isActive: true,
-        })),
-      };
+          isActive: true
+        }))
+      ));
+      
+      formData.append("guidelines", JSON.stringify(
+        guidelines.map(guideline => ({
+          title: guideline.title,
+          description: guideline.description
+        }))
+      ));
+      
+      images.forEach((image, index) => {
+        formData.append("image", image);
+      });
 
-      console.log("Final Payload:", JSON.stringify(payload, null, 2));
-
-      const response = await axios.post("/admin/lsv/addGLSVR", payload, {
+      const token = localStorage.getItem("token");
+      const response = await axios.post("/admin/lsv/addGLSVR", formData, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.status === 201) {
-        toast.success("Sections added successfully!");
-        setSectionData([{ title: "", description: "" }]); // Reset to initial state
+        toast.success("LSV rules added successfully!");
+        resetForm();
         setShowModal(false);
+     
+        const fetchResponse = await axios.get("/admin/lsv/getGLSV", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setData(fetchResponse.data.data);
       }
     } catch (error) {
       console.error("Error saving sections:", error);
@@ -94,6 +141,9 @@ const AddLsvRules = () => {
       setIsLoading(false);
     }
   };
+
+
+  
   const resetForm = () => {
     setSectionType("traffic");
     setTitle("");
@@ -103,8 +153,11 @@ const AddLsvRules = () => {
       whatIsLSV: "",
       importance: "",
       safety: "",
+      // guidance: "",
     });
-    setSectionData([{ title: "", description: "" }]); // Reset to initial single section
+    setSectionData([{ title: "", description: "" }]);
+    setGuidelines([{ title: "", description: "" }]);
+    setImages([]);
   };
 
   return (
@@ -128,14 +181,6 @@ const AddLsvRules = () => {
               <FaPlus className="me-2" /> Add Section
             </Button>
           </div>
-
-          {/* <div className="alert alert-info d-flex align-items-center">
-            <FaInfoCircle className="me-2" size={20} />
-            <span>
-              Static sections (marked with <Badge bg="info">General</Badge>)
-              cannot be edited or deleted
-            </span>
-          </div> */}
         </Card.Body>
       </Card>
 
@@ -156,7 +201,7 @@ const AddLsvRules = () => {
             <div className="col-md-6">
               <Card className="">
                 <Card.Header className="bg-light">
-                  <h5 className="mb-0">Available Sections</h5>
+                  <h5 className="mb-0">Basic Information</h5>
                 </Card.Header>
 
                 <Accordion defaultActiveKey="0" flush>
@@ -189,7 +234,7 @@ const AddLsvRules = () => {
                         required
                         className="rounded-0"
                         type="text"
-                        placeholder="Enter  Importance"
+                        placeholder="Enter Importance"
                         value={content.importance}
                         onChange={(e) =>
                           setContent({
@@ -220,99 +265,208 @@ const AddLsvRules = () => {
                       />
                     </Accordion.Body>
                   </Accordion.Item>
+                  {/* <Accordion.Item eventKey="3">
+                    <Accordion.Header className="fw-semibold">
+                      Guidance
+                    </Accordion.Header>
+                    <Accordion.Body className="small p-1">
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        placeholder="Enter guidance information"
+                        value={content.guidance}
+                        onChange={(e) =>
+                          setContent({
+                            ...content,
+                            guidance: e.target.value,
+                          })
+                        }
+                      />
+                    </Accordion.Body>
+                  </Accordion.Item> */}
                 </Accordion>
               </Card>
-            </div>
-            <div className="col-md-6">
-              <Form>
-                {sectionData.map((section, index) => (
-                  <div key={index} className="mb-4 border-bottom pb-3">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h5>Section {index + 1}</h5>
-                      {sectionData.length > 1 && (
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSectionData((prevSections) =>
-                              prevSections.filter((_, i) => i !== index)
-                            );
-                          }}
-                        >
-                          <FaMinus /> Remove
-                        </Button>
-                      )}
-                    </div>
 
-                    <div className="row mb-3">
-                      <div className="col-md-8">
-                        <Form.Group>
-                          <Form.Label>
-                            Section Title <span className="text-danger">*</span>
-                          </Form.Label>
-                          <Form.Control
-                            required
-                            type="text"
-                            placeholder="Enter Section Title"
-                            value={section.title}
-                            onChange={(e) => {
-                              const updatedSections = [...sectionData];
-                              updatedSections[index].title = e.target.value;
-                              setSectionData(updatedSections);
-                            }}
-                          />
-                        </Form.Group>
+              <Card className="mt-4">
+                <Card.Header className="bg-light">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0">Guidelines</h5>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={handleAddGuideline}
+                    >
+                      <FaPlus /> Add Guideline
+                    </Button>
+                  </div>
+                </Card.Header>
+                <Card.Body>
+                  {guidelines.map((guideline, index) => (
+                    <div key={index} className="mb-3 border-bottom pb-3">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <h6>Guideline {index + 1}</h6>
+                        {guidelines.length > 1 && (
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => handleRemoveGuideline(index)}
+                          >
+                            <FaTrash />
+                          </Button>
+                        )}
                       </div>
-                    </div>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Content <span className="text-danger">*</span>
-                      </Form.Label>
-                      <div className="border rounded overflow-hidden">
-                        <CKEditor
-                          editor={ClassicEditor}
-                          data={section.description}
-                          onChange={(event, editor) => {
-                            const data = editor.getData();
-                            const updatedSections = [...sectionData];
-                            updatedSections[index].description = data;
-                            setSectionData(updatedSections);
-                          }}
-                          config={{
-                            toolbar: [
-                              "heading",
-                              "|",
-                              "bold",
-                              "italic",
-                              "link",
-                              "bulletedList",
-                              "numberedList",
-                              "blockQuote",
-                              "undo",
-                              "redo",
-                            ],
+                      <Form.Group className="mb-2">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Enter guideline title"
+                          value={guideline.title}
+                          onChange={(e) => {
+                            const updated = [...guidelines];
+                            updated[index].title = e.target.value;
+                            setGuidelines(updated);
                           }}
                         />
-                      </div>
-                    </Form.Group>
-                  </div>
-                ))}
+                      </Form.Group>
+                      <Form.Group>
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          placeholder="Enter guideline description"
+                          value={guideline.description}
+                          onChange={(e) => {
+                            const updated = [...guidelines];
+                            updated[index].description = e.target.value;
+                            setGuidelines(updated);
+                          }}
+                        />
+                      </Form.Group>
+                    </div>
+                  ))}
+                </Card.Body>
+              </Card>
 
-                <Button
-                  variant="outline-primary"
-                  onClick={() => {
-                    setSectionData([
-                      ...sectionData,
-                      { title: "", description: "" },
-                    ]);
-                  }}
-                  className="mb-3"
-                >
-                  <FaPlus /> Add Section
-                </Button>
-              </Form>
+              <Card className="mt-4">
+                <Card.Header className="bg-light">
+                  <h5 className="mb-0">Images</h5>
+                </Card.Header>
+                <Card.Body>
+                  <Form.Group>
+                    <Form.Label>Upload Images</Form.Label>
+                    <Form.Control
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                    {images.length > 0 && (
+                      <div className="mt-2">
+                        <small>Selected files: {images.map(img => img.name).join(", ")}</small>
+                      </div>
+                    )}
+                  </Form.Group>
+                </Card.Body>
+              </Card>
+            </div>
+
+            <div className="col-md-6">
+              <Card>
+                <Card.Header className="bg-light">
+                  <h5 className="mb-0">Sections</h5>
+                </Card.Header>
+                <Card.Body>
+                  <Form>
+                    {sectionData.map((section, index) => (
+                      <div key={index} className="mb-4 border-bottom pb-3">
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                          <h5>Section {index + 1}</h5>
+                          {sectionData.length > 1 && (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setSectionData((prevSections) =>
+                                  prevSections.filter((_, i) => i !== index)
+                                );
+                              }}
+                            >
+                              <FaMinus /> Remove
+                            </Button>
+                          )}
+                        </div>
+
+                        <div className="row mb-3">
+                          <div className="col-md-8">
+                            <Form.Group>
+                              <Form.Label>
+                                Section Title <span className="text-danger">*</span>
+                              </Form.Label>
+                              <Form.Control
+                                required
+                                type="text"
+                                placeholder="Enter Section Title"
+                                value={section.title}
+                                onChange={(e) => {
+                                  const updatedSections = [...sectionData];
+                                  updatedSections[index].title = e.target.value;
+                                  setSectionData(updatedSections);
+                                }}
+                              />
+                            </Form.Group>
+                          </div>
+                        </div>
+
+                        <Form.Group className="mb-3">
+                          <Form.Label>
+                            Content <span className="text-danger">*</span>
+                          </Form.Label>
+                          <div className="border rounded overflow-hidden">
+                            <CKEditor
+                              editor={ClassicEditor}
+                              data={section.description}
+                              onChange={(event, editor) => {
+                                const data = editor.getData();
+                                const updatedSections = [...sectionData];
+                                updatedSections[index].description = data;
+                                setSectionData(updatedSections);
+                              }}
+                              config={{
+                                toolbar: [
+                                  "heading",
+                                  "|",
+                                  "bold",
+                                  "italic",
+                                  "link",
+                                  "bulletedList",
+                                  "numberedList",
+                                  "blockQuote",
+                                  "undo",
+                                  "redo",
+                                ],
+                              }}
+                            />
+                          </div>
+                        </Form.Group>
+                      </div>
+                    ))}
+
+                    <Button
+                      variant="outline-primary"
+                      onClick={() => {
+                        setSectionData([
+                          ...sectionData,
+                          { title: "", description: "" },
+                        ]);
+                      }}
+                      className="mb-3"
+                    >
+                      <FaPlus /> Add Section
+                    </Button>
+                  </Form>
+                </Card.Body>
+              </Card>
             </div>
           </div>
         </Modal.Body>
@@ -329,7 +483,7 @@ const AddLsvRules = () => {
           </Button>
           <Button
             variant="primary"
-            onClick={() => handleSave()}
+            onClick={handleSave}
             disabled={isLoading}
           >
             {isLoading ? "Saving..." : "Save Section"}
@@ -368,7 +522,18 @@ const AddLsvRules = () => {
                       <h5>Safety?</h5>
                       <h6>{selectedSection?.questions?.safety}</h6>
                     </div>
-                    {/* <div>{getTypeBadge(selectedSection.type)}</div> */}
+                    <div>
+                      <h5>Guidance?</h5>
+                      <h6>{selectedSection?.questions?.guidance}</h6>
+                      {selectedSection?.guidanceImage && (
+                        <img 
+                          src={`${process.env.REACT_APP_API_URL}/${selectedSection.guidanceImage}`}
+                          alt="Guidance"
+                          className="img-fluid mt-2"
+                          style={{ maxHeight: "200px" }}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="col-lg-12">
@@ -395,8 +560,6 @@ const AddLsvRules = () => {
                         ))}
                       </Accordion>
                     )}
-
-                    {/* <div>{getTypeBadge(selectedSection.type)}</div> */}
                   </div>
                 </div>
               </div>
@@ -414,7 +577,6 @@ const AddLsvRules = () => {
         </Modal.Footer>
       </Modal>
 
-
       <Card className="shadow-sm">
         <Card.Body className="p-0">
           <div className="table-responsive">
@@ -425,6 +587,7 @@ const AddLsvRules = () => {
                   <th>What Is LSV?</th>
                   <th width="150">Importance</th>
                   <th>Safety</th>
+                  <th>Guidance</th>
                   <th>Location</th>
                   <th width="120">Actions</th>
                 </tr>
@@ -434,24 +597,20 @@ const AddLsvRules = () => {
                   data.map((section, index) => (
                     <tr key={section.id || index}>
                       <td className="text-center">{index + 1}</td>
-                      <td
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
+                      <td className="text-truncate" style={{ maxWidth: "200px" }}>
                         {section.questions.whatIsLSV}
                       </td>
-                      <td
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {" "}
+                      <td className="text-truncate" style={{ maxWidth: "200px" }}>
                         {section.questions.importance}
                       </td>
-                      <td
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
+                      <td className="text-truncate" style={{ maxWidth: "200px" }}>
                         {section.questions.safety}
+                      </td>
+                      <td className="text-truncate" style={{ maxWidth: "200px" }}>
+                        {section.questions.guidance || "N/A"}
+                        {section.guidanceImage && (
+                          <Badge bg="info" className="ms-2">Image</Badge>
+                        )}
                       </td>
                       <td>{section.locationId.name}</td>
                       <td className="text-start">
@@ -468,24 +627,12 @@ const AddLsvRules = () => {
                         >
                           <FaEye />
                         </Button>
-                        {/* <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedSection(section);
-                            setViewModal(true);
-                          }}
-                          title="Delete"
-                          disabled={isLoading}
-                        >
-                          <FaEdit />
-                        </Button> */}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center py-4 text-muted">
+                    <td colSpan="7" className="text-center py-4 text-muted">
                       No data available or data is not in expected format
                     </td>
                   </tr>
