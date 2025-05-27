@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button, Modal, Table, Container, Form, Row, Col, Card, Badge } from 'react-bootstrap';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -13,17 +11,15 @@ import axios from 'axios';
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
   const [sectionType, setSectionType] = useState('driver');
+const [laws, setLaws] = useState([{ id: 1, content: '' }]);
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [laws, setLaws] = useState([{ id: 1, content: '' }]);
+  const [guidelines, setGuidelines] = useState([{ id: 1, title: 'Guideline 1', description: '' }]);
   const [tableData, setTableData] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-const [images, setImages] = useState([]);
-  const [guidance, setGuidance] = useState({
-    text: '',
-    image: null,
-    imagePreview: null
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const navigate = useNavigate();
 
   const staticHeadings = {
@@ -38,7 +34,8 @@ const [images, setImages] = useState([]);
     { value: 'vehicle', label: 'Vehicle Requirements', color: 'warning' }
   ];
 
-  const handleAddLaw = () => {
+
+    const handleAddLaw = () => {
     setLaws([...laws, { id: Date.now(), content: '' }]);
   };
 
@@ -52,130 +49,155 @@ const [images, setImages] = useState([]);
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setGuidance({
-          ...guidance,
-          image: file,
-          imagePreview: reader.result
-        });
-      };
-      reader.readAsDataURL(file);
+  const handleAddGuideline = () => {
+    setGuidelines([...guidelines, { 
+      id: Date.now(), 
+      title: `Guideline ${guidelines.length + 1}`, 
+      description: '' 
+    }]);
+  };
+
+  const handleGuidelineChange = (id, field, value) => {
+    setGuidelines(guidelines.map(guideline => 
+      guideline.id === id ? { ...guideline, [field]: value } : guideline
+    ));
+  };
+
+  const handleRemoveGuideline = (id) => {
+    if (guidelines.length > 1) {
+      setGuidelines(guidelines.filter(guideline => guideline.id !== id));
     }
   };
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const newImages = [...images];
+      const newPreviews = [...imagePreviews];
+      
+      files.forEach(file => {
+        newImages.push(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result);
+          setImagePreviews([...newPreviews]);
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      setImages(newImages);
+    }
+  };
 
-
-
-const handleSave = async () => {
-  try {
-    setIsLoading(true);
-
-    const formData = new FormData();
-
-  
-    formData.append(
-      "questions",
-      JSON.stringify({
-        cartingRule: staticHeadings.caring,
-        tips: staticHeadings.tips,
-        safety: staticHeadings.safety,
-      })
-    );
-
+  const removeImage = (index) => {
+    const newImages = [...images];
+    const newPreviews = [...imagePreviews];
     
-    formData.append(
-      "sections",
-      JSON.stringify([
-        {
-          title,
-          description,
-          isActive: true,
-        },
-      ])
-    );
+    newImages.splice(index, 1);
+    newPreviews.splice(index, 1);
+    
+    setImages(newImages);
+    setImagePreviews(newPreviews);
+  };
 
-   
-    const validLaws = laws.filter((law) => law.content.trim() !== "");
-    const guidelines = validLaws.map((law, index) => ({
-      title: `Guideline ${index + 1}`,
-      description: law.content,
-    }));
-    formData.append("guidelines", JSON.stringify(guidelines));
+  const handleAddMoreImages = () => {
+    // This will trigger the file input click
+    document.getElementById('image-upload').click();
+  };
 
-  
-    if (Array.isArray(images)) {
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+
+      const formData = new FormData();
+
+      // Append static questions
+      formData.append(
+        "questions",
+        JSON.stringify({
+          cartingRule: staticHeadings.caring,
+          tips: staticHeadings.tips,
+          safety: staticHeadings.safety,
+        })
+      );
+
+      // Append sections
+      formData.append(
+        "sections",
+        JSON.stringify([
+          {
+            title,
+            description,
+            isActive: true,
+            type: sectionType
+          },
+        ])
+      );
+
+      // Append guidelines (filter out empty ones)
+      const validGuidelines = guidelines.filter(
+        (g) => g.description.trim() !== "" && g.title.trim() !== ""
+      );
+      formData.append("guidelines", JSON.stringify(validGuidelines));
+
+      // Append all images
       images.forEach((image) => {
         formData.append("image", image);
       });
-    } else if (guidance.image) {
-      formData.append("image", guidance.image); 
-    }
 
+      const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://18.209.91.97:9090/api/admin/lsv/addRRLSVR",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-  
-    const response = await axios.post(
-      "http://18.209.91.97:9090/api/admin/lsv/addRRLSVR",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+      if (response.status === 201 || response.status === 200) {
+        toast.success("Law section added successfully!");
+
+        const newSection = {
+          id: Date.now(),
+          type: sectionType,
+          title,
+          description,
+          laws, // Add this line to include the laws array
+          guidelines: validGuidelines,
+          headings: staticHeadings,
+          images: imagePreviews,
+          createdAt: new Date().toISOString(),
+        };
+
+        setTableData([...tableData, newSection]);
+        resetForm();
+        setShowModal(false);
       }
-    );
-
-    if (response.status === 201 || response.status === 200) {
-      toast.success("Law section added successfully!");
-
-      const newSection = {
-        id: Date.now(),
-        type: sectionType,
-        title,
-        description,
-        laws: validLaws.map((law) => law.content),
-        headings: staticHeadings,
-        guidance: {
-          text: guidance.text,
-          image: guidance.image?.name || null,
-          imagePreview: guidance.imagePreview,
-        },
-        createdAt: new Date().toISOString(),
-      };
-
-      setTableData([...tableData, newSection]);
-      resetForm();
-      setShowModal(false);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      toast.error(error.response?.data?.message || "Failed to save section.");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Upload failed:", error);
-    toast.error(error.response?.data?.message || "Failed to save section.");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   const resetForm = () => {
     setSectionType('driver');
     setTitle('');
     setDescription('');
-    setLaws([{ id: Date.now(), content: '' }]);
-    setGuidance({
-      text: '',
-      image: null,
-      imagePreview: null
-    });
+    setGuidelines([{ id: Date.now(), title: 'Guideline 1', description: '' }]);
+    setImages([]);
+    setImagePreviews([]);
   };
 
   const getBadgeColor = (type) => {
     return sectionTypes.find(t => t.value === type)?.color || 'secondary';
   };
+
 
   return (
     <Container className="py-4">
@@ -283,7 +305,7 @@ const handleSave = async () => {
             </Form.Group>
 
       
-            <Card className="mb-4 border-0 shadow-sm">
+            {/* <Card className="mb-4 border-0 shadow-sm">
               <Card.Header className="bg-info text-white d-flex align-items-center">
                 <FaInfoCircle className="me-2" />
                 <h5 className="mb-0">Guidance Section</h5>
@@ -333,7 +355,186 @@ const handleSave = async () => {
                   </Form.Text>
                 </Form.Group>
               </Card.Body>
+            </Card> */}
+
+
+             <Card className="mb-4 border-0 shadow-sm">
+        <Card.Header className="bg-info text-white d-flex align-items-center">
+          <FaInfoCircle className="me-2" />
+          <h5 className="mb-0">Guidelines Section</h5>
+          <Button 
+            variant="outline-light" 
+            size="sm" 
+            className="ms-auto"
+            onClick={handleAddGuideline}
+          >
+            <FaPlus className="me-1" /> Add Guideline
+          </Button>
+        </Card.Header>
+        <Card.Body>
+          {guidelines.map((guideline, index) => (
+            <Card key={guideline.id} className="mb-3 border-0 shadow-sm">
+              <Card.Header className="bg-light d-flex justify-content-between align-items-center">
+                <h6 className="mb-0">Guideline {index + 1}</h6>
+                <Button 
+                  variant="outline-danger" 
+                  size="sm"
+                  onClick={() => handleRemoveGuideline(guideline.id)}
+                  disabled={guidelines.length <= 1}
+                >
+                  <FaTrash className="me-1" /> Remove
+                </Button>
+              </Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-3">
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={guideline.title}
+                    onChange={(e) => handleGuidelineChange(guideline.id, 'title', e.target.value)}
+                    placeholder="Enter guideline title"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Description</Form.Label>
+                  <div className="border rounded overflow-hidden">
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={guideline.description}
+                      onChange={(event, editor) => {
+                        const data = editor.getData();
+                        handleGuidelineChange(guideline.id, 'description', data);
+                      }}
+                      config={{
+                        toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                      }}
+                    />
+                  </div>
+                </Form.Group>
+              </Card.Body>
             </Card>
+          ))}
+        </Card.Body>
+      </Card>
+
+      {/* <Card className="mb-4 border-0 shadow-sm">
+        <Card.Header className="bg-primary text-white d-flex align-items-center">
+          <FaImage className="me-2" />
+          <h5 className="mb-0">Images</h5>
+        </Card.Header>
+        <Card.Body>
+          <Form.Group>
+            <Form.Label>Upload Images</Form.Label>
+            <Form.Control
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              multiple
+            />
+            <Form.Text className="text-muted">
+              You can upload multiple images (JPEG, PNG)
+            </Form.Text>
+          </Form.Group>
+          
+          {imagePreviews.length > 0 && (
+            <div className="mt-3">
+              <h6>Selected Images:</h6>
+              <div className="d-flex flex-wrap gap-2">
+                {imagePreviews.map((preview, index) => (
+                  <div key={index} className="position-relative">
+                    <img 
+                      src={preview} 
+                      alt={`Preview ${index + 1}`} 
+                      style={{ 
+                        width: '100px', 
+                        height: '100px', 
+                        objectFit: 'cover',
+                        borderRadius: '4px'
+                      }}
+                    />
+                    <Badge 
+                      bg="danger" 
+                      pill 
+                      className="position-absolute top-0 start-100 translate-middle"
+                      onClick={() => removeImage(index)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      ×
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card.Body>
+      </Card> */}
+
+
+
+         <Card className="mb-4 border-0 shadow-sm">
+        <Card.Header className="bg-primary text-white d-flex align-items-center">
+          <FaImage className="me-2" />
+          <h5 className="mb-0">Images</h5>
+          <Button 
+            variant="outline-light" 
+            size="sm" 
+            className="ms-auto"
+            onClick={handleAddMoreImages}
+          >
+            <FaPlus className="me-1" /> Add Images
+          </Button>
+          <input
+            type="file"
+            id="image-upload"
+            accept="image/*"
+            onChange={handleImageChange}
+            multiple
+            style={{ display: 'none' }}
+          />
+        </Card.Header>
+        <Card.Body>
+          <Form.Group>
+            <Form.Label>Uploaded Images ({images.length})</Form.Label>
+            <div className="d-flex flex-wrap gap-2 mb-3">
+              {imagePreviews.length > 0 ? (
+                imagePreviews.map((preview, index) => (
+                  <div key={index} className="position-relative">
+                    <img 
+                      src={preview} 
+                      alt={`Preview ${index + 1}`} 
+                      style={{ 
+                        width: '100px', 
+                        height: '100px', 
+                        objectFit: 'cover',
+                        borderRadius: '4px'
+                      }}
+                    />
+                    <Badge 
+                      bg="danger" 
+                      pill 
+                      className="position-absolute top-0 start-100 translate-middle"
+                      onClick={() => removeImage(index)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      ×
+                    </Badge>
+                  </div>
+                ))
+              ) : (
+                <div className="text-muted">No images selected</div>
+              )}
+            </div>
+            <Button 
+              variant="outline-primary"
+              onClick={handleAddMoreImages}
+              className="d-flex align-items-center"
+            >
+              <FaPlus className="me-1" /> {images.length > 0 ? 'Add More Images' : 'Add Images'}
+            </Button>
+          </Form.Group>
+        </Card.Body>
+      </Card>
+
 
             <Form.Group>
               <div className="d-flex justify-content-between align-items-center mb-3">
@@ -427,9 +628,14 @@ const handleSave = async () => {
                         />
                       </td>
                       <td>
-                        <Badge bg="info" pill>
+                        {/* <Badge bg="info" pill>
                           {section.laws.length}
-                        </Badge>
+                        </Badge> */}
+
+                          <Badge bg="info" pill>
+    {section.laws ? section.laws.length : 0}
+  </Badge>
+
                       </td>
                       <td style={{ maxWidth: '200px' }}>
                         <div className="guidance-cell">
