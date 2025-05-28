@@ -84,6 +84,7 @@ const AssessmentDashboard = () => {
     question: "",
     options: [],
   });
+const role = localStorage.getItem('role');
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -361,14 +362,18 @@ const AssessmentDashboard = () => {
                 </Box>
               </Tooltip>
 
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddCircleOutlineIcon />}
-                onClick={handleShow}
-              >
-                Assessment
-              </Button>
+             
+              {role === "admin" && (
+  <Button
+    variant="contained"
+    color="primary"
+    startIcon={<AddCircleOutlineIcon />}
+    onClick={handleShow}
+  >
+    Assessment
+  </Button>
+)}
+
             </div>
           </div>
         </Box>

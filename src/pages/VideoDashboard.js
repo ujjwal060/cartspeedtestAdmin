@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SafetyCheckIcon from '@mui/icons-material/SafetyCheck'; 
@@ -232,6 +230,9 @@ const VideoDashboard = () => {
   const handleChange = (event) => {
     setLevel(event.target.value);
   };
+
+  const userRole = localStorage.getItem("role");
+console.log(userRole,'userrole..')
   
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
@@ -462,29 +463,39 @@ const VideoDashboard = () => {
               />
             </Tooltip>
 
-            {viewType === 'safetyVideos' ? (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSafetyVideoClickOpen}
-                className="rounded-4 d-flex gap-1 flex-row"
-                style={{ backgroundColor: '#4caf50' }}
-              >
-                <SafetyCheckIcon />
-                Add Safety Video
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleClickOpen}
-                className="rounded-4 d-flex gap-1 flex-row"
-              >
-                <AddCircleOutlineIcon />
-                Add Video
-              </Button>
-            )}
+      
+
+            
+
+{userRole === 'admin' && (
+  viewType === 'safetyVideos' ? (
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={handleSafetyVideoClickOpen}
+      className="rounded-4 d-flex gap-1 flex-row"
+      style={{ backgroundColor: '#4caf50' }}
+    >
+      <SafetyCheckIcon />
+      Add Safety Video
+    </Button>
+  ) : (
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={handleClickOpen}
+      className="rounded-4 d-flex gap-1 flex-row"
+    >
+      <AddCircleOutlineIcon />
+      Add Video
+    </Button>
+  )
+)}
+
           </div>
+
+   
+
         </div>
         
         <AddVideoOffcanvas
