@@ -11,15 +11,18 @@ import axios from 'axios';
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
   const [sectionType, setSectionType] = useState('driver');
-const [laws, setLaws] = useState([{ id: 1, content: '' }]);
-
+  const [laws, setLaws] = useState([{ id: 1, content: '' }]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [guidelines, setGuidelines] = useState([{ id: 1, title: 'Guideline 1', description: '' }]);
+  const [guidelines, setGuidelines] = useState([{ 
+    id: 1, 
+    title: 'Guideline 1', 
+    description: '',
+    images: [],
+    imagePreviews: [] 
+  }]);
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [images, setImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
   const navigate = useNavigate();
 
   const staticHeadings = {
@@ -34,8 +37,7 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
     { value: 'vehicle', label: 'Vehicle Requirements', color: 'warning' }
   ];
 
-
-    const handleAddLaw = () => {
+  const handleAddLaw = () => {
     setLaws([...laws, { id: Date.now(), content: '' }]);
   };
 
@@ -53,8 +55,57 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
     setGuidelines([...guidelines, { 
       id: Date.now(), 
       title: `Guideline ${guidelines.length + 1}`, 
-      description: '' 
+      description: '',
+      images: [],
+      imagePreviews: []
     }]);
+  };
+
+  const handleGuidelineImageChange = (guidelineId, e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setGuidelines(guidelines.map(guideline => {
+        if (guideline.id === guidelineId) {
+          const newImages = [...guideline.images];
+          const newPreviews = [...guideline.imagePreviews];
+          
+          files.forEach(file => {
+            newImages.push(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              newPreviews.push(reader.result);
+            };
+            reader.readAsDataURL(file);
+          });
+          
+          return {
+            ...guideline,
+            images: newImages,
+            imagePreviews: newPreviews
+          };
+        }
+        return guideline;
+      }));
+    }
+  };
+
+  const removeGuidelineImage = (guidelineId, index) => {
+    setGuidelines(guidelines.map(guideline => {
+      if (guideline.id === guidelineId) {
+        const newImages = [...guideline.images];
+        const newPreviews = [...guideline.imagePreviews];
+        
+        newImages.splice(index, 1);
+        newPreviews.splice(index, 1);
+        
+        return {
+          ...guideline,
+          images: newImages,
+          imagePreviews: newPreviews
+        };
+      }
+      return guideline;
+    }));
   };
 
   const handleGuidelineChange = (id, field, value) => {
@@ -67,42 +118,6 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
     if (guidelines.length > 1) {
       setGuidelines(guidelines.filter(guideline => guideline.id !== id));
     }
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      const newImages = [...images];
-      const newPreviews = [...imagePreviews];
-      
-      files.forEach(file => {
-        newImages.push(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push(reader.result);
-          setImagePreviews([...newPreviews]);
-        };
-        reader.readAsDataURL(file);
-      });
-      
-      setImages(newImages);
-    }
-  };
-
-  const removeImage = (index) => {
-    const newImages = [...images];
-    const newPreviews = [...imagePreviews];
-    
-    newImages.splice(index, 1);
-    newPreviews.splice(index, 1);
-    
-    setImages(newImages);
-    setImagePreviews(newPreviews);
-  };
-
-  const handleAddMoreImages = () => {
-    // This will trigger the file input click
-    document.getElementById('image-upload').click();
   };
 
   const handleSave = async () => {
@@ -134,15 +149,18 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
         ])
       );
 
-      // Append guidelines (filter out empty ones)
-      const validGuidelines = guidelines.filter(
-        (g) => g.description.trim() !== "" && g.title.trim() !== ""
-      );
-      formData.append("guidelines", JSON.stringify(validGuidelines));
+      // Prepare guidelines without images (we'll append images separately)
+      const guidelinesData = guidelines.map(guideline => ({
+        title: guideline.title,
+        description: guideline.description
+      }));
+      formData.append("guidelines", JSON.stringify(guidelinesData));
 
-      // Append all images
-      images.forEach((image) => {
-        formData.append("image", image);
+      // Append all images from all guidelines
+      guidelines.forEach((guideline, index) => {
+        guideline.images.forEach(image => {
+          formData.append("image", image);
+        });
       });
 
       const token = localStorage.getItem("token");
@@ -166,10 +184,12 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
           type: sectionType,
           title,
           description,
-          laws, // Add this line to include the laws array
-          guidelines: validGuidelines,
+          laws,
+          guidelines: guidelines.map(g => ({
+            ...g,
+            imagePreviews: g.imagePreviews // Include previews for display
+          })),
           headings: staticHeadings,
-          images: imagePreviews,
           createdAt: new Date().toISOString(),
         };
 
@@ -189,15 +209,18 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
     setSectionType('driver');
     setTitle('');
     setDescription('');
-    setGuidelines([{ id: Date.now(), title: 'Guideline 1', description: '' }]);
-    setImages([]);
-    setImagePreviews([]);
+    setGuidelines([{ 
+      id: Date.now(), 
+      title: 'Guideline 1', 
+      description: '',
+      images: [],
+      imagePreviews: []
+    }]);
   };
 
   const getBadgeColor = (type) => {
     return sectionTypes.find(t => t.value === type)?.color || 'secondary';
   };
-
 
   return (
     <Container className="py-4">
@@ -304,237 +327,113 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
               </div>
             </Form.Group>
 
-      
-            {/* <Card className="mb-4 border-0 shadow-sm">
+            <Card className="mb-4 border-0 shadow-sm">
               <Card.Header className="bg-info text-white d-flex align-items-center">
                 <FaInfoCircle className="me-2" />
-                <h5 className="mb-0">Guidance Section</h5>
-              </Card.Header>
-              <Card.Body>
-                <Form.Group className="mb-3">
-                  <Form.Label>Guidance Text</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    placeholder="Enter guidance information"
-                    value={guidance.text}
-                    onChange={(e) => setGuidance({...guidance, text: e.target.value})}
-                  />
-                </Form.Group>
-                
-                <Form.Group>
-                  <Form.Label>Guidance Image</Form.Label>
-                  <div className="d-flex align-items-center">
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="me-3"
-                    />
-                    {guidance.imagePreview && (
-                      <div className="position-relative">
-                        <img 
-                          src={guidance.imagePreview} 
-                          alt="Preview" 
-                          style={{ width: '100px', height: 'auto', borderRadius: '4px' }}
-                        />
-                        <Badge 
-                          bg="danger" 
-                          pill 
-                          className="position-absolute top-0 start-100 translate-middle"
-                          onClick={() => setGuidance({...guidance, image: null, imagePreview: null})}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          ×
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-                  <Form.Text className="text-muted">
-                    Upload an image to accompany the guidance (optional)
-                  </Form.Text>
-                </Form.Group>
-              </Card.Body>
-            </Card> */}
-
-
-             <Card className="mb-4 border-0 shadow-sm">
-        <Card.Header className="bg-info text-white d-flex align-items-center">
-          <FaInfoCircle className="me-2" />
-          <h5 className="mb-0">Guidelines Section</h5>
-          <Button 
-            variant="outline-light" 
-            size="sm" 
-            className="ms-auto"
-            onClick={handleAddGuideline}
-          >
-            <FaPlus className="me-1" /> Add Guideline
-          </Button>
-        </Card.Header>
-        <Card.Body>
-          {guidelines.map((guideline, index) => (
-            <Card key={guideline.id} className="mb-3 border-0 shadow-sm">
-              <Card.Header className="bg-light d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">Guideline {index + 1}</h6>
+                <h5 className="mb-0">Guidelines Section</h5>
                 <Button 
-                  variant="outline-danger" 
-                  size="sm"
-                  onClick={() => handleRemoveGuideline(guideline.id)}
-                  disabled={guidelines.length <= 1}
+                  variant="outline-light" 
+                  size="sm" 
+                  className="ms-auto"
+                  onClick={handleAddGuideline}
                 >
-                  <FaTrash className="me-1" /> Remove
+                  <FaPlus className="me-1" /> Add Guideline
                 </Button>
               </Card.Header>
               <Card.Body>
-                <Form.Group className="mb-3">
-                  <Form.Label>Title</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={guideline.title}
-                    onChange={(e) => handleGuidelineChange(guideline.id, 'title', e.target.value)}
-                    placeholder="Enter guideline title"
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Description</Form.Label>
-                  <div className="border rounded overflow-hidden">
-                    <CKEditor
-                      editor={ClassicEditor}
-                      data={guideline.description}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        handleGuidelineChange(guideline.id, 'description', data);
-                      }}
-                      config={{
-                        toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
-                      }}
-                    />
-                  </div>
-                </Form.Group>
+                {guidelines.map((guideline, index) => (
+                  <Card key={guideline.id} className="mb-3 border-0 shadow-sm">
+                    <Card.Header className="bg-light d-flex justify-content-between align-items-center">
+                      <h6 className="mb-0">Guideline {index + 1}</h6>
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm"
+                        onClick={() => handleRemoveGuideline(guideline.id)}
+                        disabled={guidelines.length <= 1}
+                      >
+                        <FaTrash className="me-1" /> Remove
+                      </Button>
+                    </Card.Header>
+                    <Card.Body>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={guideline.title}
+                          onChange={(e) => handleGuidelineChange(guideline.id, 'title', e.target.value)}
+                          placeholder="Enter guideline title"
+                        />
+                      </Form.Group>
+                      <Form.Group>
+                        <Form.Label>Description</Form.Label>
+                        <div className="border rounded overflow-hidden">
+                          <CKEditor
+                            editor={ClassicEditor}
+                            data={guideline.description}
+                            onChange={(event, editor) => {
+                              const data = editor.getData();
+                              handleGuidelineChange(guideline.id, 'description', data);
+                            }}
+                            config={{
+                              toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                            }}
+                          />
+                        </div>
+                      </Form.Group>
+
+                      {/* Image Upload Section inside each Guideline */}
+                      <Form.Group className="mt-3">
+                        <Form.Label>Images</Form.Label>
+                        <div className="d-flex flex-wrap gap-2 mb-3">
+                          {guideline.imagePreviews.length > 0 ? (
+                            guideline.imagePreviews.map((preview, imgIndex) => (
+                              <div key={imgIndex} className="position-relative">
+                                <img 
+                                  src={preview} 
+                                  alt={`Preview ${imgIndex + 1}`} 
+                                  style={{ 
+                                    width: '100px', 
+                                    height: '100px', 
+                                    objectFit: 'cover',
+                                    borderRadius: '4px'
+                                  }}
+                                />
+                                <Badge 
+                                  bg="danger" 
+                                  pill 
+                                  className="position-absolute top-0 start-100 translate-middle"
+                                  onClick={() => removeGuidelineImage(guideline.id, imgIndex)}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  ×
+                                </Badge>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-muted">No images selected</div>
+                          )}
+                        </div>
+                        <Button 
+                          variant="outline-primary"
+                          onClick={() => document.getElementById(`image-upload-${guideline.id}`).click()}
+                          className="d-flex align-items-center"
+                        >
+                          <FaPlus className="me-1" /> Add Images
+                        </Button>
+                        <input
+                          type="file"
+                          id={`image-upload-${guideline.id}`}
+                          accept="image/*"
+                          onChange={(e) => handleGuidelineImageChange(guideline.id, e)}
+                          multiple
+                          style={{ display: 'none' }}
+                        />
+                      </Form.Group>
+                    </Card.Body>
+                  </Card>
+                ))}
               </Card.Body>
             </Card>
-          ))}
-        </Card.Body>
-      </Card>
-
-      {/* <Card className="mb-4 border-0 shadow-sm">
-        <Card.Header className="bg-primary text-white d-flex align-items-center">
-          <FaImage className="me-2" />
-          <h5 className="mb-0">Images</h5>
-        </Card.Header>
-        <Card.Body>
-          <Form.Group>
-            <Form.Label>Upload Images</Form.Label>
-            <Form.Control
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              multiple
-            />
-            <Form.Text className="text-muted">
-              You can upload multiple images (JPEG, PNG)
-            </Form.Text>
-          </Form.Group>
-          
-          {imagePreviews.length > 0 && (
-            <div className="mt-3">
-              <h6>Selected Images:</h6>
-              <div className="d-flex flex-wrap gap-2">
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} className="position-relative">
-                    <img 
-                      src={preview} 
-                      alt={`Preview ${index + 1}`} 
-                      style={{ 
-                        width: '100px', 
-                        height: '100px', 
-                        objectFit: 'cover',
-                        borderRadius: '4px'
-                      }}
-                    />
-                    <Badge 
-                      bg="danger" 
-                      pill 
-                      className="position-absolute top-0 start-100 translate-middle"
-                      onClick={() => removeImage(index)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      ×
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </Card.Body>
-      </Card> */}
-
-
-
-         <Card className="mb-4 border-0 shadow-sm">
-        <Card.Header className="bg-primary text-white d-flex align-items-center">
-          <FaImage className="me-2" />
-          <h5 className="mb-0">Images</h5>
-          <Button 
-            variant="outline-light" 
-            size="sm" 
-            className="ms-auto"
-            onClick={handleAddMoreImages}
-          >
-            <FaPlus className="me-1" /> Add Images
-          </Button>
-          <input
-            type="file"
-            id="image-upload"
-            accept="image/*"
-            onChange={handleImageChange}
-            multiple
-            style={{ display: 'none' }}
-          />
-        </Card.Header>
-        <Card.Body>
-          <Form.Group>
-            <Form.Label>Uploaded Images ({images.length})</Form.Label>
-            <div className="d-flex flex-wrap gap-2 mb-3">
-              {imagePreviews.length > 0 ? (
-                imagePreviews.map((preview, index) => (
-                  <div key={index} className="position-relative">
-                    <img 
-                      src={preview} 
-                      alt={`Preview ${index + 1}`} 
-                      style={{ 
-                        width: '100px', 
-                        height: '100px', 
-                        objectFit: 'cover',
-                        borderRadius: '4px'
-                      }}
-                    />
-                    <Badge 
-                      bg="danger" 
-                      pill 
-                      className="position-absolute top-0 start-100 translate-middle"
-                      onClick={() => removeImage(index)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      ×
-                    </Badge>
-                  </div>
-                ))
-              ) : (
-                <div className="text-muted">No images selected</div>
-              )}
-            </div>
-            <Button 
-              variant="outline-primary"
-              onClick={handleAddMoreImages}
-              className="d-flex align-items-center"
-            >
-              <FaPlus className="me-1" /> {images.length > 0 ? 'Add More Images' : 'Add Images'}
-            </Button>
-          </Form.Group>
-        </Card.Body>
-      </Card>
-
 
             <Form.Group>
               <div className="d-flex justify-content-between align-items-center mb-3">
@@ -603,7 +502,7 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
                     <th>Title</th>
                     <th>Description</th>
                     <th>Laws Count</th>
-                    <th>Guidance</th>
+                    <th>Guidelines</th>
                     <th>Static Content</th>
                     <th>Actions</th>
                   </tr>
@@ -628,27 +527,25 @@ const [laws, setLaws] = useState([{ id: 1, content: '' }]);
                         />
                       </td>
                       <td>
-                        {/* <Badge bg="info" pill>
-                          {section.laws.length}
-                        </Badge> */}
-
-                          <Badge bg="info" pill>
-    {section.laws ? section.laws.length : 0}
-  </Badge>
-
+                        <Badge bg="info" pill>
+                          {section.laws ? section.laws.length : 0}
+                        </Badge>
                       </td>
                       <td style={{ maxWidth: '200px' }}>
-                        <div className="guidance-cell">
-                          <small className="d-block text-truncate">
-                            {section.guidance?.text || 'No guidance text'}
-                          </small>
-                          {section.guidance?.imagePreview && (
-                            <div className="mt-1">
-                              <FaImage className="me-1 text-primary" />
-                              <small>Image attached</small>
-                            </div>
-                          )}
-                        </div>
+                        {section.guidelines.map((g, i) => (
+                          <div key={i} className="mb-2">
+                            <small className="fw-bold d-block">{g.title}</small>
+                            <small className="text-muted d-block text-truncate">
+                              {g.description.replace(/<[^>]+>/g, '').substring(0, 30)}...
+                            </small>
+                            {g.imagePreviews?.length > 0 && (
+                              <small className="d-flex align-items-center mt-1">
+                                <FaImage className="me-1 text-primary" />
+                                {g.imagePreviews.length} image(s)
+                              </small>
+                            )}
+                          </div>
+                        ))}
                       </td>
                       <td style={{ maxWidth: '300px' }}>
                         <div className="static-content-cell">
