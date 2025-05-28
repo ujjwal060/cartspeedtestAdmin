@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import SafetyCheckIcon from '@mui/icons-material/SafetyCheck'; 
+import SafetyCheckIcon from '@mui/icons-material/SafetyCheck';
 import {
   Box,
   Paper,
@@ -37,7 +37,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getVideos, deleteVideos, isActiveVideos } from "../api/video";
+import { getVideos, deleteVideos, isActiveVideos, deleteSafetyVideos, isActiveSafetyVideos } from "../api/video";
 import { getSafetyVideos } from "../api/video";
 
 // import {deleteSafetyVideos, isActiveSafetyVideos }  from "../api/video";
@@ -200,7 +200,7 @@ function EnhancedTableHead(props) {
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [getVideo, setGetVideo] = useState([]);
-  const [getSafetyVideo, setGetSafetyVideo] = useState([]); 
+  const [getSafetyVideo, setGetSafetyVideo] = useState([]);
   const [open, setOpen] = useState(false);
   const [openSafetyVideo, setOpenSafetyVideo] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
@@ -213,8 +213,8 @@ const VideoDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({});
-  const [viewType, setViewType] = useState('videos'); 
-  
+  const [viewType, setViewType] = useState('videos');
+
   const handleClickOpen = () => setOpen(true);
   const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true);
   const handleClose = () => setOpen(false);
@@ -226,21 +226,21 @@ const VideoDashboard = () => {
   const [level, setLevel] = useState("");
   const [uploadingloading, setUploadingLoading] = useState(false);
   const navigate = useNavigate();
-  
+
   const handleChange = (event) => {
     setLevel(event.target.value);
   };
 
   const userRole = localStorage.getItem("role");
-console.log(userRole,'userrole..')
-  
+  console.log(userRole, 'userrole..')
+
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
     const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
     try {
       setLoading(true);
-      
+
       if (viewType === 'videos') {
         const response = await getVideos(
           token,
@@ -285,29 +285,29 @@ console.log(userRole,'userrole..')
     setSafetyVideoFiles((prev) => prev.filter((v) => v.id !== id));
   };
 
-  // const handleDelete = async (videoId) => {
-  //   try {
-  //     const res = viewType === 'videos' 
-  //       ? await deleteVideos(videoId, token)
-  //       : await deleteSafetyVideos(videoId, token);
-  //     toast.success(res.message[0]);
-  //     fetchVideos();
-  //   } catch (error) {
-  //     toast.error(error.response.data.message[0]);
-  //   }
-  // };
+  const handleDelete = async (videoId) => {
+    try {
+      const res = viewType === 'videos'
+        ? await deleteVideos(videoId, token)
+        : await deleteSafetyVideos(videoId, token);
+      toast.success(res.message[0]);
+      fetchVideos();
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
 
-  // const handleToggleStatus = async (videoId) => {
-  //   try {
-  //     const res = viewType === 'videos'
-  //       ? await isActiveVideos(videoId, token)
-  //       : await isActiveSafetyVideos(videoId, token);
-  //     toast.success(res.message[0]);
-  //     fetchVideos();
-  //   } catch (error) {
-  //     toast.error(error.response.data.message[0]);
-  //   }
-  // };
+  const handleToggleStatus = async (videoId) => {
+    try {
+      const res = viewType === 'videos'
+        ? await isActiveVideos(videoId, token)
+        : await isActiveSafetyVideos(videoId, token);
+      toast.success(res.message[0]);
+      fetchVideos();
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
 
   const handlePlayOpen = (url) => {
     setSelected(url);
@@ -390,56 +390,56 @@ console.log(userRole,'userrole..')
     <Box p={4}>
       <Box>
         <div className="d-flex justify-content-between align-items-center pad-root mb-3">
-    
 
 
-<Box sx={{ 
-  backgroundColor: '#f4f6f8',
-  borderRadius: '16px', 
-  padding: '4px',
-  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-  display: 'inline-flex'
-}}>
-  {viewType === 'safetyVideos' ? (
-    <Button
-      onClick={() => handleViewTypeChange(null, 'videos')}
-      sx={{
-        textTransform: 'none',
-        fontWeight: 500,
-        border: 'none',
-        borderRadius: '16px',
-        px: 3,
-        py: 1,
-        color: '#fff',
-        backgroundColor: '#1976d2', 
-        '&:hover': {
-          backgroundColor: '#1565c0',
-        }
-      }}
-    >
-      Videos
-    </Button>
-  ) : (
-    <Button
-      onClick={() => handleViewTypeChange(null, 'safetyVideos')}
-      sx={{
-        textTransform: 'none',
-        fontWeight: 500,
-        border: 'none',
-        borderRadius: '16px', // Rounded corners
-        px: 3,
-        py: 1,
-        color: '#fff',
-        backgroundColor: '#4CAF50', // Green color for Safety Videos button
-        '&:hover': {
-          backgroundColor: '#388E3C', // Darker green on hover
-        }
-      }}
-    >
-      Safety Videos
-    </Button>
-  )}
-</Box>
+
+          <Box sx={{
+            backgroundColor: '#f4f6f8',
+            borderRadius: '16px',
+            padding: '4px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+            display: 'inline-flex'
+          }}>
+            {viewType === 'safetyVideos' ? (
+              <Button
+                onClick={() => handleViewTypeChange(null, 'videos')}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  border: 'none',
+                  borderRadius: '16px',
+                  px: 3,
+                  py: 1,
+                  color: '#fff',
+                  backgroundColor: '#1976d2',
+                  '&:hover': {
+                    backgroundColor: '#1565c0',
+                  }
+                }}
+              >
+                Videos
+              </Button>
+            ) : (
+              <Button
+                onClick={() => handleViewTypeChange(null, 'safetyVideos')}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  border: 'none',
+                  borderRadius: '16px',
+                  px: 3,
+                  py: 1,
+                  color: '#fff',
+                  backgroundColor: '#4CAF50',
+                  '&:hover': {
+                    backgroundColor: '#388E3C',
+                  }
+                }}
+              >
+                Safety Videos
+              </Button>
+            )}
+          </Box>
           <div className="d-flex gap-2 align-items-center">
             <div className="custom-picker">
               <CalendarMonthIcon className="svg-custom" />
@@ -462,42 +462,37 @@ console.log(userRole,'userrole..')
                 style={{ cursor: "pointer" }}
               />
             </Tooltip>
-
-      
-
-            
-
-{userRole === 'admin' && (
-  viewType === 'safetyVideos' ? (
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={handleSafetyVideoClickOpen}
-      className="rounded-4 d-flex gap-1 flex-row"
-      style={{ backgroundColor: '#4caf50' }}
-    >
-      <SafetyCheckIcon />
-      Add Safety Video
-    </Button>
-  ) : (
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={handleClickOpen}
-      className="rounded-4 d-flex gap-1 flex-row"
-    >
-      <AddCircleOutlineIcon />
-      Add Video
-    </Button>
-  )
-)}
+ {userRole === 'admin' && (
+              viewType === 'safetyVideos' ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSafetyVideoClickOpen}
+                  className="rounded-4 d-flex gap-1 flex-row"
+                  style={{ backgroundColor: '#4caf50' }}
+                >
+                  <SafetyCheckIcon />
+                  Add Safety Video
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickOpen}
+                  className="rounded-4 d-flex gap-1 flex-row"
+                >
+                  <AddCircleOutlineIcon />
+                  Add Video
+                </Button>
+              )
+            )}
 
           </div>
 
-   
+
 
         </div>
-        
+
         <AddVideoOffcanvas
           open={open}
           setOpen={setOpen}
@@ -668,7 +663,7 @@ console.log(userRole,'userrole..')
                       <TableCell>
                         <Switch
                           checked={item.video.isActive}
-                          // onChange={() => handleToggleStatus(item.video._id)}
+                          onChange={() => handleToggleStatus(item.video._id)}
                           color="primary"
                           inputProps={{ "aria-label": "toggle video status" }}
                         />
@@ -682,7 +677,7 @@ console.log(userRole,'userrole..')
                         <DeleteIcon
                           color="error"
                           style={{ cursor: "pointer" }}
-                          // onClick={() => handleDelete(item.video._id)}
+                          onClick={() => handleDelete(item.video._id)}
                         />
                       </TableCell>
                     </TableRow>
@@ -702,10 +697,10 @@ console.log(userRole,'userrole..')
                       <TableCell>{item.description}</TableCell>
                       <TableCell>
                         {item.thumbnail && (
-                          <img 
-                            src={item.thumbnail} 
-                            alt="Thumbnail" 
-                            style={{ width: '100px', height: 'auto' }} 
+                          <img
+                            src={item.thumbnail}
+                            alt="Thumbnail"
+                            style={{ width: '100px', height: 'auto' }}
                           />
                         )}
                       </TableCell>
@@ -727,7 +722,7 @@ console.log(userRole,'userrole..')
                         <DeleteIcon
                           color="error"
                           style={{ cursor: "pointer" }}
-                          // onClick={() => handleDelete(item._id)}
+                        // onClick={() => handleDelete(item._id)}
                         />
                       </TableCell>
                     </TableRow>
