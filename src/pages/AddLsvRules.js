@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Button,
@@ -73,11 +72,11 @@ const AddLsvRules = () => {
     const updatedGuidelines = [...guidelines];
     const currentGuideline = updatedGuidelines[guidelineIndex];
     
-    // Add new images
+    
     const newImages = [...currentGuideline.images, ...files];
     currentGuideline.images = newImages;
     
-    // Create previews for new images
+    
     const newPreviews = files.map(file => URL.createObjectURL(file));
     currentGuideline.imagePreviews = [...currentGuideline.imagePreviews, ...newPreviews];
     
@@ -89,7 +88,7 @@ const AddLsvRules = () => {
     const updatedGuidelines = [...guidelines];
     const currentGuideline = updatedGuidelines[guidelineIndex];
     
-    // Remove image and preview
+   
     currentGuideline.images.splice(imageIndex, 1);
     URL.revokeObjectURL(currentGuideline.imagePreviews[imageIndex]);
     currentGuideline.imagePreviews.splice(imageIndex, 1);
@@ -108,7 +107,7 @@ const AddLsvRules = () => {
 
   const handleRemoveGuideline = (index) => {
     if (guidelines.length > 1) {
-      // Clean up image URLs
+    
       guidelines[index].imagePreviews.forEach(url => URL.revokeObjectURL(url));
       setGuidelines(guidelines.filter((_, i) => i !== index));
     }
@@ -134,22 +133,20 @@ const AddLsvRules = () => {
         }))
       ));
       
-      // Prepare guidelines with image data
+      
       const guidelinesWithImages = guidelines.map(guideline => ({
         title: guideline.title,
         description: guideline.description,
-        // We'll handle images separately in the form data
       }));
       
       formData.append("guidelines", JSON.stringify(guidelinesWithImages));
       
-      // Append all guideline images with proper naming
-guidelines.forEach(guideline => {
-  guideline.images.forEach(image => {
-    formData.append("image", image); // Send all images with same name as in curl
-  });
-});
-
+     
+      guidelines.forEach(guideline => {
+        guideline.images.forEach(image => {
+          formData.append("image", image);
+        });
+      });
 
       const token = localStorage.getItem("token");
       const response = await axios.post("/admin/lsv/addGLSVR", formData, {
@@ -212,7 +209,7 @@ guidelines.forEach(guideline => {
         </Card.Body>
       </Card>
 
-      {/* Add Section Modal */}
+      
       <Modal
         show={showModal}
         onHide={() => {
@@ -232,7 +229,7 @@ guidelines.forEach(guideline => {
         <Modal.Body className="p-4">
           <Row>
             <Col md={6}>
-              {/* Basic Information */}
+             
               <Card className="mb-4 shadow-sm">
                 <Card.Header className="bg-light d-flex align-items-center">
                   <FaInfoCircle className="text-primary me-2" />
@@ -282,7 +279,7 @@ guidelines.forEach(guideline => {
             </Col>
 
             <Col md={6}>
-              {/* Sections */}
+             
               <Card className="mb-4 shadow-sm">
                 <Card.Header className="bg-light d-flex align-items-center">
                   <FaInfoCircle className="text-primary me-2" />
@@ -368,7 +365,7 @@ guidelines.forEach(guideline => {
             </Col>
           </Row>
 
-          {/* Guidelines Section - Full Width */}
+         
           <Card className="mb-4 shadow-sm">
             <Card.Header className="bg-light d-flex align-items-center">
               <FaInfoCircle className="text-primary me-2" />
@@ -596,7 +593,7 @@ guidelines.forEach(guideline => {
         </Card.Body>
       </Card>
 
-      {/* View Modal */}
+    
       <Modal show={viewModal} onHide={() => setViewModal(false)} size="lg" centered>
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="d-flex align-items-center">
@@ -647,20 +644,18 @@ guidelines.forEach(guideline => {
                         <Accordion.Body>
                           <div dangerouslySetInnerHTML={{ __html: guideline.description }} />
                           
-                          {guideline.images?.length > 0 && (
+                          {guideline.imageUrl && (
                             <>
-                              <h6 className="mt-3">Images:</h6>
+                              <h6 className="mt-3">Image:</h6>
                               <Row className="g-2 mt-2">
-                                {guideline.images.map((img, imgIndex) => (
-                                  <Col xs={6} md={4} key={imgIndex}>
-                                    <BootstrapImage
-                                      src={`${process.env.REACT_APP_API_URL}/${img}`}
-                                      thumbnail
-                                      className="w-100"
-                                      style={{ height: "120px", objectFit: "cover" }}
-                                    />
-                                  </Col>
-                                ))}
+                                <Col xs={12} md={6}>
+                                  <BootstrapImage
+                                    src={guideline.imageUrl}
+                                    thumbnail
+                                    className="w-100"
+                                    style={{ height: "200px", objectFit: "contain" }}
+                                  />
+                                </Col>
                               </Row>
                             </>
                           )}
@@ -676,7 +671,7 @@ guidelines.forEach(guideline => {
         <Modal.Footer className="bg-light">
           <Button variant="outline-secondary" onClick={() => setViewModal(false)}>
             Close
-        </Button>
+          </Button>
         </Modal.Footer>
       </Modal>
     </Container>
@@ -684,3 +679,11 @@ guidelines.forEach(guideline => {
 };
 
 export default AddLsvRules;
+
+
+
+
+
+
+
+
