@@ -200,7 +200,7 @@ const adminId = localStorage.getItem("userId");
   };
 
   return (
-    <Offcanvas show={show} onHide={handleClose} placement={"end"}>
+    <Offcanvas show={show} onHide={handleClose} placement={"end"} backdrop="static">
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Add Your Test</Offcanvas.Title>
       </Offcanvas.Header>
