@@ -176,7 +176,7 @@ const AddVideoOffcanvas = ({
   };
 
   return (
-    <Offcanvas show={open} onHide={handleClose} placement={"end"}>
+    <Offcanvas show={open} onHide={handleClose} placement={"end"}   backdrop="static">
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Add New Videos</Offcanvas.Title>
       </Offcanvas.Header>
