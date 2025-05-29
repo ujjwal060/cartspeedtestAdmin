@@ -55,6 +55,8 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("refreshToken", res.data.refreshToken);
       localStorage.setItem("userId", res.data.id);
+          localStorage.setItem("role", res.data.role); // ✅ Store role here
+
       localStorage.setItem('keepLogin', keepLoggedIn ? 'true' : 'false');
 
       toast.success('Login successful!', {

@@ -54,7 +54,7 @@ export default function AddAssesmentFormFile({
   }, [age]);
 
   const handleChange = (event) => {
-    debugger
+    // debugger
     setAge(event.target.value);
     setSelectedVideo(null);
     setVideoOptions([]);
