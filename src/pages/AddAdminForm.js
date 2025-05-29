@@ -15,7 +15,7 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
   const [mobile, setMobile] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [geoJsonData, setGeoJsonData] = useState(null);
-  const [mapCenter, setMapCenter] = useState({ lat: 37.0902, lng: -95.7129 }); // US center
+  const [mapCenter, setMapCenter] = useState({ lat: 37.0902, lng: -95.7129 });
   const [boundaryPaths, setBoundaryPaths] = useState([]);
   const [zipCodes, setZipCodes] = useState([]);
   const [locationNames, setLocationNames] = useState([]);
@@ -50,7 +50,6 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
           }));
           paths.push(coordinates);
           
-          // Get location name from properties
           const locationName = `${feature.properties.city}, ${feature.properties.state} (${feature.properties.zipCode})`;
           names.push(locationName);
         });
@@ -58,9 +57,8 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
         setBoundaryPaths(paths);
         setLocationNames(names);
         setGeoJsonData(data);
-        setLocation(names.join(', ')); // Set the combined location names
+        setLocation(names.join(', '));
         
-        // Set map center to the first boundary's center
         if (paths.length > 0) {
           const firstPath = paths[0];
           const center = firstPath.reduce(
@@ -83,7 +81,6 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
     const value = e.target.value;
     setZipCode(value);
     
-    // Split by comma and clean up zip codes
     const zipCodesArray = value.split(',').map(zip => zip.trim()).filter(zip => /^\d{5}$/.test(zip));
     setZipCodes(zipCodesArray);
     
