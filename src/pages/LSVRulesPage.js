@@ -38,7 +38,7 @@ const LSVRulesPage = () => {
                 </h5>
                 <p className="mb-0">Try not to have a long line of cars behind you</p>
               </div>
-              
+
               <Row className="align-items-center mb-4">
                 <Col xs={4}>
                   <Image src={parkingImage} alt="Parking example" fluid rounded />
@@ -46,7 +46,7 @@ const LSVRulesPage = () => {
                 <Col xs={8}>
                   <h5>Parking Guidelines</h5>
                   <p className="mb-0">
-                    <strong>DOUBLE PARK WITH OTHER CARTS WITHIN THE LINES</strong> - 
+                    <strong>DOUBLE PARK WITH OTHER CARTS WITHIN THE LINES</strong> -
                     Parking over the line may result in a ticket from Walton County Sheriff!
                   </p>
                 </Col>
@@ -60,14 +60,14 @@ const LSVRulesPage = () => {
       <Card className="mb-5 border-0 shadow-lg">
         <Row className="g-0 flex-md-row-reverse">
           <Col md={5}>
-           
-            <Image 
-  src={safetyImage}
-  width={600}  // Add approximate dimensions
-  height={400}
-  alt="Safety rules"
-  className="h-100 rounded-start"
-/>
+
+            <Image
+              src={safetyImage}
+              width={600}  // Add approximate dimensions
+              height={400}
+              alt="Safety rules"
+              className="h-100 rounded-start"
+            />
           </Col>
           <Col md={7}>
             <Card.Body className="p-4">
@@ -75,11 +75,11 @@ const LSVRulesPage = () => {
                 <FaExclamationTriangle className="fs-1 text-danger me-3" />
                 <h2 className="mb-0">Safety & Operation</h2>
               </div>
-              
+
               <div className="alert alert-danger mb-4">
                 <h5 className="alert-heading">MUST BE 21 OR OLDER TO DRIVE</h5>
               </div>
-              
+
               <ListGroup variant="flush" className="mb-4">
                 <ListGroup.Item className="d-flex align-items-start py-3">
                   <FaBatteryThreeQuarters className="text-primary me-3 mt-1" />
@@ -100,7 +100,7 @@ const LSVRulesPage = () => {
                   </div>
                 </ListGroup.Item>
               </ListGroup>
-              
+
               <Row className="align-items-center mb-3">
                 <Col xs={4}>
                   <Image src={chargingImage} alt="Charging the cart" fluid rounded />
@@ -110,7 +110,7 @@ const LSVRulesPage = () => {
                   <p>CHARGE ELECTRIC CARTS WHEN NOT IN USE, even if you feel you have plenty of charge.</p>
                 </Col>
               </Row>
-              
+
               <Row className="align-items-center">
                 <Col xs={4}>
                   <Image src={dirtRoadImage} alt="Dirt road" fluid rounded />
@@ -118,7 +118,7 @@ const LSVRulesPage = () => {
                 <Col xs={8}>
                   <h5>Dirt Road Precautions</h5>
                   <p>
-                    GO SLOW ON DIRT ROADS (especially in "NO SEAGROVE" areas). 
+                    GO SLOW ON DIRT ROADS (especially in "NO SEAGROVE" areas).
                     Speeding damages the suspension and makes the cart excessively dirty.
                     <small className="d-block text-muted mt-1">East Grove Ave., Holly St, Azalea Ave, Gemelli St, etc.</small>
                   </p>
@@ -141,12 +141,12 @@ const LSVRulesPage = () => {
                 <FaCamera className="fs-1 text-success me-3" />
                 <h2 className="mb-0">Damage Inspection</h2>
               </div>
-              
+
               <div className="alert alert-info mb-4">
                 <h5 className="alert-heading">CHECK FOR DAMAGE UPON RECEIVING THE CART</h5>
                 <p className="mb-0">Take pictures of any existing damage before use</p>
               </div>
-              
+
               <h5 className="mb-3">Common Damage Areas to Document:</h5>
               <Row>
                 <Col md={6}>
@@ -182,7 +182,7 @@ const LSVRulesPage = () => {
                   </ListGroup>
                 </Col>
               </Row>
-              
+
               <div className="mt-4 p-3 bg-light rounded">
                 <h6 className="d-flex align-items-center">
                   <FaExclamationTriangle className="text-danger me-2" />

@@ -372,9 +372,11 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy, viewType]);
 
-  if (uploadingloading) {
-    return (
-      <div className="">
+ 
+
+  return (
+    <Box p={4}>
+      {uploadingloading ? <> <div className="">
         <div className="global-loader margin-loader ">
           <div className="loader-animation">
             <span></span>
@@ -382,13 +384,7 @@ const VideoDashboard = () => {
             <span></span>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <Box p={4}>
-      <Box>
+      </div></> : <>   <Box>
         <div className="d-flex justify-content-between align-items-center pad-root mb-3">
 
 
@@ -462,7 +458,7 @@ const VideoDashboard = () => {
                 style={{ cursor: "pointer" }}
               />
             </Tooltip>
- {userRole === 'admin' && (
+            {userRole === 'admin' && (
               viewType === 'safetyVideos' ? (
                 <Button
                   variant="contained"
@@ -493,29 +489,6 @@ const VideoDashboard = () => {
 
         </div>
 
-        <AddVideoOffcanvas
-          open={open}
-          setOpen={setOpen}
-          handleClose={handleClose}
-          selectedVideos={[]}
-          setUploadingLoading={setUploadingLoading}
-          uploadingloading={uploadingloading}
-          videoFiles={videoFiles}
-          setVideoFiles={setVideoFiles}
-          deleteUploadedVideo={deleteUploadedVideo}
-          onVideoUploaded={fetchVideos}
-        />
-
-        <AddSafetyVideoOffcanvas
-          open={openSafetyVideo}
-          setOpen={setOpenSafetyVideo}
-          handleClose={handleSafetyVideoClose}
-          selectedVideos={[]}
-          videoFiles={safetyVideoFiles}
-          setVideoFiles={setSafetyVideoFiles}
-          deleteUploadedVideo={deleteUploadedSafetyVideo}
-          onVideoUploaded={fetchVideos}
-        />
 
         <Paper elevation={3} className="mt-3">
           <TableContainer>
@@ -769,7 +742,33 @@ const VideoDashboard = () => {
             </button>
           </DialogContent>
         </Dialog>
-      </Box>
+      </Box></>}
+
+
+      <AddVideoOffcanvas
+        open={open}
+        setOpen={setOpen}
+        handleClose={handleClose}
+        selectedVideos={[]}
+        setUploadingLoading={setUploadingLoading}
+        uploadingloading={uploadingloading}
+        videoFiles={videoFiles}
+        setVideoFiles={setVideoFiles}
+        deleteUploadedVideo={deleteUploadedVideo}
+        onVideoUploaded={fetchVideos}
+      />
+
+      <AddSafetyVideoOffcanvas
+        open={openSafetyVideo}
+        setOpen={setOpenSafetyVideo}
+        handleClose={handleSafetyVideoClose}
+        selectedVideos={[]}
+        videoFiles={safetyVideoFiles}
+        setVideoFiles={setSafetyVideoFiles}
+        deleteUploadedVideo={deleteUploadedSafetyVideo}
+        onVideoUploaded={fetchVideos}
+      />
+
     </Box>
   );
 };

@@ -84,7 +84,7 @@ const AssessmentDashboard = () => {
     question: "",
     options: [],
   });
-const role = localStorage.getItem('role');
+  const role = localStorage.getItem("role");
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -268,150 +268,170 @@ const role = localStorage.getItem('role');
     );
   };
 
-  if (loading) {
-    return (
-      <div className="">
-        <div className="global-loader margin-loader ">
-          <div className="loader-animation">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="">
+  //       <div className="global-loader margin-loader ">
+  //         <div className="loader-animation">
+  //           <span></span>
+  //           <span></span>
+  //           <span></span>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <Box p={4}>
-      <Box>
-        {renderBreadcrumb()}
-
-        <Box
-          display="flex"
-          justifyContent="flex-end"
-          gap={2}
-          mb={4}
-          alignItems="center"
-        >
-          <div className="d-flex justify-content-between align-items-center w-100">
-            <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-              {sectionOptions.map((section) => (
-                <Box key={section.key} textAlign="center">
-                  <Tooltip title={section.label} arrow>
-                    <Box
-                      sx={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: "4px",
-                        backgroundColor:
-                          sectionStyles[section.key].backgroundColor,
-                        border: `2px solid ${
-                          sectionNumber === section.value
-                            ? "#000"
-                            : sectionStyles[section.key].color
-                        }`,
-                        cursor: "pointer",
-                        mx: "auto",
-                      }}
-                      onClick={() => handleSectionFilter(section.value)}
-                    />
-                  </Tooltip>
-                  <Typography variant="caption">{section.label}</Typography>
-                </Box>
-              ))}
-            </Box>
-            <div className="d-flex gap-3 flex-row">
-              {openFilter && (
-                <>
-                  <TextField
-                    label="Search by Location"
-                    variant="outlined"
-                    size="small"
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        location: e.target.value,
-                      }))
-                    }
-                  />
-
-                  <Box className="custom-picker">
-                    <CalendarMonthIcon className="svg-custom" />
-                    <DatePicker
-                      selectsRange
-                      startDate={startDate}
-                      endDate={endDate}
-                      onChange={handleDateChange}
-                      isClearable
-                      placeholderText="Select date range"
-                      className="form-control"
-                      maxDate={new Date()}
-                    />
-                  </Box>
-                </>
-              )}
-
-              <Tooltip title="Filter" placement="top">
-                <Box display="flex" alignItems="center">
-                  <FilterListIcon
-                    onClick={toggleFilter}
-                    color="primary"
-                    style={{ cursor: "pointer" }}
-                  />
-                </Box>
-              </Tooltip>
-
-             
-              {role === "admin" && (
-  <Button
-    variant="contained"
-    color="primary"
-    startIcon={<AddCircleOutlineIcon />}
-    onClick={handleShow}
-  >
-    Assessment
-  </Button>
-)}
-
+      {loading ? (
+        <>
+          {" "}
+          <div className="">
+            <div className="global-loader margin-loader ">
+              <div className="loader-animation">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </div>
           </div>
-        </Box>
+        </>
+      ) : (
+        <>
+          {" "}
+          <Box>
+            {renderBreadcrumb()}
 
-        <Accordion className="d-flex flex-column gap-3 custom-accordion" flush>
-          {getData.map((item, index) => (
-            <Accordion.Item eventKey={index.toString()} key={item._id}>
-              <Accordion.Header
-                className="accordion-button p-0 d-flex justify-content-between align-items-center"
-                style={sectionStyles[`section${item.sectionNumber}`] || {}}
-              >
-                <div className="d-flex align-items-center w-100 justify-content-between">
-                  <span className="text-truncate" style={{ maxWidth: "70%" }}>
-                    Q{currentPage * rowsPerPage + index + 1}.{" "}
-                    {editId === item._id ? (
+            <Box
+              display="flex"
+              justifyContent="flex-end"
+              gap={2}
+              mb={4}
+              alignItems="center"
+            >
+              <div className="d-flex justify-content-between align-items-center w-100">
+                <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+                  {sectionOptions.map((section) => (
+                    <Box key={section.key} textAlign="center">
+                      <Tooltip title={section.label} arrow>
+                        <Box
+                          sx={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: "4px",
+                            backgroundColor:
+                              sectionStyles[section.key].backgroundColor,
+                            border: `2px solid ${
+                              sectionNumber === section.value
+                                ? "#000"
+                                : sectionStyles[section.key].color
+                            }`,
+                            cursor: "pointer",
+                            mx: "auto",
+                          }}
+                          onClick={() => handleSectionFilter(section.value)}
+                        />
+                      </Tooltip>
+                      <Typography variant="caption">{section.label}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+                <div className="d-flex gap-3 flex-row">
+                  {openFilter && (
+                    <>
                       <TextField
-                        fullWidth
-                        variant="standard"
-                        value={editForm.question}
+                        label="Search by Location"
+                        variant="outlined"
+                        size="small"
                         onChange={(e) =>
-                          setEditForm((prev) => ({
+                          setFilters((prev) => ({
                             ...prev,
-                            question: e.target.value,
+                            location: e.target.value,
                           }))
                         }
                       />
-                    ) : (
-                      item.question
-                    )}
-                  </span>
 
-                  <div
-                    className="d-flex align-items-center me-2"
-                    onClick={(e) => e.stopPropagation()}
+                      <Box className="custom-picker">
+                        <CalendarMonthIcon className="svg-custom" />
+                        <DatePicker
+                          selectsRange
+                          startDate={startDate}
+                          endDate={endDate}
+                          onChange={handleDateChange}
+                          isClearable
+                          placeholderText="Select date range"
+                          className="form-control"
+                          maxDate={new Date()}
+                        />
+                      </Box>
+                    </>
+                  )}
+
+                  <Tooltip title="Filter" placement="top">
+                    <Box display="flex" alignItems="center">
+                      <FilterListIcon
+                        onClick={toggleFilter}
+                        color="primary"
+                        style={{ cursor: "pointer" }}
+                      />
+                    </Box>
+                  </Tooltip>
+
+                  {role === "admin" && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      startIcon={<AddCircleOutlineIcon />}
+                      onClick={handleShow}
+                    >
+                      Assessment
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Box>
+
+            <Accordion
+              className="d-flex flex-column gap-3 custom-accordion"
+              flush
+            >
+              {getData.map((item, index) => (
+                <Accordion.Item eventKey={index.toString()} key={item._id}>
+                  <Accordion.Header
+                    className="accordion-button p-0 d-flex justify-content-between align-items-center"
+                    style={sectionStyles[`section${item.sectionNumber}`] || {}}
                   >
-                    {editId === item._id ? (
-                      <>
-                        {/* <Button
+                    <div className="d-flex align-items-center w-100 justify-content-between">
+                      <span
+                        className="text-truncate"
+                        style={{ maxWidth: "70%" }}
+                      >
+                        Q{currentPage * rowsPerPage + index + 1}.{" "}
+                        {editId === item._id ? (
+                          <TextField
+                            fullWidth
+                            variant="standard"
+                            value={editForm.question}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                question: e.target.value,
+                              }))
+                            }
+                          />
+                        ) : (
+                          item.question
+                        )}
+                      </span>
+
+                      <div
+                        className="d-flex align-items-center me-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {editId === item._id ? (
+                          <>
+                            {/* <Button
                           size="small"
                           color="success"
                           onClick={handleSaveEdit}
@@ -419,122 +439,134 @@ const role = localStorage.getItem('role');
                         >
                           Save
                         </Button> */}
-                        <CheckCircleOutlineIcon
-                          onClick={handleSaveEdit}
-                          fontSize="medium"
-                          color="success"
-                          className="me-2 cursor-pointer"
-                        />
-                        <CancelIcon
-                          onClick={handleCancelEdit}
-                          fontSize="medium"
-                          color="error"
-                          className="cursor-pointer"
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <FaEdit
-                          size={16}
-                          color="blue"
-                          className="me-3 cursor-pointer"
-                          onClick={() => handleEditClick(item)}
-                        />
-                        <FaTrash
-                          size={16}
-                          color="red"
-                          className="cursor-pointer"
-                          onClick={() => {
-                            alert("Delete API not implemented");
-                          }}
-                        />
-                      </>
-                    )}
-                  </div>
-                </div>
-              </Accordion.Header>
+                            <CheckCircleOutlineIcon
+                              onClick={handleSaveEdit}
+                              fontSize="medium"
+                              color="success"
+                              className="me-2 cursor-pointer"
+                            />
+                            <CancelIcon
+                              onClick={handleCancelEdit}
+                              fontSize="medium"
+                              color="error"
+                              className="cursor-pointer"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <FaEdit
+                              size={16}
+                              color="blue"
+                              className="me-3 cursor-pointer"
+                              onClick={() => handleEditClick(item)}
+                            />
+                            <FaTrash
+                              size={16}
+                              color="red"
+                              className="cursor-pointer"
+                              onClick={() => {
+                                alert("Delete API not implemented");
+                              }}
+                            />
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </Accordion.Header>
 
-              <Accordion.Body>
-                <div className="row gy-4 ">
-                  <div className="col-lg-12">
-                    <p>
-                      <LocationPinIcon />
-                      {item.locationName}
-                    </p>
-                    <Box
-                      display="grid"
-                      gridTemplateColumns="repeat(4, 1fr)"
-                      gap={2}
-                    >
-                      {item.options.map((option, optIndex) => (
+                  <Accordion.Body>
+                    <div className="row gy-4 ">
+                      <div className="col-lg-12">
+                        <p>
+                          <LocationPinIcon />
+                          {item.locationName}
+                        </p>
                         <Box
-                          key={optIndex}
-                          display="flex"
-                          alignItems="center"
-                          sx={{
-                            mb: 1,
-                            p: 1,
-                            border: "1px solid",
-                            borderColor: option.isCorrect
-                              ? "success.main"
-                              : "divider",
-                            borderRadius: 1,
-                          }}
+                          display="grid"
+                          gridTemplateColumns="repeat(4, 1fr)"
+                          gap={2}
                         >
-                          <Typography sx={{ mr: 1, fontWeight: "bold" }}>
-                            {String.fromCharCode(65 + optIndex)}.
-                          </Typography>
-
-                          {editId === item._id ? (
-                            <>
-                              <TextField
-                                variant="outlined"
-                                size="small"
-                                value={editForm.options[optIndex]?.text || ""}
-                                onChange={(e) =>
-                                  setEditForm((prev) => {
-                                    const updatedOptions = [...prev.options];
-                                    updatedOptions[optIndex].text =
-                                      e.target.value;
-                                    return { ...prev, options: updatedOptions };
-                                  })
-                                }
-                                sx={{ flexGrow: 1, mr: 1 }}
-                              />
-                              <Radio
-                                checked={editForm.options[optIndex]?.isCorrect}
-                                onChange={() =>
-                                  setEditForm((prev) => {
-                                    const updatedOptions = prev.options.map(
-                                      (opt, i) => ({
-                                        ...opt,
-                                        isCorrect: i === optIndex,
-                                      })
-                                    );
-                                    return { ...prev, options: updatedOptions };
-                                  })
-                                }
-                                color="success"
-                              />
-                            </>
-                          ) : (
-                            <>
-                              <Typography sx={{ flexGrow: 1 }}>
-                                {option.text}
+                          {item.options.map((option, optIndex) => (
+                            <Box
+                              key={optIndex}
+                              display="flex"
+                              alignItems="center"
+                              sx={{
+                                mb: 1,
+                                p: 1,
+                                border: "1px solid",
+                                borderColor: option.isCorrect
+                                  ? "success.main"
+                                  : "divider",
+                                borderRadius: 1,
+                              }}
+                            >
+                              <Typography sx={{ mr: 1, fontWeight: "bold" }}>
+                                {String.fromCharCode(65 + optIndex)}.
                               </Typography>
-                              <Radio
-                                checked={option.isCorrect}
-                                color="success"
-                                disabled
-                              />
-                            </>
-                          )}
-                        </Box>
-                      ))}
-                    </Box>
-                  </div>
 
-                  {/* <div className="col-lg-4 d-flex align-items-end justify-content-end">
+                              {editId === item._id ? (
+                                <>
+                                  <TextField
+                                    variant="outlined"
+                                    size="small"
+                                    value={
+                                      editForm.options[optIndex]?.text || ""
+                                    }
+                                    onChange={(e) =>
+                                      setEditForm((prev) => {
+                                        const updatedOptions = [
+                                          ...prev.options,
+                                        ];
+                                        updatedOptions[optIndex].text =
+                                          e.target.value;
+                                        return {
+                                          ...prev,
+                                          options: updatedOptions,
+                                        };
+                                      })
+                                    }
+                                    sx={{ flexGrow: 1, mr: 1 }}
+                                  />
+                                  <Radio
+                                    checked={
+                                      editForm.options[optIndex]?.isCorrect
+                                    }
+                                    onChange={() =>
+                                      setEditForm((prev) => {
+                                        const updatedOptions = prev.options.map(
+                                          (opt, i) => ({
+                                            ...opt,
+                                            isCorrect: i === optIndex,
+                                          })
+                                        );
+                                        return {
+                                          ...prev,
+                                          options: updatedOptions,
+                                        };
+                                      })
+                                    }
+                                    color="success"
+                                  />
+                                </>
+                              ) : (
+                                <>
+                                  <Typography sx={{ flexGrow: 1 }}>
+                                    {option.text}
+                                  </Typography>
+                                  <Radio
+                                    checked={option.isCorrect}
+                                    color="success"
+                                    disabled
+                                  />
+                                </>
+                              )}
+                            </Box>
+                          ))}
+                        </Box>
+                      </div>
+
+                      {/* <div className="col-lg-4 d-flex align-items-end justify-content-end">
                     {!editId &&
                       item.options
                         .filter((option) => option.isCorrect)
@@ -549,21 +581,23 @@ const role = localStorage.getItem('role');
                           />
                         ))}
                   </div> */}
-                </div>
-              </Accordion.Body>
-            </Accordion.Item>
-          ))}
-        </Accordion>
+                    </div>
+                  </Accordion.Body>
+                </Accordion.Item>
+              ))}
+            </Accordion>
 
-        <TablePagination
-          rowsPerPageOptions={[rowsPerPage]}
-          component="div"
-          count={totalData}
-          rowsPerPage={rowsPerPage}
-          page={currentPage}
-          onPageChange={handleChangePage}
-        />
-      </Box>
+            <TablePagination
+              rowsPerPageOptions={[rowsPerPage]}
+              component="div"
+              count={totalData}
+              rowsPerPage={rowsPerPage}
+              page={currentPage}
+              onPageChange={handleChangePage}
+            />
+          </Box>
+        </>
+      )}
 
       <Dialog
         open={playOpen}
