@@ -7,7 +7,12 @@ import { registerUser } from "../api/auth";
 import { toast } from "react-toastify";
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 
-export default function AddAdminForm({ open, setOpen, handleClose }) {
+export default function AddAdminForm({
+  open,
+  setOpen,
+  handleClose,
+  handleAdmin,
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,6 +30,19 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
     width: "100%",
     height: "300px",
     marginTop: "20px",
+  };
+
+  const ResetForm = () => {
+    handleClose();
+    setName("");
+    setEmail("");
+    setLocation("");
+    setPassword("");
+    setMobile("");
+    setZipCode("");
+    setGeoJsonData(null);
+    setBoundaryPaths([]);
+    setLocationNames([]);
   };
 
   const fetchBoundariesData = async (zipCodesString) => {
@@ -48,7 +66,7 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
         data.features.forEach(feature => {
           const coordinates = feature.geometry.coordinates[0].map(coord => ({
             lat: coord[1],
-            lng: coord[0]
+            lng: coord[0],
           }));
           paths.push(coordinates);
 
@@ -87,7 +105,7 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
     setZipCodes(zipCodesArray);
 
     if (zipCodesArray.length > 0) {
-      fetchBoundariesData(zipCodesArray.join(','));
+      fetchBoundariesData(zipCodesArray.join(","));
     }
   };
 
@@ -107,8 +125,18 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    if (!name || !email || !location || !password || !mobile || !zipCode || !geoJsonData) {
-      toast.error("Please fill all the fields and ensure location data is loaded");
+    if (
+      !name ||
+      !email ||
+      !location ||
+      !password ||
+      !mobile ||
+      !zipCode ||
+      !geoJsonData
+    ) {
+      toast.error(
+        "Please fill all the fields and ensure location data is loaded"
+      );
       setIsSubmitting(false);
       return;
     }
@@ -129,25 +157,41 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
         handleClose();
         handleReset();
         toast.success("User registered successfully");
+        handleAdmin();
         setIsSubmitting(false);
       }
     } catch (error) {
       toast.error(error?.response?.data?.message[0]);
-      console.error("Error registering user:", error?.response?.data?.message[0]);
+      console.error(
+        "Error registering user:",
+        error?.response?.data?.message[0]
+      );
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Offcanvas show={open} onHide={handleClose} placement="end">
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Add Your Admin</Offcanvas.Title>
-      </Offcanvas.Header>
+    <Offcanvas
+      show={open}
+      onHide={handleClose}
+      placement="end"
+      backdrop="static"
+    >
+      {isSubmitting ? (
+        <Offcanvas.Header>
+          <Offcanvas.Title>Add Your Admin</Offcanvas.Title>
+        </Offcanvas.Header>
+      ) : (
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Add Your Admin </Offcanvas.Title>
+        </Offcanvas.Header>
+      )}
+
       <Offcanvas.Body>
         <div className="row gy-4">
           <div className="col-lg-12 me-auto">
             <TextField
-              label="Enter Zip Codes (comma separated)"
+              label="Enter Zip Codes"
               variant="standard"
               size="small"
               className="w-100"
@@ -252,7 +296,7 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
             variant="contained"
             color="error"
             className="rounded-4"
-            onClick={handleReset}
+            onClick={ResetForm}
           >
             Reset
           </Button>

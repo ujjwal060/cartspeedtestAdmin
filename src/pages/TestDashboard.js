@@ -376,7 +376,7 @@ const TestDashboard = () => {
 
         <div className="d-flex justify-content-end align-items-center mb-2">
           <div className="d-flex justify-content-end gap-2 align-items-center">
-            <div className="custom-picker">
+            <div className="custom-picker date-picker-custom-design">
               <CalendarMonthIcon className="svg-custom" />
               <DatePicker
                 selectsRange={true}

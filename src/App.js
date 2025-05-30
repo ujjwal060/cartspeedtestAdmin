@@ -21,7 +21,6 @@ import LSVLawsPage from "./pages/LSVLawsPage";
 import EditorTablePage from "./pages/AddLsvRules";
 import AddLsvRules from "./pages/AddLsvRules";
 import AddLsvLaws from "./pages/AddLsvLaws";
-
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));

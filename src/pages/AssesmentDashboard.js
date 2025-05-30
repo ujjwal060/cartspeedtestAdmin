@@ -352,7 +352,7 @@ const AssessmentDashboard = () => {
                         }
                       />
 
-                      <Box className="custom-picker">
+                      <Box className="custom-picker date-picker-custom-design">
                         <CalendarMonthIcon className="svg-custom" />
                         <DatePicker
                           selectsRange
