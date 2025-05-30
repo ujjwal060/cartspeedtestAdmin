@@ -194,7 +194,7 @@ const VideoDashboard = () => {
     <Box p={4}>
       <Box>
         <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
-          <div className="custom-picker">
+          <div className="custom-picker date-picker-custom-design">
             <CalendarMonthIcon className="svg-custom" />
             <DatePicker
               selectsRange={true}

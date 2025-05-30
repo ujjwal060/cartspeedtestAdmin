@@ -1,13 +1,15 @@
-
-
-
 import React, { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { toast } from "react-toastify";
 
-import {addSafetyVideo } from '.././api/video'
-const AddSafetyVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }) => {
+import { addSafetyVideo } from ".././api/video";
+const AddSafetyVideoOffcanvas = ({
+  open,
+  setOpen,
+  handleClose,
+  onVideoUploaded,
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [image, setImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
@@ -19,9 +21,9 @@ const AddSafetyVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -33,44 +35,41 @@ const AddSafetyVideoOffcanvas = ({ open, setOpen, handleClose, onVideoUploaded }
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  if (!image) {
-    toast.error("Please select an image");
-    return;
-  }
+    if (!image) {
+      toast.error("Please select an image");
+      return;
+    }
 
-  if (!formData.title || !formData.description) {
-    toast.error("Please fill all required fields");
-    return;
-  }
+    if (!formData.title || !formData.description) {
+      toast.error("Please fill all required fields");
+      return;
+    }
 
-  setIsSubmitting(true);
-  const token = localStorage.getItem("token");
+    setIsSubmitting(true);
+    const token = localStorage.getItem("token");
 
-  try {
-    const formDataToSend = new FormData();
-    formDataToSend.append("title", formData.title);
-    formDataToSend.append("description", formData.description);
-    formDataToSend.append("image", image);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("image", image);
 
-   
-    const data = await addSafetyVideo(token, formDataToSend);
+      const data = await addSafetyVideo(token, formDataToSend);
 
-    toast.success("Safety Video Added Successfully");
-    resetForm();
-    handleClose();
-    if (onVideoUploaded) onVideoUploaded();
-    
-  } catch (error) {
-    console.error("Error:", error);
-    toast.error(error.message || "Error uploading safety video");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      toast.success("Safety Video Added Successfully");
+      resetForm();
+      handleClose();
+      if (onVideoUploaded) onVideoUploaded();
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(error.message || "Error uploading safety video");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   const resetForm = () => {
     setFormData({
       title: "",
@@ -86,10 +85,23 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <Offcanvas show={open} onHide={handleClose} placement="end" className="offcanvas-large">
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Add New Safety Video</Offcanvas.Title>
-      </Offcanvas.Header>
+    <Offcanvas
+      show={open}
+      onHide={handleClose}
+      placement="end"
+      className="offcanvas-large"
+      backdrop="static"
+    >
+      {isSubmitting ? (
+        <Offcanvas.Header>
+          <Offcanvas.Title>Add New Safety Video</Offcanvas.Title>
+        </Offcanvas.Header>
+      ) : (
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Add New Safety Video </Offcanvas.Title>
+        </Offcanvas.Header>
+      )}
+
       <Offcanvas.Body>
         <form onSubmit={handleSubmit}>
           <div className="row gy-4 mb-4">
@@ -135,7 +147,9 @@ const handleSubmit = async (e) => {
                         required
                       />
                       <span>
-                        {previewImage ? "Change file" : "Choose safety video file (image or video)"}
+                        {previewImage
+                          ? "Change file"
+                          : "Choose safety video file (image or video)"}
                       </span>
                     </div>
                   </div>
@@ -145,10 +159,10 @@ const handleSubmit = async (e) => {
                       <div className="file-atc-box">
                         <div className="file-image">
                           {image.type.includes("image") ? (
-                            <img 
-                              src={previewImage} 
-                              alt="Preview" 
-                              style={{ width: "100px", height: "auto" }} 
+                            <img
+                              src={previewImage}
+                              alt="Preview"
+                              style={{ width: "100px", height: "auto" }}
                             />
                           ) : (
                             <video
