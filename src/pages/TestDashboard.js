@@ -439,44 +439,66 @@ const TestDashboard = () => {
               />
 
               <TableBody>
-                {openFilter && (
-                  <TableRow>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-name"
-                        placeholder="Name"
-                        value={inputValue.name || ""}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("name", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-email"
-                        placeholder="Email"
-                        value={inputValue.email || ""}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("email", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell colSpan={2}>
-                      <Form.Control
-                        id="filter-status"
-                        placeholder="Status"
-                        value={inputValue.status || ""}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("status", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell colSpan={4}></TableCell>
-                  </TableRow>
-                )}
+              
+
+    {openFilter && (
+  <TableRow>
+   
+    <TableCell></TableCell>
+    
+
+    <TableCell>
+      <Form.Control
+        id="filter-name"
+        placeholder=" Name"
+        value={inputValue.name || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("name", e.target.value)}
+      />
+    </TableCell>
+    
+   
+    <TableCell>
+      <Form.Control
+        id="filter-email"
+        placeholder=" Email"
+        value={inputValue.email || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("email", e.target.value)}
+      />
+    </TableCell>
+    
+
+    <TableCell></TableCell>
+    
+    
+    <TableCell></TableCell>
+    
+ 
+    <TableCell>
+      <Form.Control
+        id="filter-status"
+        placeholder=" Status"
+        value={inputValue.status || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("status", e.target.value)}
+      />
+    </TableCell>
+    
+   
+    <TableCell>
+      <Form.Control
+        id="filter-result"
+        placeholder=" Result"
+        value={inputValue.result || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("result", e.target.value)}
+      />
+    </TableCell>
+  
+    <TableCell></TableCell>
+  </TableRow>
+)}
 
                 {paginatedData.length > 0 ? (
                   paginatedData.map((item) => (
