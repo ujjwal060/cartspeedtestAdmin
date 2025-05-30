@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { Button } from "@mui/material";
@@ -50,10 +51,10 @@ export default function AddAdminForm({
         `https://vanitysoft-boundaries-io-v1.p.rapidapi.com/reaperfire/rest/v1/public/boundary?zipcode=${zipCodesString}`,
         {
           headers: {
-            "x-rapidapi-host": "vanitysoft-boundaries-io-v1.p.rapidapi.com",
-            // 'x-rapidapi-key': 'e163d0e06amshc17b5bebe33fa65p18635ejsncf9f11d9cf1a'
-            "x-rapidapi-key":"058fbd2e8bmshfaa675101145f16p14de6ejsncec6811a72bd",
-          },
+            'x-rapidapi-host': 'vanitysoft-boundaries-io-v1.p.rapidapi.com',
+            // 'x-rapidapi-key': 'e163d0e06amshc17b5bebe33fa65p18635ejsncf9f11d9cf1a',
+            'x-rapidapi-key': '058fbd2e8bmshfaa675101145f16p14de6ejsncec6811a72bd'
+          }
         }
       );
       const data = await response.json();
@@ -62,8 +63,8 @@ export default function AddAdminForm({
         const paths = [];
         const names = [];
 
-        data.features.forEach((feature) => {
-          const coordinates = feature.geometry.coordinates[0].map((coord) => ({
+        data.features.forEach(feature => {
+          const coordinates = feature.geometry.coordinates[0].map(coord => ({
             lat: coord[1],
             lng: coord[0],
           }));
@@ -76,7 +77,7 @@ export default function AddAdminForm({
         setBoundaryPaths(paths);
         setLocationNames(names);
         setGeoJsonData(data);
-        setLocation(names.join(", "));
+        setLocation(names.join(', '));
 
         if (paths.length > 0) {
           const firstPath = paths[0];
@@ -100,15 +101,25 @@ export default function AddAdminForm({
     const value = e.target.value;
     setZipCode(value);
 
-    const zipCodesArray = value
-      .split(",")
-      .map((zip) => zip.trim())
-      .filter((zip) => /^\d{5}$/.test(zip));
+    const zipCodesArray = value.split(',').map(zip => zip.trim()).filter(zip => /^\d{5}$/.test(zip));
     setZipCodes(zipCodesArray);
 
     if (zipCodesArray.length > 0) {
       fetchBoundariesData(zipCodesArray.join(","));
     }
+  };
+
+  const handleReset = () => {
+    setName("");
+    setEmail("");
+    setLocation("");
+    setPassword("");
+    setMobile("");
+    setZipCode("");
+    setGeoJsonData(null);
+    setBoundaryPaths([]);
+    setLocationNames([]);
+    setMapCenter({ lat: 37.0902, lng: -95.7129 });
   };
 
   const handleSubmit = async (e) => {
@@ -144,19 +155,10 @@ export default function AddAdminForm({
       const response = await registerUser(data, token);
       if (response.status === 201) {
         handleClose();
-        setName("");
-        setEmail("");
-        setLocation("");
-        setPassword("");
-        setMobile("");
-        setZipCode("");
-        setGeoJsonData(null);
-        setBoundaryPaths([]);
-        setLocationNames([]);
+        handleReset();
         toast.success("User registered successfully");
         handleAdmin();
         setIsSubmitting(false);
-        setOpen(false);
       }
     } catch (error) {
       toast.error(error?.response?.data?.message[0]);
