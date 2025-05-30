@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { Button } from "@mui/material";
@@ -33,8 +34,7 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
         {
           headers: {
             'x-rapidapi-host': 'vanitysoft-boundaries-io-v1.p.rapidapi.com',
-            // 'x-rapidapi-key': 'e163d0e06amshc17b5bebe33fa65p18635ejsncf9f11d9cf1a'
-             'x-rapidapi-key':'058fbd2e8bmshfaa675101145f16p14de6ejsncec6811a72bd'
+            'x-rapidapi-key': '058fbd2e8bmshfaa675101145f16p14de6ejsncec6811a72bd'
           }
         }
       );
@@ -90,6 +90,19 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
     }
   };
 
+  const handleReset = () => {
+    setName("");
+    setEmail("");
+    setLocation("");
+    setPassword("");
+    setMobile("");
+    setZipCode("");
+    setGeoJsonData(null);
+    setBoundaryPaths([]);
+    setLocationNames([]);
+    setMapCenter({ lat: 37.0902, lng: -95.7129 });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -113,18 +126,9 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
       const response = await registerUser(data, token);
       if (response.status === 201) {
         handleClose();
-        setName("");
-        setEmail("");
-        setLocation("");
-        setPassword("");
-        setMobile("");
-        setZipCode("");
-        setGeoJsonData(null);
-        setBoundaryPaths([]);
-        setLocationNames([]);
+        handleReset();
         toast.success("User registered successfully");
         setIsSubmitting(false);
-        setOpen(false);
       }
     } catch (error) {
       toast.error(error?.response?.data?.message[0]);
@@ -247,7 +251,7 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
             variant="contained"
             color="error"
             className="rounded-4"
-            onClick={handleClose}
+            onClick={handleReset}
           >
             Reset
           </Button>
