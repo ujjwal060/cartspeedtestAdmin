@@ -52,8 +52,7 @@ export default function AddAdminForm({
           headers: {
             "x-rapidapi-host": "vanitysoft-boundaries-io-v1.p.rapidapi.com",
             // 'x-rapidapi-key': 'e163d0e06amshc17b5bebe33fa65p18635ejsncf9f11d9cf1a'
-            "x-rapidapi-key":
-              "058fbd2e8bmshfaa675101145f16p14de6ejsncec6811a72bd",
+            "x-rapidapi-key":"058fbd2e8bmshfaa675101145f16p14de6ejsncec6811a72bd",
           },
         }
       );
