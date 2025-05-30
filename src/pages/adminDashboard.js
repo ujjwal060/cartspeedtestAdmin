@@ -283,44 +283,80 @@ export default function AdminDashboard() {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
+            
+
+
                 {openFilter && (
-                  <TableRow>
-                    <TableCell></TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-name"
-                        placeholder="Name"
-                        value={inputValue.name}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("name", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-email"
-                        placeholder="Email"
-                        value={inputValue.email}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("email", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        id="filter-mobile"
-                        placeholder="Phone"
-                        value={inputValue.mobile}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("mobile", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                  </TableRow>
-                )}
+  <TableRow>
+    
+    
+    {/* Name filter */}
+    <TableCell>
+      <Form.Control
+        id="filter-name"
+        placeholder="Filter Name"
+        value={inputValue.name || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("name", e.target.value)}
+      />
+    </TableCell>
+    
+    {/* Email filter */}
+    <TableCell>
+      <Form.Control
+        id="filter-email"
+        placeholder="Filter Email"
+        value={inputValue.email || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("email", e.target.value)}
+      />
+    </TableCell>
+    
+    {/* Address filter */}
+    <TableCell>
+      <Form.Control
+        id="filter-address"
+        placeholder="Filter Address"
+        value={inputValue.address || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("address", e.target.value)}
+      />
+    </TableCell>
+    
+    {/* Number filter */}
+    <TableCell>
+      <Form.Control
+        id="filter-number"
+        placeholder="Filter Number"
+        value={inputValue.number || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("number", e.target.value)}
+      />
+    </TableCell>
+    
+    {/* Status filter */}
+    <TableCell>
+      <Form.Control
+        id="filter-status"
+        placeholder="Filter Status"
+        value={inputValue.status || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("status", e.target.value)}
+      />
+    </TableCell>
+    
+    {/* Role filter */}
+    <TableCell>
+      <Form.Control
+        id="filter-role"
+        placeholder="Filter Role"
+        value={inputValue.role || ""}
+        className="rounded-0 custom-input"
+        onChange={(e) => handleFilterChange("role", e.target.value)}
+      />
+    </TableCell>
+  </TableRow>
+)}
                 {data.map((video, index) => (
                   <TableRow key={video._id || index}>
                     <TableCell>{video.name}</TableCell>

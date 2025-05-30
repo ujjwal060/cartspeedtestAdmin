@@ -110,6 +110,8 @@ const videoHeadCells = [
   },
 ];
 
+
+const userRole = localStorage.getItem("role"); 
 const safetyVideoHeadCells = [
   {
     id: "title",
@@ -131,6 +133,22 @@ const safetyVideoHeadCells = [
     label: "Thumbnail",
     disableSort: true,
   },
+  ...(userRole === 'superAdmin' ? [
+    {
+      id: "locationName",
+      numeric: false,
+      disablePadding: false,
+      label: "Location",
+      disableSort: true,
+    },
+    {
+      id: "adminName",
+      numeric: false,
+      disablePadding: false,
+      label: "Admin Name",
+      disableSort: true,
+    },
+  ] : []),
   {
     id: "durationTime",
     numeric: false,
@@ -153,7 +171,6 @@ const safetyVideoHeadCells = [
     disableSort: true,
   },
 ];
-
 function EnhancedTableHead(props) {
   const { order, orderBy, onRequestSort, viewType } = props;
   const createSortHandler = (property) => (event) => {
@@ -657,48 +674,56 @@ const VideoDashboard = () => {
                   ))
                 ) : (
                   getSafetyVideo.map((item, index) => (
+
+
                     <TableRow key={item._id || index}>
-                      <TableCell
-                        style={{
-                          cursor: "pointer",
-                          color: "#1976d2",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        {item.title}
-                      </TableCell>
-                      <TableCell>{item.description}</TableCell>
-                      <TableCell>
-                        {item.thumbnail && (
-                          <img
-                            src={item.thumbnail}
-                            alt="Thumbnail"
-                            style={{ width: '100px', height: 'auto' }}
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell>{item.durationTime}</TableCell>
-                      <TableCell>
-                        <Switch
-                          checked={item.isActive}
-                          // onChange={() => handleToggleStatus(item._id)}
-                          color="primary"
-                          inputProps={{ "aria-label": "toggle safety video status" }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <PlayArrowIcon
-                          color="success"
-                          onClick={() => handlePlayOpen(item.url)}
-                          style={{ cursor: "pointer" }}
-                        />
-                        <DeleteIcon
-                          color="error"
-                          style={{ cursor: "pointer" }}
-                        // onClick={() => handleDelete(item._id)}
-                        />
-                      </TableCell>
-                    </TableRow>
+  <TableCell
+    style={{
+      cursor: "pointer",
+      color: "#1976d2",
+      textDecoration: "underline",
+    }}
+  >
+    {item.title}
+  </TableCell>
+  <TableCell>{item.description}</TableCell>
+  <TableCell>
+    {item.thumbnail && (
+      <img
+        src={item.thumbnail}
+        alt="Thumbnail"
+        style={{ width: '100px', height: 'auto' }}
+      />
+    )}
+  </TableCell>
+  {userRole === 'superAdmin' && (
+    <>
+      <TableCell>{item.locationName}</TableCell>
+      <TableCell>{item.adminName}</TableCell>
+    </>
+  )}
+  <TableCell>{item.durationTime}</TableCell>
+  <TableCell>
+    <Switch
+      checked={item.isActive}
+      onChange={() => handleToggleStatus(item._id)}
+      color="primary"
+      inputProps={{ "aria-label": "toggle safety video status" }}
+    />
+  </TableCell>
+  <TableCell>
+    <PlayArrowIcon
+      color="success"
+      onClick={() => handlePlayOpen(item.url)}
+      style={{ cursor: "pointer" }}
+    />
+    <DeleteIcon
+      color="error"
+      style={{ cursor: "pointer" }}
+      onClick={() => handleDelete(item._id)}
+    />
+  </TableCell>
+</TableRow>
                   ))
                 )}
               </TableBody>
