@@ -39,6 +39,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
 import { getVideos, deleteVideos, isActiveVideos, deleteSafetyVideos, isActiveSafetyVideos } from "../api/video";
 import { getSafetyVideos } from "../api/video";
+import { useLocation } from 'react-router-dom';
 
 // import {deleteSafetyVideos, isActiveSafetyVideos }  from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
@@ -231,7 +232,9 @@ const VideoDashboard = () => {
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({});
   const [viewType, setViewType] = useState('videos');
-
+const location = useLocation();
+const adminName = location.state?.adminName;
+console.log(adminName,'....adminanem')
   const handleClickOpen = () => setOpen(true);
   const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true);
   const handleClose = () => setOpen(false);
@@ -628,23 +631,25 @@ const VideoDashboard = () => {
                 {viewType === 'videos' ? (
                   getVideo.map((item, index) => (
                     <TableRow key={item.video._id || index}>
-                      <TableCell
-                        onClick={() =>
-                          navigate("/assessment", {
-                            state: {
-                              title: item.video.title,
-                              videoId: item.video._id,
-                            },
-                          })
-                        }
-                        style={{
-                          cursor: "pointer",
-                          color: "#1976d2",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        {item.video.title}
-                      </TableCell>
+                    <TableCell
+  onClick={() =>
+    navigate("/assessment", {
+      state: {
+        title: item.video.title,
+        videoId: item.video._id,
+        adminName: item.adminName, // 👈 Add this line
+      },
+    })
+  }
+  style={{
+    cursor: "pointer",
+    color: "#1976d2",
+    textDecoration: "underline",
+  }}
+>
+  {item.video.title}
+</TableCell>
+
                       <TableCell>{item.video.description}</TableCell>
                       <TableCell>{item.section}</TableCell>
                       <TableCell>{item.sectionTitle}</TableCell>
