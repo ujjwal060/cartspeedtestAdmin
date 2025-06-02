@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -125,48 +124,46 @@ export default function CertificateDashboard() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <div className="row gy-3 mb-4">
+        <div className="col-md-4">
+          <Card sx={{ bgcolor: "#e3f2fd" }}>
+            <CardContent>
+              <Typography color="text.secondary" gutterBottom>
+                Total Certificates
+              </Typography>
+              <Typography variant="h4" color="primary">
+                {certificates.length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </div>
 
+        <div className="col-md-4">
+          <Card sx={{ bgcolor: "#e8f5e9" }}>
+            <CardContent>
+              <Typography color="text.secondary" gutterBottom>
+                Active Certificates
+              </Typography>
+              <Typography variant="h4" color="success.main">
+                {certificates.filter((c) => c.status === "active").length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </div>
 
-<Grid container spacing={3} sx={{ marginBottom: 4 }}>
-  <Grid item xs={12} md={4}>
-    <Card sx={{ bgcolor: "#e3f2fd" }}>
-      <CardContent>
-        <Typography color="text.secondary" gutterBottom>
-          Total Certificates
-        </Typography>
-        <Typography variant="h4" color="primary">
-          {certificates.length}
-        </Typography>
-      </CardContent>
-    </Card>
-  </Grid>
-
-  <Grid item xs={12} md={4}>
-    <Card sx={{ bgcolor: "#e8f5e9" }}>
-      <CardContent>
-        <Typography color="text.secondary" gutterBottom>
-          Active Certificates
-        </Typography>
-        <Typography variant="h4" color="success.main">
-          {certificates.filter((c) => c.status === "active").length}
-        </Typography>
-      </CardContent>
-    </Card>
-  </Grid>
-
-  <Grid item xs={12} md={4}>
-    <Card sx={{ bgcolor: "#ffebee" }}>
-      <CardContent>
-        <Typography color="text.secondary" gutterBottom>
-          Expired Certificates
-        </Typography>
-        <Typography variant="h4" color="error.main">
-          {certificates.filter((c) => c.status === "expired").length}
-        </Typography>
-      </CardContent>
-    </Card>
-  </Grid>
-</Grid>
+        <div className="col-md-4">
+          <Card sx={{ bgcolor: "#ffebee" }}>
+            <CardContent>
+              <Typography color="text.secondary" gutterBottom>
+                Expired Certificates
+              </Typography>
+              <Typography variant="h4" color="error.main">
+                {certificates.filter((c) => c.status === "expired").length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Search and Filter */}
       <Paper sx={{ p: 3, mb: 3 }}>
@@ -247,7 +244,10 @@ export default function CertificateDashboard() {
                       <TableCell>{cert.expiryDate}</TableCell>
                       <TableCell>
                         <Chip
-                          label={cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
+                          label={
+                            cert.status.charAt(0).toUpperCase() +
+                            cert.status.slice(1)
+                          }
                           color={cert.status === "active" ? "success" : "error"}
                           size="small"
                         />

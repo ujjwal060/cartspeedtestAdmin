@@ -1,122 +1,153 @@
-import React, { useState } from 'react';
-import { Button, Modal, Table, Container, Form, Row, Col, Card, Badge } from 'react-bootstrap';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FaPlus, FaTrash, FaEdit, FaInfoCircle, FaBook, FaImage } from 'react-icons/fa';
-import axios from 'axios'; 
+import React, { useState } from "react";
+import {
+  Button,
+  Modal,
+  Table,
+  Container,
+  Form,
+  Row,
+  Col,
+  Card,
+  Badge,
+} from "react-bootstrap";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  FaPlus,
+  FaTrash,
+  FaEdit,
+  FaInfoCircle,
+  FaBook,
+  FaImage,
+} from "react-icons/fa";
+import axios from "axios";
 
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
-  const [sectionType, setSectionType] = useState('driver');
-  const [laws, setLaws] = useState([{ id: 1, content: '' }]);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [guidelines, setGuidelines] = useState([{ 
-    id: 1, 
-    title: 'Guideline 1', 
-    description: '',
-    images: [],
-    imagePreviews: [] 
-  }]);
+  const [sectionType, setSectionType] = useState("driver");
+  const [laws, setLaws] = useState([{ id: 1, content: "" }]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [guidelines, setGuidelines] = useState([
+    {
+      id: 1,
+      title: "Guideline 1",
+      description: "",
+      images: [],
+      imagePreviews: [],
+    },
+  ]);
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const role = localStorage.getItem("role");
   const navigate = useNavigate();
 
   const staticHeadings = {
-    caring: 'Basic caring rules for LSV users ensuring safety and responsibility.',
-    tips: 'Helpful tips to enhance your experience and compliance with LSV laws.',
-    safety: 'Important safety guidelines to prevent accidents and maintain safe driving.'
+    caring:
+      "Basic caring rules for LSV users ensuring safety and responsibility.",
+    tips: "Helpful tips to enhance your experience and compliance with LSV laws.",
+    safety:
+      "Important safety guidelines to prevent accidents and maintain safe driving.",
   };
 
   const sectionTypes = [
-    { value: 'driver', label: 'Driver & Passenger Laws', color: 'primary' },
-    { value: 'roadway', label: 'Roadway Laws', color: 'success' },
-    { value: 'vehicle', label: 'Vehicle Requirements', color: 'warning' }
+    { value: "driver", label: "Driver & Passenger Laws", color: "primary" },
+    { value: "roadway", label: "Roadway Laws", color: "success" },
+    { value: "vehicle", label: "Vehicle Requirements", color: "warning" },
   ];
 
   const handleAddLaw = () => {
-    setLaws([...laws, { id: Date.now(), content: '' }]);
+    setLaws([...laws, { id: Date.now(), content: "" }]);
   };
 
   const handleLawChange = (id, content) => {
-    setLaws(laws.map(law => law.id === id ? { ...law, content } : law));
+    setLaws(laws.map((law) => (law.id === id ? { ...law, content } : law)));
   };
 
   const handleRemoveLaw = (id) => {
     if (laws.length > 1) {
-      setLaws(laws.filter(law => law.id !== id));
+      setLaws(laws.filter((law) => law.id !== id));
     }
   };
 
   const handleAddGuideline = () => {
-    setGuidelines([...guidelines, { 
-      id: Date.now(), 
-      title: `Guideline ${guidelines.length + 1}`, 
-      description: '',
-      images: [],
-      imagePreviews: []
-    }]);
+    setGuidelines([
+      ...guidelines,
+      {
+        id: Date.now(),
+        title: `Guideline ${guidelines.length + 1}`,
+        description: "",
+        images: [],
+        imagePreviews: [],
+      },
+    ]);
   };
 
   const handleGuidelineImageChange = (guidelineId, e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      setGuidelines(guidelines.map(guideline => {
-        if (guideline.id === guidelineId) {
-          const newImages = [...guideline.images];
-          const newPreviews = [...guideline.imagePreviews];
-          
-          files.forEach(file => {
-            newImages.push(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              newPreviews.push(reader.result);
+      setGuidelines(
+        guidelines.map((guideline) => {
+          if (guideline.id === guidelineId) {
+            const newImages = [...guideline.images];
+            const newPreviews = [...guideline.imagePreviews];
+
+            files.forEach((file) => {
+              newImages.push(file);
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                newPreviews.push(reader.result);
+              };
+              reader.readAsDataURL(file);
+            });
+
+            return {
+              ...guideline,
+              images: newImages,
+              imagePreviews: newPreviews,
             };
-            reader.readAsDataURL(file);
-          });
-          
-          return {
-            ...guideline,
-            images: newImages,
-            imagePreviews: newPreviews
-          };
-        }
-        return guideline;
-      }));
+          }
+          return guideline;
+        })
+      );
     }
   };
 
   const removeGuidelineImage = (guidelineId, index) => {
-    setGuidelines(guidelines.map(guideline => {
-      if (guideline.id === guidelineId) {
-        const newImages = [...guideline.images];
-        const newPreviews = [...guideline.imagePreviews];
-        
-        newImages.splice(index, 1);
-        newPreviews.splice(index, 1);
-        
-        return {
-          ...guideline,
-          images: newImages,
-          imagePreviews: newPreviews
-        };
-      }
-      return guideline;
-    }));
+    setGuidelines(
+      guidelines.map((guideline) => {
+        if (guideline.id === guidelineId) {
+          const newImages = [...guideline.images];
+          const newPreviews = [...guideline.imagePreviews];
+
+          newImages.splice(index, 1);
+          newPreviews.splice(index, 1);
+
+          return {
+            ...guideline,
+            images: newImages,
+            imagePreviews: newPreviews,
+          };
+        }
+        return guideline;
+      })
+    );
   };
 
   const handleGuidelineChange = (id, field, value) => {
-    setGuidelines(guidelines.map(guideline => 
-      guideline.id === id ? { ...guideline, [field]: value } : guideline
-    ));
+    setGuidelines(
+      guidelines.map((guideline) =>
+        guideline.id === id ? { ...guideline, [field]: value } : guideline
+      )
+    );
   };
 
   const handleRemoveGuideline = (id) => {
     if (guidelines.length > 1) {
-      setGuidelines(guidelines.filter(guideline => guideline.id !== id));
+      setGuidelines(guidelines.filter((guideline) => guideline.id !== id));
     }
   };
 
@@ -144,21 +175,21 @@ const AddLsvLaws = () => {
             title,
             description,
             isActive: true,
-            type: sectionType
+            type: sectionType,
           },
         ])
       );
 
       // Prepare guidelines without images (we'll append images separately)
-      const guidelinesData = guidelines.map(guideline => ({
+      const guidelinesData = guidelines.map((guideline) => ({
         title: guideline.title,
-        description: guideline.description
+        description: guideline.description,
       }));
       formData.append("guidelines", JSON.stringify(guidelinesData));
 
       // Append all images from all guidelines
       guidelines.forEach((guideline, index) => {
-        guideline.images.forEach(image => {
+        guideline.images.forEach((image) => {
           formData.append("image", image);
         });
       });
@@ -185,9 +216,9 @@ const AddLsvLaws = () => {
           title,
           description,
           laws,
-          guidelines: guidelines.map(g => ({
+          guidelines: guidelines.map((g) => ({
             ...g,
-            imagePreviews: g.imagePreviews // Include previews for display
+            imagePreviews: g.imagePreviews, // Include previews for display
           })),
           headings: staticHeadings,
           createdAt: new Date().toISOString(),
@@ -206,22 +237,37 @@ const AddLsvLaws = () => {
   };
 
   const resetForm = () => {
-    setSectionType('driver');
-    setTitle('');
-    setDescription('');
-    setGuidelines([{ 
-      id: Date.now(), 
-      title: 'Guideline 1', 
-      description: '',
-      images: [],
-      imagePreviews: []
-    }]);
+    setSectionType("driver");
+    setTitle("");
+    setDescription("");
+    setGuidelines([
+      {
+        id: Date.now(),
+        title: "Guideline 1",
+        description: "",
+        images: [],
+        imagePreviews: [],
+      },
+    ]);
   };
 
   const getBadgeColor = (type) => {
-    return sectionTypes.find(t => t.value === type)?.color || 'secondary';
+    return sectionTypes.find((t) => t.value === type)?.color || "secondary";
   };
 
+  if (isLoading) {
+    return (
+      <div className="">
+        <div className="global-loader margin-loader ">
+          <div className="loader-animation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <Container className="py-4">
       <ToastContainer position="top-right" newestOnTop />
@@ -234,20 +280,32 @@ const AddLsvLaws = () => {
                 <FaBook className="me-2 text-primary" />
                 LSV Laws Management
               </h2>
-              <p className="text-muted mb-0">Add and manage Low-Speed Vehicle regulations</p>
+              <p className="text-muted mb-0">
+                Add and manage Low-Speed Vehicle regulations
+              </p>
             </div>
-            <Button 
-              variant="primary" 
-              onClick={() => setShowModal(true)}
-              className="d-flex align-items-center"
-            >
-              <FaPlus className="me-2" /> Add New Section
-            </Button>
+            {role === "Admin" && (
+              <Button
+                variant="primary"
+                onClick={() => setShowModal(true)}
+                className="d-flex align-items-center"
+              >
+                <FaPlus className="me-2" /> Add New Section
+              </Button>
+            )}
           </div>
         </Card.Body>
       </Card>
 
-      <Modal show={showModal} onHide={() => { setShowModal(false); resetForm(); }} size="xl" centered>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+          resetForm();
+        }}
+        size="xl"
+        centered
+      >
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fw-bold">
             <FaPlus className="me-2" /> Create New Law Section
@@ -285,13 +343,15 @@ const AddLsvLaws = () => {
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-bold">Section Type</Form.Label>
-                  <Form.Select 
-                    value={sectionType} 
+                  <Form.Select
+                    value={sectionType}
                     onChange={(e) => setSectionType(e.target.value)}
                     className="form-select-lg"
                   >
                     {sectionTypes.map((type) => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -299,9 +359,11 @@ const AddLsvLaws = () => {
             </Row>
 
             <Form.Group className="mb-4">
-              <Form.Label className="fw-bold">Title <span className="text-danger">*</span></Form.Label>
-              <Form.Control 
-                type="text" 
+              <Form.Label className="fw-bold">
+                Title <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Control
+                type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Laws for All Drivers & Passengers of LSVs"
@@ -311,7 +373,9 @@ const AddLsvLaws = () => {
             </Form.Group>
 
             <Form.Group className="mb-4">
-              <Form.Label className="fw-bold">Description (Optional)</Form.Label>
+              <Form.Label className="fw-bold">
+                Description (Optional)
+              </Form.Label>
               <div className="border rounded overflow-hidden">
                 <CKEditor
                   editor={ClassicEditor}
@@ -321,7 +385,16 @@ const AddLsvLaws = () => {
                     setDescription(data);
                   }}
                   config={{
-                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                    toolbar: [
+                      "heading",
+                      "|",
+                      "bold",
+                      "italic",
+                      "link",
+                      "bulletedList",
+                      "numberedList",
+                      "blockQuote",
+                    ],
                   }}
                 />
               </div>
@@ -331,9 +404,9 @@ const AddLsvLaws = () => {
               <Card.Header className="bg-info text-white d-flex align-items-center">
                 <FaInfoCircle className="me-2" />
                 <h5 className="mb-0">Guidelines Section</h5>
-                <Button 
-                  variant="outline-light" 
-                  size="sm" 
+                <Button
+                  variant="outline-light"
+                  size="sm"
                   className="ms-auto"
                   onClick={handleAddGuideline}
                 >
@@ -345,8 +418,8 @@ const AddLsvLaws = () => {
                   <Card key={guideline.id} className="mb-3 border-0 shadow-sm">
                     <Card.Header className="bg-light d-flex justify-content-between align-items-center">
                       <h6 className="mb-0">Guideline {index + 1}</h6>
-                      <Button 
-                        variant="outline-danger" 
+                      <Button
+                        variant="outline-danger"
                         size="sm"
                         onClick={() => handleRemoveGuideline(guideline.id)}
                         disabled={guidelines.length <= 1}
@@ -360,7 +433,13 @@ const AddLsvLaws = () => {
                         <Form.Control
                           type="text"
                           value={guideline.title}
-                          onChange={(e) => handleGuidelineChange(guideline.id, 'title', e.target.value)}
+                          onChange={(e) =>
+                            handleGuidelineChange(
+                              guideline.id,
+                              "title",
+                              e.target.value
+                            )
+                          }
                           placeholder="Enter guideline title"
                         />
                       </Form.Group>
@@ -372,10 +451,21 @@ const AddLsvLaws = () => {
                             data={guideline.description}
                             onChange={(event, editor) => {
                               const data = editor.getData();
-                              handleGuidelineChange(guideline.id, 'description', data);
+                              handleGuidelineChange(
+                                guideline.id,
+                                "description",
+                                data
+                              );
                             }}
                             config={{
-                              toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                              toolbar: [
+                                "bold",
+                                "italic",
+                                "link",
+                                "bulletedList",
+                                "numberedList",
+                                "blockQuote",
+                              ],
                             }}
                           />
                         </div>
@@ -388,22 +478,24 @@ const AddLsvLaws = () => {
                           {guideline.imagePreviews.length > 0 ? (
                             guideline.imagePreviews.map((preview, imgIndex) => (
                               <div key={imgIndex} className="position-relative">
-                                <img 
-                                  src={preview} 
-                                  alt={`Preview ${imgIndex + 1}`} 
-                                  style={{ 
-                                    width: '100px', 
-                                    height: '100px', 
-                                    objectFit: 'cover',
-                                    borderRadius: '4px'
+                                <img
+                                  src={preview}
+                                  alt={`Preview ${imgIndex + 1}`}
+                                  style={{
+                                    width: "100px",
+                                    height: "100px",
+                                    objectFit: "cover",
+                                    borderRadius: "4px",
                                   }}
                                 />
-                                <Badge 
-                                  bg="danger" 
-                                  pill 
+                                <Badge
+                                  bg="danger"
+                                  pill
                                   className="position-absolute top-0 start-100 translate-middle"
-                                  onClick={() => removeGuidelineImage(guideline.id, imgIndex)}
-                                  style={{ cursor: 'pointer' }}
+                                  onClick={() =>
+                                    removeGuidelineImage(guideline.id, imgIndex)
+                                  }
+                                  style={{ cursor: "pointer" }}
                                 >
                                   ×
                                 </Badge>
@@ -413,9 +505,13 @@ const AddLsvLaws = () => {
                             <div className="text-muted">No images selected</div>
                           )}
                         </div>
-                        <Button 
+                        <Button
                           variant="outline-primary"
-                          onClick={() => document.getElementById(`image-upload-${guideline.id}`).click()}
+                          onClick={() =>
+                            document
+                              .getElementById(`image-upload-${guideline.id}`)
+                              .click()
+                          }
                           className="d-flex align-items-center"
                         >
                           <FaPlus className="me-1" /> Add Images
@@ -424,9 +520,11 @@ const AddLsvLaws = () => {
                           type="file"
                           id={`image-upload-${guideline.id}`}
                           accept="image/*"
-                          onChange={(e) => handleGuidelineImageChange(guideline.id, e)}
+                          onChange={(e) =>
+                            handleGuidelineImageChange(guideline.id, e)
+                          }
                           multiple
-                          style={{ display: 'none' }}
+                          style={{ display: "none" }}
                         />
                       </Form.Group>
                     </Card.Body>
@@ -437,22 +535,24 @@ const AddLsvLaws = () => {
 
             <Form.Group>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <Form.Label className="fw-bold mb-0">Laws <span className="text-danger">*</span></Form.Label>
-                <Button 
-                  variant="outline-primary" 
+                <Form.Label className="fw-bold mb-0">
+                  Laws <span className="text-danger">*</span>
+                </Form.Label>
+                <Button
+                  variant="outline-primary"
                   onClick={handleAddLaw}
                   className="d-flex align-items-center"
                 >
                   <FaPlus className="me-1" /> Add Law
                 </Button>
               </div>
-              
+
               {laws.map((law, index) => (
                 <Card key={law.id} className="mb-3 border-0 shadow-sm">
                   <Card.Header className="bg-light d-flex justify-content-between align-items-center">
                     <h6 className="mb-0">Law {index + 1}</h6>
-                    <Button 
-                      variant="outline-danger" 
+                    <Button
+                      variant="outline-danger"
                       size="sm"
                       onClick={() => handleRemoveLaw(law.id)}
                       disabled={laws.length <= 1}
@@ -471,7 +571,14 @@ const AddLsvLaws = () => {
                           handleLawChange(law.id, data);
                         }}
                         config={{
-                          toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                          toolbar: [
+                            "bold",
+                            "italic",
+                            "link",
+                            "bulletedList",
+                            "numberedList",
+                            "blockQuote",
+                          ],
                         }}
                       />
                     </div>
@@ -482,8 +589,18 @@ const AddLsvLaws = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer className="bg-light">
-          <Button variant="outline-secondary" onClick={() => { setShowModal(false); resetForm(); }}>Cancel</Button>
-          <Button variant="primary" onClick={handleSave} className="px-4">Save Section</Button>
+          <Button
+            variant="outline-secondary"
+            onClick={() => {
+              setShowModal(false);
+              resetForm();
+            }}
+          >
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSave} className="px-4">
+            Save Section
+          </Button>
         </Modal.Footer>
       </Modal>
 
@@ -513,16 +630,20 @@ const AddLsvLaws = () => {
                       <td className="fw-bold">{index + 1}</td>
                       <td>
                         <Badge bg={getBadgeColor(section.type)}>
-                          {sectionTypes.find(t => t.value === section.type)?.label}
+                          {
+                            sectionTypes.find((t) => t.value === section.type)
+                              ?.label
+                          }
                         </Badge>
                       </td>
                       <td className="fw-semibold">{section.title}</td>
                       <td>
-                        <div 
-                          dangerouslySetInnerHTML={{ 
-                            __html: section.description.substring(0, 60) + 
-                            (section.description.length > 60 ? '...' : '') 
-                          }} 
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              section.description.substring(0, 60) +
+                              (section.description.length > 60 ? "..." : ""),
+                          }}
                           className="text-muted"
                         />
                       </td>
@@ -531,12 +652,15 @@ const AddLsvLaws = () => {
                           {section.laws ? section.laws.length : 0}
                         </Badge>
                       </td>
-                      <td style={{ maxWidth: '200px' }}>
+                      <td style={{ maxWidth: "200px" }}>
                         {section.guidelines.map((g, i) => (
                           <div key={i} className="mb-2">
                             <small className="fw-bold d-block">{g.title}</small>
                             <small className="text-muted d-block text-truncate">
-                              {g.description.replace(/<[^>]+>/g, '').substring(0, 30)}...
+                              {g.description
+                                .replace(/<[^>]+>/g, "")
+                                .substring(0, 30)}
+                              ...
                             </small>
                             {g.imagePreviews?.length > 0 && (
                               <small className="d-flex align-items-center mt-1">
@@ -547,24 +671,34 @@ const AddLsvLaws = () => {
                           </div>
                         ))}
                       </td>
-                      <td style={{ maxWidth: '300px' }}>
+                      <td style={{ maxWidth: "300px" }}>
                         <div className="static-content-cell">
                           <div className="mb-1">
                             <small className="fw-bold d-block">Caring:</small>
-                            <small className="text-muted">{section.headings?.caring}</small>
+                            <small className="text-muted">
+                              {section.headings?.caring}
+                            </small>
                           </div>
                           <div className="mb-1">
                             <small className="fw-bold d-block">Tips:</small>
-                            <small className="text-muted">{section.headings?.tips}</small>
+                            <small className="text-muted">
+                              {section.headings?.tips}
+                            </small>
                           </div>
                           <div>
                             <small className="fw-bold d-block">Safety:</small>
-                            <small className="text-muted">{section.headings?.safety}</small>
+                            <small className="text-muted">
+                              {section.headings?.safety}
+                            </small>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <Button variant="outline-primary" size="sm" className="me-2">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="me-2"
+                        >
                           <FaEdit />
                         </Button>
                         <Button variant="outline-danger" size="sm">
@@ -581,15 +715,16 @@ const AddLsvLaws = () => {
       ) : (
         <Card className="shadow-sm text-center py-5">
           <Card.Body>
-            <div className="text-muted mb-3" style={{ fontSize: '3rem' }}>
+            <div className="text-muted mb-3" style={{ fontSize: "3rem" }}>
               <FaBook />
             </div>
             <h4 className="mb-3">No Law Sections Added Yet</h4>
             <p className="text-muted mb-4">
-              Start by adding your first LSV law section to manage regulations and guidelines.
+              Start by adding your first LSV law section to manage regulations
+              and guidelines.
             </p>
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               onClick={() => setShowModal(true)}
               className="d-flex align-items-center mx-auto"
             >

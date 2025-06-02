@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Tooltip,
@@ -6,13 +6,13 @@ import {
   Dialog,
   DialogContent,
   Slide,
-  Breadcrumbs,
+  // Breadcrumbs,
   Button,
   Chip,
-  InputLabel,
-  MenuItem,
-  FormControl,
-  Select,
+  // InputLabel,
+  // MenuItem,
+  // FormControl,
+  // Select,
   TablePagination,
   TextField,
 } from "@mui/material";
@@ -27,15 +27,15 @@ import AddAssesmentFormFile from "./AddAssesmentForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Link, useNavigate } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Radio from "@mui/material/Radio";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { debounce } from "lodash";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -73,6 +73,7 @@ const AssessmentDashboard = () => {
   const [title, setTitle] = useState(initialTitle || "");
   const [editData, setEditData] = useState(null);
   const [data, setData] = useState([]);
+  const [inputValue, setInputValue] = useState("");
 
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -123,6 +124,24 @@ const AssessmentDashboard = () => {
       return rest;
     });
   };
+
+  const handleFilterChange = (filterName, value) => {
+    setInputValue((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+    debouncedUpdateFilters(filterName, value);
+  };
+
+  const debouncedUpdateFilters = useCallback(
+    debounce((key, value) => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [key]: value,
+      }));
+    }, 2000),
+    []
+  );
 
   const handleDateChange = (update) => {
     setDateRange(update);
@@ -375,11 +394,13 @@ const renderBreadcrumb = () => {
                         label="Search by Location"
                         variant="outlined"
                         size="small"
+                        value={inputValue.location}
                         onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            location: e.target.value,
-                          }))
+                          // setFilters((prev) => ({
+                          //   ...prev,
+                          //   location: e.target.value,
+                          // }))
+                          handleFilterChange("location", e.target.value)
                         }
                       />
 
@@ -508,10 +529,19 @@ const renderBreadcrumb = () => {
                   <Accordion.Body>
                     <div className="row gy-4 ">
                       <div className="col-lg-12">
-                        <p>
-                          <LocationPinIcon />
-                          {item.locationName}
-                        </p>
+                        <div className="d-flex flex-row justify-content-between align-items-center">
+                          <p>
+                            <LocationPinIcon />
+                            {item?.locationName}
+                          </p>
+                          {role !== "admin" && (
+                            <p>
+                              <SupervisorAccountIcon />
+                              {item?.adminName}
+                            </p>
+                          )}
+                        </div>
+
                         <Box
                           display="grid"
                           gridTemplateColumns="repeat(4, 1fr)"

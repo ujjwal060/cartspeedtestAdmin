@@ -1,5 +1,5 @@
 import axios from "./axios";
-  let adminId = localStorage.getItem('userId')
+  // let adminId = localStorage.getItem('userId')
 
 export const getQA = async (token, offset, limit, filters) => {
   try {

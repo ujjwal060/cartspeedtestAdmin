@@ -51,7 +51,7 @@ export default function AddAssesmentFormFile({
       };
       fetchVideos();
     }
-  }, [age]);
+  }, [age, token]);
 
   const handleChange = (event) => {
     // debugger

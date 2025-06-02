@@ -11,12 +11,20 @@ import {
   Col,
   Image as BootstrapImage,
   Accordion,
-  ListGroup
+  ListGroup,
 } from "react-bootstrap";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { ToastContainer, toast } from "react-toastify";
-import { FaEye, FaPlus, FaTrash, FaTimes, FaUpload, FaInfoCircle, FaBook } from "react-icons/fa";
+import {
+  FaEye,
+  FaPlus,
+  FaTrash,
+  FaTimes,
+  FaUpload,
+  FaInfoCircle,
+  FaBook,
+} from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "../api/axios";
 
@@ -27,7 +35,7 @@ const AddLsvRules = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
   const [imageInputKey, setImageInputKey] = useState(Date.now());
-
+  const role = localStorage.getItem("role");
   const [content, setContent] = useState({
     whatIsLSV: "",
     importance: "",
@@ -39,11 +47,11 @@ const AddLsvRules = () => {
   ]);
 
   const [guidelines, setGuidelines] = useState([
-    { 
-      title: "", 
+    {
+      title: "",
       description: "",
       images: [],
-      imagePreviews: []
+      imagePreviews: [],
     },
   ]);
 
@@ -71,15 +79,16 @@ const AddLsvRules = () => {
 
     const updatedGuidelines = [...guidelines];
     const currentGuideline = updatedGuidelines[guidelineIndex];
-    
-    
+
     const newImages = [...currentGuideline.images, ...files];
     currentGuideline.images = newImages;
-    
-    
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    currentGuideline.imagePreviews = [...currentGuideline.imagePreviews, ...newPreviews];
-    
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    currentGuideline.imagePreviews = [
+      ...currentGuideline.imagePreviews,
+      ...newPreviews,
+    ];
+
     setGuidelines(updatedGuidelines);
     setImageInputKey(Date.now());
   };
@@ -87,28 +96,31 @@ const AddLsvRules = () => {
   const handleRemoveGuidelineImage = (guidelineIndex, imageIndex) => {
     const updatedGuidelines = [...guidelines];
     const currentGuideline = updatedGuidelines[guidelineIndex];
-    
-   
+
     currentGuideline.images.splice(imageIndex, 1);
     URL.revokeObjectURL(currentGuideline.imagePreviews[imageIndex]);
     currentGuideline.imagePreviews.splice(imageIndex, 1);
-    
+
     setGuidelines(updatedGuidelines);
   };
 
   const handleAddGuideline = () => {
-    setGuidelines([...guidelines, { 
-      title: "", 
-      description: "",
-      images: [],
-      imagePreviews: []
-    }]);
+    setGuidelines([
+      ...guidelines,
+      {
+        title: "",
+        description: "",
+        images: [],
+        imagePreviews: [],
+      },
+    ]);
   };
 
   const handleRemoveGuideline = (index) => {
     if (guidelines.length > 1) {
-    
-      guidelines[index].imagePreviews.forEach(url => URL.revokeObjectURL(url));
+      guidelines[index].imagePreviews.forEach((url) =>
+        URL.revokeObjectURL(url)
+      );
       setGuidelines(guidelines.filter((_, i) => i !== index));
     }
   };
@@ -118,32 +130,36 @@ const AddLsvRules = () => {
       setIsLoading(true);
 
       const formData = new FormData();
-      
-      formData.append("questions", JSON.stringify({
-        whatIsLSV: content.whatIsLSV,
-        importance: content.importance,
-        safety: content.safety,
-      }));
-      
-      formData.append("sections", JSON.stringify(
-        sectionData.map(section => ({
-          title: section.title,
-          description: section.description,
-          isActive: true
-        }))
-      ));
-      
-      
-      const guidelinesWithImages = guidelines.map(guideline => ({
+
+      formData.append(
+        "questions",
+        JSON.stringify({
+          whatIsLSV: content.whatIsLSV,
+          importance: content.importance,
+          safety: content.safety,
+        })
+      );
+
+      formData.append(
+        "sections",
+        JSON.stringify(
+          sectionData.map((section) => ({
+            title: section.title,
+            description: section.description,
+            isActive: true,
+          }))
+        )
+      );
+
+      const guidelinesWithImages = guidelines.map((guideline) => ({
         title: guideline.title,
         description: guideline.description,
       }));
-      
+
       formData.append("guidelines", JSON.stringify(guidelinesWithImages));
-      
-     
-      guidelines.forEach(guideline => {
-        guideline.images.forEach(image => {
+
+      guidelines.forEach((guideline) => {
+        guideline.images.forEach((image) => {
           formData.append("image", image);
         });
       });
@@ -177,18 +193,20 @@ const AddLsvRules = () => {
       safety: "",
     });
     setSectionData([{ title: "", description: "", isActive: true }]);
-    setGuidelines([{ 
-      title: "", 
-      description: "",
-      images: [],
-      imagePreviews: []
-    }]);
+    setGuidelines([
+      {
+        title: "",
+        description: "",
+        images: [],
+        imagePreviews: [],
+      },
+    ]);
   };
 
   return (
     <Container className="py-4">
       <ToastContainer position="top-right" autoClose={5000} />
-      
+
       {/* Header Card */}
       <Card className="shadow-sm mb-4">
         <Card.Body className="py-4">
@@ -196,20 +214,23 @@ const AddLsvRules = () => {
             <FaBook className="text-primary me-3" size={32} />
             <div>
               <h2 className="mb-1">LSV Rules Management</h2>
-              <p className="text-muted mb-0">Manage Low-Speed Vehicle regulations and guidelines</p>
+              <p className="text-muted mb-0">
+                Manage Low-Speed Vehicle regulations and guidelines
+              </p>
             </div>
-            <Button
-              variant="primary"
-              onClick={() => setShowModal(true)}
-              className="ms-auto d-flex align-items-center"
-            >
-              <FaPlus className="me-2" /> Add New Rules
-            </Button>
+            {role === "Admin" && (
+              <Button
+                variant="primary"
+                onClick={() => setShowModal(true)}
+                className="ms-auto d-flex align-items-center"
+              >
+                <FaPlus className="me-2" /> Add New Rules
+              </Button>
+            )}
           </div>
         </Card.Body>
       </Card>
 
-      
       <Modal
         show={showModal}
         onHide={() => {
@@ -229,7 +250,6 @@ const AddLsvRules = () => {
         <Modal.Body className="p-4">
           <Row>
             <Col md={6}>
-             
               <Card className="mb-4 shadow-sm">
                 <Card.Header className="bg-light d-flex align-items-center">
                   <FaInfoCircle className="text-primary me-2" />
@@ -279,7 +299,6 @@ const AddLsvRules = () => {
             </Col>
 
             <Col md={6}>
-             
               <Card className="mb-4 shadow-sm">
                 <Card.Header className="bg-light d-flex align-items-center">
                   <FaInfoCircle className="text-primary me-2" />
@@ -301,15 +320,23 @@ const AddLsvRules = () => {
                 <Card.Body>
                   <Accordion defaultActiveKey="0">
                     {sectionData.map((section, index) => (
-                      <Accordion.Item eventKey={index.toString()} key={index} className="mb-3">
+                      <Accordion.Item
+                        eventKey={index.toString()}
+                        key={index}
+                        className="mb-3"
+                      >
                         <Accordion.Header>
                           <div className="d-flex align-items-center w-100">
-                            <span className="fw-bold me-2">Section {index + 1}</span>
+                            <span className="fw-bold me-2">
+                              Section {index + 1}
+                            </span>
                             {!section.title && (
                               <span className="text-muted">(Untitled)</span>
                             )}
                             {section.title && (
-                              <span className="text-truncate">{section.title}</span>
+                              <span className="text-truncate">
+                                {section.title}
+                              </span>
                             )}
                             {sectionData.length > 1 && (
                               <Button
@@ -318,7 +345,9 @@ const AddLsvRules = () => {
                                 className="ms-auto me-2"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setSectionData(sectionData.filter((_, i) => i !== index));
+                                  setSectionData(
+                                    sectionData.filter((_, i) => i !== index)
+                                  );
                                 }}
                               >
                                 <FaTrash size={12} />
@@ -352,7 +381,16 @@ const AddLsvRules = () => {
                                 setSectionData(updated);
                               }}
                               config={{
-                                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                                toolbar: [
+                                  "heading",
+                                  "|",
+                                  "bold",
+                                  "italic",
+                                  "link",
+                                  "bulletedList",
+                                  "numberedList",
+                                  "blockQuote",
+                                ],
                               }}
                             />
                           </Form.Group>
@@ -365,7 +403,6 @@ const AddLsvRules = () => {
             </Col>
           </Row>
 
-         
           <Card className="mb-4 shadow-sm">
             <Card.Header className="bg-light d-flex align-items-center">
               <FaInfoCircle className="text-primary me-2" />
@@ -382,15 +419,23 @@ const AddLsvRules = () => {
             <Card.Body>
               <Accordion>
                 {guidelines.map((guideline, index) => (
-                  <Accordion.Item eventKey={index.toString()} key={index} className="mb-3">
+                  <Accordion.Item
+                    eventKey={index.toString()}
+                    key={index}
+                    className="mb-3"
+                  >
                     <Accordion.Header>
                       <div className="d-flex align-items-center w-100">
-                        <span className="fw-bold me-2">Guideline {index + 1}</span>
+                        <span className="fw-bold me-2">
+                          Guideline {index + 1}
+                        </span>
                         {!guideline.title && (
                           <span className="text-muted">(Untitled)</span>
                         )}
                         {guideline.title && (
-                          <span className="text-truncate">{guideline.title}</span>
+                          <span className="text-truncate">
+                            {guideline.title}
+                          </span>
                         )}
                         {guidelines.length > 1 && (
                           <Button
@@ -435,7 +480,14 @@ const AddLsvRules = () => {
                                 setGuidelines(updated);
                               }}
                               config={{
-                                toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                                toolbar: [
+                                  "bold",
+                                  "italic",
+                                  "link",
+                                  "bulletedList",
+                                  "numberedList",
+                                  "blockQuote",
+                                ],
                               }}
                             />
                           </Form.Group>
@@ -446,7 +498,11 @@ const AddLsvRules = () => {
                             <div className="d-flex mb-3">
                               <Button
                                 variant="outline-secondary"
-                                onClick={() => document.getElementById(`guideline-image-${index}`).click()}
+                                onClick={() =>
+                                  document
+                                    .getElementById(`guideline-image-${index}`)
+                                    .click()
+                                }
                                 className="d-flex align-items-center"
                               >
                                 <FaUpload className="me-2" /> Upload Images
@@ -455,36 +511,57 @@ const AddLsvRules = () => {
                                 id={`guideline-image-${index}`}
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => handleGuidelineImageChange(index, e)}
+                                onChange={(e) =>
+                                  handleGuidelineImageChange(index, e)
+                                }
                                 key={`${imageInputKey}-${index}`}
-                                style={{ display: 'none' }}
+                                style={{ display: "none" }}
                                 multiple
                               />
                             </div>
-                            
+
                             {guideline.imagePreviews.length > 0 ? (
                               <Row className="g-2">
-                                {guideline.imagePreviews.map((preview, imgIndex) => (
-                                  <Col xs={6} md={4} key={imgIndex} className="position-relative">
-                                    <div className="image-preview-container border rounded p-1">
-                                      <BootstrapImage
-                                        src={preview}
-                                        thumbnail
-                                        className="w-100"
-                                        style={{ height: "100px", objectFit: "cover" }}
-                                      />
-                                      <Button
-                                        variant="danger"
-                                        size="sm"
-                                        className="position-absolute top-0 end-0 m-1 rounded-circle"
-                                        style={{ width: "25px", height: "25px", padding: "0" }}
-                                        onClick={() => handleRemoveGuidelineImage(index, imgIndex)}
-                                      >
-                                        <FaTimes size={10} />
-                                      </Button>
-                                    </div>
-                                  </Col>
-                                ))}
+                                {guideline.imagePreviews.map(
+                                  (preview, imgIndex) => (
+                                    <Col
+                                      xs={6}
+                                      md={4}
+                                      key={imgIndex}
+                                      className="position-relative"
+                                    >
+                                      <div className="image-preview-container border rounded p-1">
+                                        <BootstrapImage
+                                          src={preview}
+                                          thumbnail
+                                          className="w-100"
+                                          style={{
+                                            height: "100px",
+                                            objectFit: "cover",
+                                          }}
+                                        />
+                                        <Button
+                                          variant="danger"
+                                          size="sm"
+                                          className="position-absolute top-0 end-0 m-1 rounded-circle"
+                                          style={{
+                                            width: "25px",
+                                            height: "25px",
+                                            padding: "0",
+                                          }}
+                                          onClick={() =>
+                                            handleRemoveGuidelineImage(
+                                              index,
+                                              imgIndex
+                                            )
+                                          }
+                                        >
+                                          <FaTimes size={10} />
+                                        </Button>
+                                      </div>
+                                    </Col>
+                                  )
+                                )}
                               </Row>
                             ) : (
                               <div className="text-center py-4 text-muted border rounded">
@@ -512,11 +589,7 @@ const AddLsvRules = () => {
           >
             Cancel
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            disabled={isLoading}
-          >
+          <Button variant="primary" onClick={handleSave} disabled={isLoading}>
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>
         </Modal.Footer>
@@ -547,17 +620,26 @@ const AddLsvRules = () => {
                   <tr key={item._id}>
                     <td>{index + 1}</td>
                     <td>
-                      <div className="text-truncate" style={{ maxWidth: "200px" }}>
+                      <div
+                        className="text-truncate"
+                        style={{ maxWidth: "200px" }}
+                      >
                         {item.questions.whatIsLSV}
                       </div>
                     </td>
                     <td>
-                      <div className="text-truncate" style={{ maxWidth: "200px" }}>
+                      <div
+                        className="text-truncate"
+                        style={{ maxWidth: "200px" }}
+                      >
                         {item.questions.importance}
                       </div>
                     </td>
                     <td>
-                      <div className="text-truncate" style={{ maxWidth: "200px" }}>
+                      <div
+                        className="text-truncate"
+                        style={{ maxWidth: "200px" }}
+                      >
                         {item.questions.safety}
                       </div>
                     </td>
@@ -593,8 +675,12 @@ const AddLsvRules = () => {
         </Card.Body>
       </Card>
 
-    
-      <Modal show={viewModal} onHide={() => setViewModal(false)} size="lg" centered>
+      <Modal
+        show={viewModal}
+        onHide={() => setViewModal(false)}
+        size="lg"
+        centered
+      >
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="d-flex align-items-center">
             <FaBook className="text-primary me-2" />
@@ -605,16 +691,24 @@ const AddLsvRules = () => {
           {selectedSection && (
             <>
               <Card className="mb-3 shadow-sm">
-                <Card.Header className="bg-light">Basic Information</Card.Header>
+                <Card.Header className="bg-light">
+                  Basic Information
+                </Card.Header>
                 <Card.Body>
                   <h5>What is LSV?</h5>
-                  <p className="text-muted">{selectedSection.questions.whatIsLSV}</p>
+                  <p className="text-muted">
+                    {selectedSection.questions.whatIsLSV}
+                  </p>
 
                   <h5 className="mt-3">Importance</h5>
-                  <p className="text-muted">{selectedSection.questions.importance}</p>
+                  <p className="text-muted">
+                    {selectedSection.questions.importance}
+                  </p>
 
                   <h5 className="mt-3">Safety</h5>
-                  <p className="text-muted">{selectedSection.questions.safety}</p>
+                  <p className="text-muted">
+                    {selectedSection.questions.safety}
+                  </p>
                 </Card.Body>
               </Card>
 
@@ -625,7 +719,11 @@ const AddLsvRules = () => {
                     {selectedSection.sections?.map((section, i) => (
                       <ListGroup.Item key={i}>
                         <h6>{section.title}</h6>
-                        <div dangerouslySetInnerHTML={{ __html: section.description }} />
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: section.description,
+                          }}
+                        />
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
@@ -637,13 +735,21 @@ const AddLsvRules = () => {
                 <Card.Body>
                   <Accordion>
                     {selectedSection.guidelines?.map((guideline, i) => (
-                      <Accordion.Item eventKey={i.toString()} key={i} className="mb-2">
+                      <Accordion.Item
+                        eventKey={i.toString()}
+                        key={i}
+                        className="mb-2"
+                      >
                         <Accordion.Header>
                           <strong>{guideline.title}</strong>
                         </Accordion.Header>
                         <Accordion.Body>
-                          <div dangerouslySetInnerHTML={{ __html: guideline.description }} />
-                          
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: guideline.description,
+                            }}
+                          />
+
                           {guideline.imageUrl && (
                             <>
                               <h6 className="mt-3">Image:</h6>
@@ -653,7 +759,10 @@ const AddLsvRules = () => {
                                     src={guideline.imageUrl}
                                     thumbnail
                                     className="w-100"
-                                    style={{ height: "200px", objectFit: "contain" }}
+                                    style={{
+                                      height: "200px",
+                                      objectFit: "contain",
+                                    }}
                                   />
                                 </Col>
                               </Row>
@@ -669,7 +778,10 @@ const AddLsvRules = () => {
           )}
         </Modal.Body>
         <Modal.Footer className="bg-light">
-          <Button variant="outline-secondary" onClick={() => setViewModal(false)}>
+          <Button
+            variant="outline-secondary"
+            onClick={() => setViewModal(false)}
+          >
             Close
           </Button>
         </Modal.Footer>
@@ -679,11 +791,3 @@ const AddLsvRules = () => {
 };
 
 export default AddLsvRules;
-
-
-
-
-
-
-
-
