@@ -23,6 +23,8 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Button from "@mui/material/Button";
 import AddAdminForm from "./AddAdminForm";
 import { toast } from "react-toastify";
+import { useNavigate } from 'react-router-dom';
+
 const rowsPerPage = 10;
 
 const headCells = [
@@ -118,6 +120,8 @@ export default function AdminDashboard() {
   const [filters, setFilters] = useState({});
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
   const [dateRange, setDateRange] = useState([null, null]);
   const [open, setOpen] = useState(false);
   const [startDate, endDate] = dateRange;
@@ -359,7 +363,15 @@ export default function AdminDashboard() {
 )}
                 {data.map((video, index) => (
                   <TableRow key={video._id || index}>
-                    <TableCell>{video.name}</TableCell>
+                    {/* <TableCell>{video.name}</TableCell> */}
+                    <TableCell
+  style={{ cursor: 'pointer', color: 'blue' }}
+  onClick={() => {
+    navigate('/videos', { state: { adminName: video.name } });
+  }}
+>
+  {video.name}
+</TableCell>
                     <TableCell>{video.email}</TableCell>
                         <TableCell>{video.locationDetails?.name}</TableCell>
                     <TableCell>{video.mobile}</TableCell>
