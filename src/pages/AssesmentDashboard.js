@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Tooltip,
@@ -6,13 +6,13 @@ import {
   Dialog,
   DialogContent,
   Slide,
-  Breadcrumbs,
+  // Breadcrumbs,
   Button,
   Chip,
-  InputLabel,
-  MenuItem,
-  FormControl,
-  Select,
+  // InputLabel,
+  // MenuItem,
+  // FormControl,
+  // Select,
   TablePagination,
   TextField,
 } from "@mui/material";
@@ -27,15 +27,15 @@ import AddAssesmentFormFile from "./AddAssesmentForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Link, useNavigate } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Radio from "@mui/material/Radio";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { debounce } from "lodash";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -68,10 +68,12 @@ const AssessmentDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const [sectionNumber, setSectionNumber] = useState("");
   const location = useLocation();
-  const { title: initialTitle, videoId } = location.state || {};
+  const { title: initialTitle, videoId, adminName } = location.state || {};
+  console.log(adminName, "..assesment page admin");
   const [title, setTitle] = useState(initialTitle || "");
   const [editData, setEditData] = useState(null);
   const [data, setData] = useState([]);
+  const [inputValue, setInputValue] = useState("");
 
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -122,6 +124,24 @@ const AssessmentDashboard = () => {
       return rest;
     });
   };
+
+  const handleFilterChange = (filterName, value) => {
+    setInputValue((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+    debouncedUpdateFilters(filterName, value);
+  };
+
+  const debouncedUpdateFilters = useCallback(
+    debounce((key, value) => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [key]: value,
+      }));
+    }, 2000),
+    []
+  );
 
   const handleDateChange = (update) => {
     setDateRange(update);
@@ -195,11 +215,32 @@ const AssessmentDashboard = () => {
     );
 
     return (
-      <Box display="flex" alignItems="center" mb={2} flexWrap="wrap">
+      <Box display="flex" alignItems="center" mb={2} flexWrap="wrap" gap={1}>
+        {adminName && (
+          <Chip
+            label={`Admin: ${adminName}`}
+            sx={{
+              backgroundColor: "#2E5AAC",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              maxWidth: 200,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              padding: "0 20px",
+              height: "32px",
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
+            }}
+          />
+        )}
+
         {title && (
           <Link to="/videos" style={{ textDecoration: "none" }}>
             <Chip
               label={title}
+              className="custom-design-chip"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/videos");
@@ -213,9 +254,13 @@ const AssessmentDashboard = () => {
                 textOverflow: "ellipsis",
                 overflow: "hidden",
                 padding: "0 20px",
+                height: "32px",
                 cursor: "pointer",
                 "&:hover": {
                   backgroundColor: "#1d4a9c",
+                },
+                "& .MuiChip-label": {
+                  padding: "0 8px",
                 },
               }}
             />
@@ -225,7 +270,7 @@ const AssessmentDashboard = () => {
         {selectedSection && (
           <Chip
             label={selectedSection.label.replace("Section ", "section")}
-            className={`${title && "custom-design-chip"}`}
+            className="custom-design-chip"
             sx={{
               backgroundColor: "#2E5AAC",
               color: "white",
@@ -236,17 +281,35 @@ const AssessmentDashboard = () => {
               textOverflow: "ellipsis",
               overflow: "hidden",
               padding: "0 20px",
+              height: "32px",
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
             }}
           />
         )}
 
-        {(title || selectedSection) && (
+        {(adminName || title || selectedSection) && (
           <Chip
             icon={<CloseIcon fontSize="small" />}
             label="Clear"
             onClick={() => {
               setSectionNumber("");
               setTitle("");
+              // Clear adminName if it exists
+              if (adminName) {
+                // You might need to update the state in the parent component
+                // or use a different approach depending on how adminName is managed
+                // This assumes adminName is managed in this component's state
+                // If it comes from props, you'll need to call a prop function to clear it
+                navigate(location.pathname, {
+                  state: {
+                    ...(location.state || {}),
+                    adminName: undefined,
+                  },
+                  replace: true,
+                });
+              }
               setFilters((prev) => {
                 const { sectionNumber, title, ...rest } = prev;
                 return rest;
@@ -257,31 +320,19 @@ const AssessmentDashboard = () => {
               color: "#2E5AAC",
               fontWeight: 500,
               fontSize: "0.85rem",
+              height: "32px",
               "& .MuiChip-icon": {
                 color: "#2E5AAC",
               },
-              ml: 1,
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
             }}
           />
         )}
       </Box>
     );
   };
-
-  // if (loading) {
-  //   return (
-  //     <div className="">
-  //       <div className="global-loader margin-loader ">
-  //         <div className="loader-animation">
-  //           <span></span>
-  //           <span></span>
-  //           <span></span>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   return (
     <Box p={4}>
       {loading ? (
@@ -344,11 +395,13 @@ const AssessmentDashboard = () => {
                         label="Search by Location"
                         variant="outlined"
                         size="small"
+                        value={inputValue.location}
                         onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            location: e.target.value,
-                          }))
+                          // setFilters((prev) => ({
+                          //   ...prev,
+                          //   location: e.target.value,
+                          // }))
+                          handleFilterChange("location", e.target.value)
                         }
                       />
 
@@ -477,10 +530,19 @@ const AssessmentDashboard = () => {
                   <Accordion.Body>
                     <div className="row gy-4 ">
                       <div className="col-lg-12">
-                        <p>
-                          <LocationPinIcon />
-                          {item.locationName}
-                        </p>
+                        <div className="d-flex flex-row justify-content-between align-items-center">
+                          <p>
+                            <LocationPinIcon />
+                            {item?.locationName}
+                          </p>
+                          {role !== "admin" && (
+                            <p>
+                              <SupervisorAccountIcon />
+                              {item?.adminName}
+                            </p>
+                          )}
+                        </div>
+
                         <Box
                           display="grid"
                           gridTemplateColumns="repeat(4, 1fr)"

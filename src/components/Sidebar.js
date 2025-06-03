@@ -13,14 +13,10 @@ import {
   IconButton,
   CssBaseline,
   styled,
-  useTheme,
   AppBar as MuiAppBar,
   Toolbar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ClearIcon from "@mui/icons-material/Clear";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
@@ -99,7 +95,6 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const Sidebar = () => {
-  const theme = useTheme();
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -123,6 +118,8 @@ const userRole = localStorage.getItem("role"); // 👈 Define it first
     "/certificate": "Certificate",
     "/test-detail": "Test Detail",
     "/admin": "Admin",
+    "/add-lsvrules": "Add LSV Rules",
+    "/addlsv-laws": "Add LSV Laws",
   };
   const currentRouteName = routeNames[location.pathname] || "Welcome";
   const handleDrawerOpen = () => {
@@ -174,7 +171,7 @@ const menuItems = baseMenuItems.filter((item) => {
             onClick={handleDrawerOpen}
             edge="start"
             sx={{
-              marginRight: 5,
+              marginRight: 2,
             }}
           >
             <MenuIcon />

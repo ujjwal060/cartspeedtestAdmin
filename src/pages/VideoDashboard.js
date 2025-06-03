@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import SafetyCheckIcon from '@mui/icons-material/SafetyCheck';
+import SafetyCheckIcon from "@mui/icons-material/SafetyCheck";
 import {
   Box,
   Paper,
@@ -37,8 +37,15 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getVideos, deleteVideos, isActiveVideos, deleteSafetyVideos, isActiveSafetyVideos } from "../api/video";
+import {
+  getVideos,
+  deleteVideos,
+  isActiveVideos,
+  deleteSafetyVideos,
+  isActiveSafetyVideos,
+} from "../api/video";
 import { getSafetyVideos } from "../api/video";
+import { useLocation } from "react-router-dom";
 
 // import {deleteSafetyVideos, isActiveSafetyVideos }  from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
@@ -110,8 +117,7 @@ const videoHeadCells = [
   },
 ];
 
-
-const userRole = localStorage.getItem("role"); 
+const userRole = localStorage.getItem("role");
 const safetyVideoHeadCells = [
   {
     id: "title",
@@ -127,28 +133,24 @@ const safetyVideoHeadCells = [
     disableSort: true,
   },
   {
-    id: "thumbnail",
+    id: "locationName",
     numeric: false,
     disablePadding: false,
-    label: "Thumbnail",
+    label: "Location",
     disableSort: true,
   },
-  ...(userRole === 'superAdmin' ? [
-    {
-      id: "locationName",
-      numeric: false,
-      disablePadding: false,
-      label: "Location",
-      disableSort: true,
-    },
-    {
-      id: "adminName",
-      numeric: false,
-      disablePadding: false,
-      label: "Admin Name",
-      disableSort: true,
-    },
-  ] : []),
+
+  ...(userRole === "superAdmin"
+    ? [
+        {
+          id: "adminName",
+          numeric: false,
+          disablePadding: false,
+          label: "Admin Name",
+          disableSort: true,
+        },
+      ]
+    : []),
   {
     id: "durationTime",
     numeric: false,
@@ -177,7 +179,8 @@ function EnhancedTableHead(props) {
     onRequestSort(event, property);
   };
 
-  const headCells = viewType === 'videos' ? videoHeadCells : safetyVideoHeadCells;
+  const headCells =
+    viewType === "videos" ? videoHeadCells : safetyVideoHeadCells;
 
   return (
     <TableHead className="tableHead-custom">
@@ -230,8 +233,10 @@ const VideoDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({});
-  const [viewType, setViewType] = useState('videos');
-
+  const [viewType, setViewType] = useState("videos");
+  const location = useLocation();
+  const adminName = location.state?.adminName;
+  console.log(adminName, "....adminanem");
   const handleClickOpen = () => setOpen(true);
   const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true);
   const handleClose = () => setOpen(false);
@@ -249,16 +254,19 @@ const VideoDashboard = () => {
   };
 
   const userRole = localStorage.getItem("role");
-  console.log(userRole, 'userrole..')
+  console.log(userRole, "userrole..");
 
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
     const limit = rowsPerPage;
     const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+    const requestData = {
+      filters: { ...filters }, // Explicitly nest filters here
+    };
     try {
       setLoading(true);
 
-      if (viewType === 'videos') {
+      if (viewType === "videos") {
         const response = await getVideos(
           token,
           offset,
@@ -279,7 +287,7 @@ const VideoDashboard = () => {
           limit,
           sortBy,
           sortField,
-          filters
+          requestData
         );
 
         if (response.status === 200) {
@@ -304,9 +312,10 @@ const VideoDashboard = () => {
 
   const handleDelete = async (videoId) => {
     try {
-      const res = viewType === 'videos'
-        ? await deleteVideos(videoId, token)
-        : await deleteSafetyVideos(videoId, token);
+      const res =
+        viewType === "videos"
+          ? await deleteVideos(videoId, token)
+          : await deleteSafetyVideos(videoId, token);
       toast.success(res.message[0]);
       fetchVideos();
     } catch (error) {
@@ -316,9 +325,10 @@ const VideoDashboard = () => {
 
   const handleToggleStatus = async (videoId) => {
     try {
-      const res = viewType === 'videos'
-        ? await isActiveVideos(videoId, token)
-        : await isActiveSafetyVideos(videoId, token);
+      const res =
+        viewType === "videos"
+          ? await isActiveVideos(videoId, token)
+          : await isActiveSafetyVideos(videoId, token);
       toast.success(res.message[0]);
       fetchVideos();
     } catch (error) {
@@ -389,386 +399,431 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy, viewType]);
 
- 
-
   return (
     <Box p={4}>
-      {uploadingloading ? <> <div className="">
-        <div className="global-loader margin-loader ">
-          <div className="loader-animation">
-            <span></span>
-            <span></span>
-            <span></span>
+      {uploadingloading ? (
+        <>
+          {" "}
+          <div className="">
+            <div className="global-loader margin-loader ">
+              <div className="loader-animation">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div></> : <>   <Box>
-        <div className="d-flex justify-content-between align-items-center pad-root mb-3">
-
-
-
-          <Box sx={{
-            backgroundColor: '#f4f6f8',
-            borderRadius: '16px',
-            padding: '4px',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-            display: 'inline-flex'
-          }}>
-            {viewType === 'safetyVideos' ? (
-              <Button
-                onClick={() => handleViewTypeChange(null, 'videos')}
+        </>
+      ) : (
+        <>
+          {" "}
+          <Box>
+            <div className="d-flex justify-content-between align-items-center pad-root mb-3">
+              <Box
                 sx={{
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  border: 'none',
-                  borderRadius: '16px',
-                  px: 3,
-                  py: 1,
-                  color: '#fff',
-                  backgroundColor: '#1976d2',
-                  '&:hover': {
-                    backgroundColor: '#1565c0',
-                  }
+                  backgroundColor: "#f4f6f8",
+                  borderRadius: "16px",
+                  padding: "4px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                  display: "inline-flex",
                 }}
               >
-                Videos
-              </Button>
-            ) : (
-              <Button
-                onClick={() => handleViewTypeChange(null, 'safetyVideos')}
-                sx={{
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  border: 'none',
-                  borderRadius: '16px',
-                  px: 3,
-                  py: 1,
-                  color: '#fff',
-                  backgroundColor: '#4CAF50',
-                  '&:hover': {
-                    backgroundColor: '#388E3C',
-                  }
-                }}
-              >
-                Safety Videos
-              </Button>
-            )}
-          </Box>
-          <div className="d-flex gap-2 align-items-center">
-            <div className="custom-picker date-picker-custom-design">
-              <CalendarMonthIcon className="svg-custom" />
-              <DatePicker
-                selectsRange={true}
-                startDate={startDate}
-                endDate={endDate}
-                onChange={handleDateChange}
-                isClearable={true}
-                placeholderText="Select date range"
-                className="form-control"
-                maxDate={new Date()}
-              />
+                {viewType === "safetyVideos" ? (
+                  <Button
+                    onClick={() => handleViewTypeChange(null, "videos")}
+                    sx={{
+                      textTransform: "none",
+                      fontWeight: 500,
+                      border: "none",
+                      borderRadius: "16px",
+                      px: 3,
+                      py: 1,
+                      color: "#fff",
+                      backgroundColor: "#1976d2",
+                      "&:hover": {
+                        backgroundColor: "#1565c0",
+                      },
+                    }}
+                  >
+                    Videos
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleViewTypeChange(null, "safetyVideos")}
+                    sx={{
+                      textTransform: "none",
+                      fontWeight: 500,
+                      border: "none",
+                      borderRadius: "16px",
+                      px: 3,
+                      py: 1,
+                      color: "#fff",
+                      backgroundColor: "#4CAF50",
+                      "&:hover": {
+                        backgroundColor: "#388E3C",
+                      },
+                    }}
+                  >
+                    Safety Videos
+                  </Button>
+                )}
+              </Box>
+              <div className="d-flex gap-2 align-items-center">
+                <div className="custom-picker date-picker-custom-design">
+                  <CalendarMonthIcon className="svg-custom" />
+                  <DatePicker
+                    selectsRange={true}
+                    startDate={startDate}
+                    endDate={endDate}
+                    onChange={handleDateChange}
+                    isClearable={true}
+                    placeholderText="Select date range"
+                    className="form-control"
+                    maxDate={new Date()}
+                  />
+                </div>
+
+                <Tooltip title="filter">
+                  <FilterListIcon
+                    onClick={handeOpenFilter}
+                    className="text-primary"
+                    style={{ cursor: "pointer" }}
+                  />
+                </Tooltip>
+                {userRole === "admin" &&
+                  (viewType === "safetyVideos" ? (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSafetyVideoClickOpen}
+                      className="rounded-4 d-flex gap-1 flex-row"
+                      style={{ backgroundColor: "#4caf50" }}
+                    >
+                      <SafetyCheckIcon />
+                      Add Safety Video
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleClickOpen}
+                      className="rounded-4 d-flex gap-1 flex-row"
+                    >
+                      <AddCircleOutlineIcon />
+                      Add Video
+                    </Button>
+                  ))}
+              </div>
             </div>
 
-            <Tooltip title="filter">
-              <FilterListIcon
-                onClick={handeOpenFilter}
-                className="text-primary"
-                style={{ cursor: "pointer" }}
-              />
-            </Tooltip>
-            {userRole === 'admin' && (
-              viewType === 'safetyVideos' ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSafetyVideoClickOpen}
-                  className="rounded-4 d-flex gap-1 flex-row"
-                  style={{ backgroundColor: '#4caf50' }}
-                >
-                  <SafetyCheckIcon />
-                  Add Safety Video
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickOpen}
-                  className="rounded-4 d-flex gap-1 flex-row"
-                >
-                  <AddCircleOutlineIcon />
-                  Add Video
-                </Button>
-              )
-            )}
-
-          </div>
-
-
-
-        </div>
-
-
-        <Paper elevation={3} className="mt-3">
-          <TableContainer>
-            {
-              <Stack direction="row" spacing={1} className="p-3">
-                {inputValue.title && (
-                  <Chip
-                    label={`Title: ${inputValue.title}`}
-                    onDelete={() => handleFilterChange("title", "")}
-                  />
-                )}
-                {inputValue.description && (
-                  <Chip
-                    label={`Description: ${inputValue.description}`}
-                    onDelete={() => handleFilterChange("description", "")}
-                  />
-                )}
-                {viewType === 'videos' && inputValue.section && (
-                  <Chip
-                    label={`Section: ${inputValue.section}`}
-                    onDelete={() => handleFilterChange("section", "")}
-                  />
-                )}
-                {viewType === 'videos' && inputValue.sectionTitle && (
-                  <Chip
-                    label={`Section Title: ${inputValue.sectionTitle}`}
-                    onDelete={() => handleFilterChange("sectionTitle", "")}
-                  />
-                )}
-                {viewType === 'videos' && inputValue.locationState && (
-                  <Chip
-                    label={`Location: ${inputValue.locationState}`}
-                    onDelete={() => handleFilterChange("locationState", "")}
-                  />
-                )}
-              </Stack>
-            }
-            {loading && <LinearProgress />}
-            <Table>
-              <EnhancedTableHead
-                order={order}
-                orderBy={orderBy}
-                onRequestSort={handleRequestSort}
-                viewType={viewType}
-              />
-              <TableBody>
-                {openFilter && (
-                  <TableRow>
-                    <TableCell>
-                      <Form.Control
-                        placeholder="Title"
-                        value={inputValue.title || ""}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("title", e.target.value)
-                        }
+            <Paper elevation={3} className="mt-3">
+              <TableContainer>
+                {
+                  <Stack direction="row" spacing={1} className="p-3">
+                    {inputValue.title && (
+                      <Chip
+                        label={`Title: ${inputValue.title}`}
+                        onDelete={() => handleFilterChange("title", "")}
                       />
-                    </TableCell>
-                    <TableCell>
-                      <Form.Control
-                        placeholder="Description"
-                        value={inputValue.description || ""}
-                        className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("description", e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    {viewType === 'videos' && (
-                      <>
-                        <TableCell>
-                          <FormControl
-                            size="small"
-                            style={{ width: "120px" }}
-                            variant="standard"
-                          >
-                            <InputLabel>Section</InputLabel>
-                            <Select
-                              value={inputValue.section || ""}
-                              onChange={(e) =>
-                                handleFilterChange("section", e.target.value)
-                              }
-                            >
-                              <MenuItem value="section1">Section 1</MenuItem>
-                              <MenuItem value="section2">Section 2</MenuItem>
-                              <MenuItem value="section3">Section 3</MenuItem>
-                              <MenuItem value="section4">Section 4</MenuItem>
-                              <MenuItem value="section5">Section 5</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                        <TableCell>
-                          <Form.Control
-                            placeholder="Section Title"
-                            value={inputValue.sectionTitle || ""}
-                            className="rounded-0 custom-input"
-                            onChange={(e) =>
-                              handleFilterChange("sectionTitle", e.target.value)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Form.Control
-                            placeholder="Location"
-                            value={inputValue.locationState || ""}
-                            className="rounded-0 custom-input"
-                            onChange={(e) =>
-                              handleFilterChange("locationState", e.target.value)
-                            }
-                          />
-                        </TableCell>
-                      </>
                     )}
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                )}
+                    {inputValue.description && (
+                      <Chip
+                        label={`Description: ${inputValue.description}`}
+                        onDelete={() => handleFilterChange("description", "")}
+                      />
+                    )}
+                    {viewType === "videos" && inputValue.section && (
+                      <Chip
+                        label={`Section: ${inputValue.section}`}
+                        onDelete={() => handleFilterChange("section", "")}
+                      />
+                    )}
+                    {viewType === "videos" && inputValue.sectionTitle && (
+                      <Chip
+                        label={`Section Title: ${inputValue.sectionTitle}`}
+                        onDelete={() => handleFilterChange("sectionTitle", "")}
+                      />
+                    )}
+                    {viewType === "videos" && inputValue.locationName && (
+                      <Chip
+                        label={`Location: ${inputValue.locationName}`}
+                        onDelete={() => handleFilterChange("locationName", "")}
+                      />
+                    )}
+                  </Stack>
+                }
+                {loading && <LinearProgress />}
+                <Table>
+                  <EnhancedTableHead
+                    order={order}
+                    orderBy={orderBy}
+                    onRequestSort={handleRequestSort}
+                    viewType={viewType}
+                  />
+                  <TableBody>
+                    {openFilter && (
+                      <TableRow>
+                        <TableCell>
+                          <Form.Control
+                            placeholder="Title"
+                            value={inputValue.title || ""}
+                            className="rounded-0 custom-input"
+                            onChange={(e) =>
+                              handleFilterChange("title", e.target.value)
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Form.Control
+                            placeholder="Description"
+                            value={inputValue.description || ""}
+                            className="rounded-0 custom-input"
+                            onChange={(e) =>
+                              handleFilterChange("description", e.target.value)
+                            }
+                          />
+                        </TableCell>
+                        {viewType !== "videos" && (
+                          <>
+                            <TableCell>
+                              <Form.Control
+                                placeholder="Location name"
+                                value={inputValue.locationName || ""}
+                                className="rounded-0 custom-input"
+                                onChange={(e) =>
+                                  handleFilterChange(
+                                    "locationName",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Form.Control
+                                placeholder="Admin name"
+                                value={inputValue.adminName || ""}
+                                className="rounded-0 custom-input"
+                                onChange={(e) =>
+                                  handleFilterChange(
+                                    "adminName",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </TableCell>
+                          </>
+                        )}
 
-                {viewType === 'videos' ? (
-                  getVideo.map((item, index) => (
-                    <TableRow key={item.video._id || index}>
-                      <TableCell
-                        onClick={() =>
-                          navigate("/assessment", {
-                            state: {
-                              title: item.video.title,
-                              videoId: item.video._id,
-                            },
-                          })
-                        }
-                        style={{
-                          cursor: "pointer",
-                          color: "#1976d2",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        {item.video.title}
-                      </TableCell>
-                      <TableCell>{item.video.description}</TableCell>
-                      <TableCell>{item.section}</TableCell>
-                      <TableCell>{item.sectionTitle}</TableCell>
-                      <TableCell>{item.locationName}</TableCell>
-                      <TableCell>{item.video.durationTime}</TableCell>
-                      <TableCell>
-                        <Switch
-                          checked={item.video.isActive}
-                          onChange={() => handleToggleStatus(item.video._id)}
-                          color="primary"
-                          inputProps={{ "aria-label": "toggle video status" }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <PlayArrowIcon
-                          color="success"
-                          onClick={() => handlePlayOpen(item.video.url)}
-                          style={{ cursor: "pointer" }}
-                        />
-                        <DeleteIcon
-                          color="error"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleDelete(item.video._id)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  getSafetyVideo.map((item, index) => (
+                        {viewType === "videos" && (
+                          <>
+                            <TableCell>
+                              <FormControl
+                                size="small"
+                                style={{ width: "120px" }}
+                                variant="standard"
+                              >
+                                <InputLabel>Section</InputLabel>
+                                <Select
+                                  value={inputValue.section || ""}
+                                  onChange={(e) =>
+                                    handleFilterChange(
+                                      "section",
+                                      e.target.value
+                                    )
+                                  }
+                                >
+                                  <MenuItem value="section1">
+                                    Section 1
+                                  </MenuItem>
+                                  <MenuItem value="section2">
+                                    Section 2
+                                  </MenuItem>
+                                  <MenuItem value="section3">
+                                    Section 3
+                                  </MenuItem>
+                                  <MenuItem value="section4">
+                                    Section 4
+                                  </MenuItem>
+                                  <MenuItem value="section5">
+                                    Section 5
+                                  </MenuItem>
+                                </Select>
+                              </FormControl>
+                            </TableCell>
+                            <TableCell>
+                              <Form.Control
+                                placeholder="Section Title"
+                                value={inputValue.sectionTitle || ""}
+                                className="rounded-0 custom-input"
+                                onChange={(e) =>
+                                  handleFilterChange(
+                                    "sectionTitle",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Form.Control
+                                placeholder="Location"
+                                value={inputValue.locationState || ""}
+                                className="rounded-0 custom-input"
+                                onChange={(e) =>
+                                  handleFilterChange(
+                                    "locationState",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </TableCell>
+                          </>
+                        )}
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    )}
 
+                    {viewType === "videos"
+                      ? getVideo.map((item, index) => (
+                          <TableRow key={item.video._id || index}>
+                            <TableCell
+                              onClick={() =>
+                                navigate("/assessment", {
+                                  state: {
+                                    title: item.video.title,
+                                    videoId: item.video._id,
+                                    adminName: item.adminName, // 👈 Add this line
+                                  },
+                                })
+                              }
+                              style={{
+                                cursor: "pointer",
+                                color: "#1976d2",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              {item.video.title}
+                            </TableCell>
 
-                    <TableRow key={item._id || index}>
-  <TableCell
-    style={{
-      cursor: "pointer",
-      color: "#1976d2",
-      textDecoration: "underline",
-    }}
-  >
-    {item.title}
-  </TableCell>
-  <TableCell>{item.description}</TableCell>
-  <TableCell>
-    {item.thumbnail && (
-      <img
-        src={item.thumbnail}
-        alt="Thumbnail"
-        style={{ width: '100px', height: 'auto' }}
-      />
-    )}
-  </TableCell>
-  {userRole === 'superAdmin' && (
-    <>
-      <TableCell>{item.locationName}</TableCell>
-      <TableCell>{item.adminName}</TableCell>
-    </>
-  )}
-  <TableCell>{item.durationTime}</TableCell>
-  <TableCell>
-    <Switch
-      checked={item.isActive}
-      onChange={() => handleToggleStatus(item._id)}
-      color="primary"
-      inputProps={{ "aria-label": "toggle safety video status" }}
-    />
-  </TableCell>
-  <TableCell>
-    <PlayArrowIcon
-      color="success"
-      onClick={() => handlePlayOpen(item.url)}
-      style={{ cursor: "pointer" }}
-    />
-    <DeleteIcon
-      color="error"
-      style={{ cursor: "pointer" }}
-      onClick={() => handleDelete(item._id)}
-    />
-  </TableCell>
-</TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-        <TablePagination
-          rowsPerPageOptions={[rowsPerPage]}
-          component="div"
-          className="paginated-custom"
-          count={totalData}
-          rowsPerPage={rowsPerPage}
-          page={currentPage}
-          onPageChange={handleChangePage}
-        />
-        <Dialog
-          open={playOpen}
-          TransitionComponent={Transition}
-          keepMounted
-          onClose={(event, reason) => {
-            if (reason === "backdropClick" || reason === "escapeKeyDown") {
-              return;
-            }
-            handlePlayClose();
-          }}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogContent className="text-center">
-            <ReactPlayer
-              url={selected}
-              controls
-              className="object-fit-cover"
-              width="100%"
+                            <TableCell>{item.video.description}</TableCell>
+                            <TableCell>{item.section}</TableCell>
+                            <TableCell>{item.sectionTitle}</TableCell>
+                            <TableCell>{item.locationName}</TableCell>
+                            <TableCell>{item.video.durationTime}</TableCell>
+                            <TableCell>
+                              <Switch
+                                checked={item.video.isActive}
+                                onChange={() =>
+                                  handleToggleStatus(item.video._id)
+                                }
+                                color="primary"
+                                inputProps={{
+                                  "aria-label": "toggle video status",
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <PlayArrowIcon
+                                color="success"
+                                onClick={() => handlePlayOpen(item.video.url)}
+                                style={{ cursor: "pointer" }}
+                              />
+                              <DeleteIcon
+                                color="error"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleDelete(item.video._id)}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      : getSafetyVideo.map((item, index) => (
+                          <TableRow key={item._id || index}>
+                            <TableCell
+                              style={{
+                                cursor: "pointer",
+                                color: "#1976d2",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              {item.title}
+                            </TableCell>
+                            <TableCell>{item.description}</TableCell>
+                            <TableCell>{item.locationName}</TableCell>
+                            {userRole === "superAdmin" && (
+                              <>
+                                <TableCell>{item.adminName}</TableCell>
+                              </>
+                            )}
+                            <TableCell>{item.durationTime}</TableCell>
+                            <TableCell>
+                              <Switch
+                                checked={item.isActive}
+                                onChange={() => handleToggleStatus(item._id)}
+                                color="primary"
+                                inputProps={{
+                                  "aria-label": "toggle safety video status",
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <PlayArrowIcon
+                                color="success"
+                                onClick={() => handlePlayOpen(item.url)}
+                                style={{ cursor: "pointer" }}
+                              />
+                              <DeleteIcon
+                                color="error"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleDelete(item._id)}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+            <TablePagination
+              rowsPerPageOptions={[rowsPerPage]}
+              component="div"
+              className="paginated-custom"
+              count={totalData}
+              rowsPerPage={rowsPerPage}
+              page={currentPage}
+              onPageChange={handleChangePage}
             />
-            <button
-              onClick={handlePlayClose}
-              className="btn btn-danger mt-4 px-5"
+            <Dialog
+              open={playOpen}
+              TransitionComponent={Transition}
+              keepMounted
+              onClose={(event, reason) => {
+                if (reason === "backdropClick" || reason === "escapeKeyDown") {
+                  return;
+                }
+                handlePlayClose();
+              }}
+              maxWidth="sm"
+              fullWidth
             >
-              Close
-            </button>
-          </DialogContent>
-        </Dialog>
-      </Box></>}
-
+              <DialogContent className="text-center">
+                <ReactPlayer
+                  url={selected}
+                  controls
+                  className="object-fit-cover"
+                  width="100%"
+                />
+                <button
+                  onClick={handlePlayClose}
+                  className="btn btn-danger mt-4 px-5"
+                >
+                  Close
+                </button>
+              </DialogContent>
+            </Dialog>
+          </Box>
+        </>
+      )}
 
       <AddVideoOffcanvas
         open={open}
@@ -793,7 +848,6 @@ const VideoDashboard = () => {
         deleteUploadedVideo={deleteUploadedSafetyVideo}
         onVideoUploaded={fetchVideos}
       />
-
     </Box>
   );
 };

@@ -32,20 +32,21 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Name",
+     disableSort: true,
   },
   {
     id: "Email",
     numeric: false,
     disablePadding: false,
     label: "Email",
-    disableSort: false,
+     disableSort: true,
   },
   {
     id: "Phone",
     numeric: false,
     disablePadding: false,
     label: "Phone",
-    disableSort: false,
+     disableSort: true,
   },
   {
     id: "Address",
@@ -59,6 +60,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Date",
+    // disableSort: false,
   },
 ];
 
@@ -222,7 +224,7 @@ const VideoDashboard = () => {
           <TableContainer>
             {
               <Stack direction="row" spacing={1} className="p-3">
-                {inputValue.title && (
+                {inputValue.name && (
                   <Chip
                     label={`name: ${inputValue.name}`}
                     onDelete={() => handleFilterChange("name", "")}
@@ -230,20 +232,20 @@ const VideoDashboard = () => {
                 )}
                 {inputValue.email && (
                   <Chip
-                    label={`Desc: ${inputValue.email}`}
+                    label={`email: ${inputValue.email}`}
                     onDelete={() => handleFilterChange("email", "")}
                   />
                 )}
                 {inputValue.mobile && (
                   <Chip
-                    label={`phone: ${inputValue.locationState}`}
+                    label={`phone: ${inputValue.mobile}`}
                     onDelete={() => handleFilterChange("mobile", "")}
                   />
                 )}
-                {inputValue.state && (
+                {inputValue.address && (
                   <Chip
-                    label={`Uploaded By: ${inputValue.state}`}
-                    onDelete={() => handleFilterChange("state", "")}
+                    label={`Uploaded By: ${inputValue.address}`}
+                    onDelete={() => handleFilterChange("address", "")}
                   />
                 )}
               </Stack>
@@ -296,10 +298,10 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-state"
                         placeholder="Address"
-                        value={inputValue.state}
+                        value={inputValue.address}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
-                          handleFilterChange("state", e.target.value)
+                          handleFilterChange("address", e.target.value)
                         }
                       />
                     </TableCell>

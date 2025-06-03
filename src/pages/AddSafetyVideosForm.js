@@ -204,7 +204,7 @@ const AddSafetyVideoOffcanvas = ({
               className="rounded-4"
               disabled={isSubmitting}
             >
-              Reset Form
+              Reset
             </Button>
             <Button
               type="submit"

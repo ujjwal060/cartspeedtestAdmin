@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchData();
-  });
+  }, []);
   const sortedStates = [...data.topStates].sort((a, b) =>
     a.state.localeCompare(b.state)
   );
@@ -79,7 +79,6 @@ const Dashboard = () => {
   return (
     <div className="container-fluid">
       <Box sx={{ padding: "24px" }}>
-
         <Grid container spacing={3} sx={{ marginBottom: 2 }}>
           <Grid size={{ xs: 12, sm: 3 }}>
             <Card
@@ -131,7 +130,8 @@ const Dashboard = () => {
               <CardActionArea>
                 <CardContent>
                   <Typography variant="subtitle2" color="textSecondary">
-       Certificates Issued                  </Typography>
+                    Certificates Issued{" "}
+                  </Typography>
                   <Typography variant="h5" style={{ marginTop: "30px" }}>
                     {data.certificatesIssued || 0}
                   </Typography>
@@ -149,7 +149,11 @@ const Dashboard = () => {
                   <Typography variant="h6" gutterBottom>
                     Location-wise Activity
                   </Typography>
-                  <Bar data={chartData} options={{ responsive: true }} style={{ height: "100%" }}  />
+                  <Bar
+                    data={chartData}
+                    options={{ responsive: true }}
+                    style={{ height: "100%" }}
+                  />
                 </CardContent>
               </Card>
             </Grid>
@@ -174,7 +178,7 @@ const Dashboard = () => {
             </Grid>
 
             {/* Manage Videos */}
-            <Grid size={{ xs: 12 }}  className="mb-2">
+            <Grid size={{ xs: 12 }} className="mb-2">
               <Card>
                 <CardContent>
                   <Typography variant="h6">Manage Training Videos</Typography>
@@ -192,10 +196,12 @@ const Dashboard = () => {
 
             {/* Manage LSV */}
 
-            <Grid size={{ xs: 12 }}  className="mb-2">
+            <Grid size={{ xs: 12 }} className="mb-2">
               <Card>
                 <CardContent>
-                  <Typography variant="h6">Rules and Regulations for LSV</Typography>
+                  <Typography variant="h6">
+                    Rules and Regulations for LSV
+                  </Typography>
                   <Button
                     variant="contained"
                     color="secondary"
