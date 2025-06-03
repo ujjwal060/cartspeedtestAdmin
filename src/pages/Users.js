@@ -244,7 +244,7 @@ const VideoDashboard = () => {
                 )}
                 {inputValue.address && (
                   <Chip
-                    label={`Uploaded By: ${inputValue.address}`}
+                    label={`Address: ${inputValue.address}`}
                     onDelete={() => handleFilterChange("address", "")}
                   />
                 )}

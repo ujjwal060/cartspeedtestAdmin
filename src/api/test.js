@@ -1,5 +1,6 @@
 import axios from "./axios";
-  // let adminId = localStorage.getItem('userId')
+// let adminId = localStorage.getItem('userId')
+const tokenId = localStorage.getItem("token");
 
 export const getQA = async (token, offset, limit, filters) => {
   try {
@@ -19,12 +20,52 @@ export const getQA = async (token, offset, limit, filters) => {
   }
 };
 
+export const editQA = async (
+  token,
+  id,
+  question,
+  options,
+  answer
+  // videoId,
+  // locationId,
+  // sectionId,
+  // adminId
+) => {
+  try {
+    const response = await axios.put(
+      `/admin/QA/${id}`,
+      { question, options, answer },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteQA = async (id) => {
+  try {
+    const response = await axios.delete(`/admin/QA/deleteQ/${id}`, {
+      headers: {
+        Authorization: `Bearer ${tokenId}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const addQA = async (
-  token, 
-  sectionName,  
-  question, 
-  options, 
+  token,
+  sectionName,
+  question,
+  options,
   answer,
   videoId,
   locationId,
@@ -40,12 +81,11 @@ export const addQA = async (
     const data = {
       question,
       options: formattedOptions,
-      sectionNumber: sectionName,  
+      sectionNumber: sectionName,
       videoId,
       locationId,
       sectionId,
       adminId,
-  
     };
 
     const response = await axios.post("/admin/QA/add", data, {
@@ -61,11 +101,11 @@ export const addQA = async (
   }
 };
 
-export const getVideos = async (token,section) => {
+export const getVideos = async (token, section) => {
   try {
     const response = await axios.post(
       "/admin/QA/getVideos",
-      {section},
+      { section },
       {
         headers: {
           "Content-Type": "application/json",

@@ -550,6 +550,18 @@ const VideoDashboard = () => {
                         onDelete={() => handleFilterChange("locationName", "")}
                       />
                     )}
+                    {viewType !== "videos" && inputValue.locationName && (
+                      <Chip
+                        label={`Location: ${inputValue.locationName}`}
+                        onDelete={() => handleFilterChange("locationName", "")}
+                      />
+                    )}
+                    {viewType !== "videos" && inputValue.adminName && (
+                      <Chip
+                        label={`admin name: ${inputValue.adminName}`}
+                        onDelete={() => handleFilterChange("adminName", "")}
+                      />
+                    )}
                   </Stack>
                 }
                 {loading && <LinearProgress />}
