@@ -20,7 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Accordion from "react-bootstrap/Accordion";
 import { useLocation } from "react-router-dom";
-import { getQA } from "../api/test";
+import { getQA, editQA, deleteQA } from "../api/test";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddAssesmentFormFile from "./AddAssesmentForm";
@@ -182,30 +182,66 @@ const AssessmentDashboard = () => {
     setEditForm({ question: "", options: [] });
   };
 
-  const handleSaveEdit = () => {
-    setGetData((prevData) =>
-      prevData.map((q) =>
-        q._id === editId
-          ? {
-              ...q,
-              question: editForm.question,
-              options: editForm.options,
-            }
-          : q
-      )
-    );
+  const handleDelete = async (id) => {
+    try {
+      const response = await deleteQA( id);
+      if (response && response.status === 200) {
+        toast.success(response.message || "Question deleted successfully");
+        fetchQA(); // Refresh the data
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete question");
+      console.error("Error deleting question:", error);
+    }
+  };
+  const handleSaveEdit = async () => {
+    try {
+      // Find the correct answer index
+      const correctAnswerIndex = editForm.options.findIndex(
+        (opt) => opt.isCorrect
+      );
+      const answer =
+        correctAnswerIndex >= 0
+          ? editForm.options[correctAnswerIndex].text
+          : "";
 
-    toast.success("Question updated!");
-    setEditId(null);
-    setEditForm({ question: "", options: [] });
+      const response = await editQA(
+        token,
+        editId,
+        editForm.question,
+        editForm.options,
+        answer
+      );
+
+      if (response && response.status === 200) {
+        toast.success(response.message || "Question updated successfully");
+        fetchQA(); // Refresh the data
+        setEditId(null);
+        setEditForm({ question: "", options: [] });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update question");
+      console.error("Error updating question:", error);
+    }
   };
 
+  // const handleEditClick = (item) => {
+  //   console.log("Rendering options for:", item._id, item.options);
+  //   setEditId(item._id);
+  //   setEditForm({
+  //     question: item.question,
+  //     options: item.options.map((opt) => ({ ...opt })),
+  //   });
+  // };
+
   const handleEditClick = (item) => {
-    console.log("Rendering options for:", item._id, item.options);
     setEditId(item._id);
     setEditForm({
       question: item.question,
-      options: item.options.map((opt) => ({ ...opt })),
+      options: item.options.map((opt) => ({
+        text: opt.text,
+        isCorrect: opt.isCorrect,
+      })),
     });
   };
 
@@ -477,14 +513,16 @@ const AssessmentDashboard = () => {
                           item.question
                         )}
                       </span>
-
-                      <div
-                        className="d-flex align-items-center me-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {editId === item._id ? (
-                          <>
-                            {/* <Button
+                      {role === "admin" && (
+                        <>
+                          {" "}
+                          <div
+                            className="d-flex align-items-center me-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {editId === item._id ? (
+                              <>
+                                {/* <Button
                           size="small"
                           color="success"
                           onClick={handleSaveEdit}
@@ -492,38 +530,38 @@ const AssessmentDashboard = () => {
                         >
                           Save
                         </Button> */}
-                            <CheckCircleOutlineIcon
-                              onClick={handleSaveEdit}
-                              fontSize="medium"
-                              color="success"
-                              className="me-2 cursor-pointer"
-                            />
-                            <CancelIcon
-                              onClick={handleCancelEdit}
-                              fontSize="medium"
-                              color="error"
-                              className="cursor-pointer"
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <FaEdit
-                              size={16}
-                              color="blue"
-                              className="me-3 cursor-pointer"
-                              onClick={() => handleEditClick(item)}
-                            />
-                            <FaTrash
-                              size={16}
-                              color="red"
-                              className="cursor-pointer"
-                              onClick={() => {
-                                alert("Delete API not implemented");
-                              }}
-                            />
-                          </>
-                        )}
-                      </div>
+                                <CheckCircleOutlineIcon
+                                  onClick={handleSaveEdit}
+                                  fontSize="medium"
+                                  color="success"
+                                  className="me-2 cursor-pointer"
+                                />
+                                <CancelIcon
+                                  onClick={handleCancelEdit}
+                                  fontSize="medium"
+                                  color="error"
+                                  className="cursor-pointer"
+                                />
+                              </>
+                            ) : (
+                              <>
+                                <FaEdit
+                                  size={16}
+                                  color="blue"
+                                  className="me-3 cursor-pointer"
+                                  onClick={() => handleEditClick(item)}
+                                />
+                                <FaTrash
+                                  size={16}
+                                  color="red"
+                                  className="cursor-pointer"
+                                  onClick={() => handleDelete(item._id)}
+                                />
+                              </>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </Accordion.Header>
 

@@ -23,7 +23,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Button from "@mui/material/Button";
 import AddAdminForm from "./AddAdminForm";
 import { toast } from "react-toastify";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const rowsPerPage = 10;
 
@@ -42,10 +42,10 @@ const headCells = [
     disableSort: false,
   },
   {
-    id: "Address",
+    id: "locationName",
     numeric: false,
     disablePadding: false,
-    label: "Address",
+    label: "locationName",
     disableSort: false,
   },
   {
@@ -111,7 +111,6 @@ function EnhancedTableHead(props) {
 
 export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(0);
-  const [getVideo, setGetVideo] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
   const [totalData, setTotalData] = useState([]);
@@ -127,7 +126,7 @@ export default function AdminDashboard() {
   const [startDate, endDate] = dateRange;
   const [data, setData] = useState([]);
 
-  const handleAdmin = async () => {
+  const handleAdmin = async ({ filters }) => {
     setLoading(true);
     try {
       const offset = currentPage * rowsPerPage;
@@ -152,8 +151,8 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    handleAdmin();
-  }, []);
+    handleAdmin({ filters });
+  }, [filters]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -196,14 +195,12 @@ export default function AdminDashboard() {
     }));
   };
 
-  useEffect(() => {
-    // fetchVideos();
-  }, [currentPage]);
+  useEffect(() => {}, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(0);
-    // fetchVideos();
   }, [filters, order, orderBy]);
+  console.log(filters);
   return (
     <Box p={4}>
       <Box>
@@ -245,7 +242,6 @@ export default function AdminDashboard() {
               handleClose={handleClose}
               handleAdmin={handleAdmin}
               selectedVideos={[]}
-
             />
           </div>
         </div>
@@ -253,7 +249,7 @@ export default function AdminDashboard() {
           <TableContainer>
             {
               <Stack direction="row" spacing={1} className="p-3">
-                {inputValue.title && (
+                {inputValue.name && (
                   <Chip
                     label={`name: ${inputValue.name}`}
                     onDelete={() => handleFilterChange("name", "")}
@@ -261,20 +257,20 @@ export default function AdminDashboard() {
                 )}
                 {inputValue.email && (
                   <Chip
-                    label={`Desc: ${inputValue.email}`}
+                    label={`email: ${inputValue.email}`}
                     onDelete={() => handleFilterChange("email", "")}
                   />
                 )}
-                {inputValue.mobile && (
+                {inputValue.locationName && (
                   <Chip
-                    label={`phone: ${inputValue.locationState}`}
-                    onDelete={() => handleFilterChange("mobile", "")}
+                    label={`location: ${inputValue.locationName}`}
+                    onDelete={() => handleFilterChange("locationName", "")}
                   />
                 )}
-                {inputValue.state && (
+                {inputValue.Number && (
                   <Chip
-                    label={`Uploaded By: ${inputValue.state}`}
-                    onDelete={() => handleFilterChange("state", "")}
+                    label={`Uploaded By: ${inputValue.Number}`}
+                    onDelete={() => handleFilterChange("Number", "")}
                   />
                 )}
               </Stack>
@@ -287,93 +283,82 @@ export default function AdminDashboard() {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
-            
-
-
                 {openFilter && (
-  <TableRow>
-    
-    
-    {/* Name filter */}
-    <TableCell>
-      <Form.Control
-        id="filter-name"
-        placeholder="Filter Name"
-        value={inputValue.name || ""}
-        className="rounded-0 custom-input"
-        onChange={(e) => handleFilterChange("name", e.target.value)}
-      />
-    </TableCell>
-    
-    {/* Email filter */}
-    <TableCell>
-      <Form.Control
-        id="filter-email"
-        placeholder="Filter Email"
-        value={inputValue.email || ""}
-        className="rounded-0 custom-input"
-        onChange={(e) => handleFilterChange("email", e.target.value)}
-      />
-    </TableCell>
-    
-    {/* Address filter */}
-    <TableCell>
-      <Form.Control
-        id="filter-address"
-        placeholder="Filter Address"
-        value={inputValue.address || ""}
-        className="rounded-0 custom-input"
-        onChange={(e) => handleFilterChange("address", e.target.value)}
-      />
-    </TableCell>
-    
-    {/* Number filter */}
-    <TableCell>
-      <Form.Control
-        id="filter-number"
-        placeholder="Filter Number"
-        value={inputValue.number || ""}
-        className="rounded-0 custom-input"
-        onChange={(e) => handleFilterChange("number", e.target.value)}
-      />
-    </TableCell>
-    
-    {/* Status filter */}
-    <TableCell>
-      <Form.Control
-        id="filter-status"
-        placeholder="Filter Status"
-        value={inputValue.status || ""}
-        className="rounded-0 custom-input"
-        onChange={(e) => handleFilterChange("status", e.target.value)}
-      />
-    </TableCell>
-    
-    {/* Role filter */}
-    <TableCell>
-      <Form.Control
-        id="filter-role"
-        placeholder="Filter Role"
-        value={inputValue.role || ""}
-        className="rounded-0 custom-input"
-        onChange={(e) => handleFilterChange("role", e.target.value)}
-      />
-    </TableCell>
-  </TableRow>
-)}
+                  <TableRow>
+                    {/* Name filter */}
+                    <TableCell>
+                      <Form.Control
+                        id="filter-name"
+                        placeholder="Filter Name"
+                        value={inputValue.name || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("name", e.target.value)
+                        }
+                      />
+                    </TableCell>
+
+                    {/* Email filter */}
+                    <TableCell>
+                      <Form.Control
+                        id="filter-email"
+                        placeholder="Filter Email"
+                        value={inputValue.email || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("email", e.target.value)
+                        }
+                      />
+                    </TableCell>
+
+                    {/* Address filter */}
+                    <TableCell>
+                      <Form.Control
+                        id="filter-address"
+                        placeholder="Filter Address"
+                        value={inputValue.locationName || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("locationName", e.target.value)
+                        }
+                      />
+                    </TableCell>
+
+                    {/* Number filter */}
+                    <TableCell>
+                      <Form.Control
+                        id="filter-number"
+                        placeholder="Filter Number"
+                        value={inputValue.number || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("number", e.target.value)
+                        }
+                      />
+                    </TableCell>
+
+                    {/* Status filter */}
+                    <TableCell></TableCell>
+
+                    {/* Role filter */}
+                    <TableCell></TableCell>
+                  </TableRow>
+                )}
                 {data.map((video, index) => (
                   <TableRow key={video._id || index}>
                     {/* <TableCell>{video.name}</TableCell> */}
                     <TableCell
-  style={{ cursor: 'pointer', color: 'blue' }}
-  onClick={() => {
-    navigate('/videos', { state: { adminName: video.name } });
-  }}
->
-  {video.name}
-</TableCell>
+                      style={{ cursor: "pointer", color: "blue" }}
+                      onClick={() => {
+                        navigate("/videos", {
+                          state: { adminName: video.name },
+                        });
+                      }}
+                    >
+                      {video.name}
+                    </TableCell>
                     <TableCell>{video.email}</TableCell>
-                        <TableCell>{video.locationDetails?.name}</TableCell>
+                    <TableCell>{video.locationDetails?.name}</TableCell>
                     <TableCell>{video.mobile}</TableCell>
                     <TableCell>
                       <FormGroup>
