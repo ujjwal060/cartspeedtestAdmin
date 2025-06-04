@@ -77,116 +77,122 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container-fluid">
-      <Box sx={{ padding: "24px" }}>
-        <Grid container spacing={3} sx={{ marginBottom: 2 }}>
-          <Grid size={{ xs: 12, sm: 3 }}>
-            <Card
-              sx={{ backgroundColor: "#f0f4ff" }}
-              onClick={() => navigate("/users")}
-            >
-              <CardActionArea>
-                <CardContent>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Total Users
-                  </Typography>
-                  <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.totalUsers}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 3 }}>
-            <Card sx={{ backgroundColor: "#e3fce3" }}>
-              <CardActionArea>
-                <CardContent>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    New This Month
-                  </Typography>
-                  <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.newUsersThisMonth || 0}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 3 }}>
-            <Card sx={{ backgroundColor: "#fff4e5" }}>
-              <CardActionArea>
-                <CardContent>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Active Users
-                  </Typography>
-                  <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.activeUsers || 0}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 3 }}>
-            <Card sx={{ backgroundColor: "#fff4e5" }}>
-              <CardActionArea>
-                <CardContent>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Certificates Issued{" "}
-                  </Typography>
-                  <Typography variant="h5" style={{ marginTop: "30px" }}>
-                    {data.certificatesIssued || 0}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
+    <Box>
+      <Grid container spacing={3} sx={{ marginBottom: 2 }}>
+        <Grid size={{ xs: 12, sm: 2.4 }}>
+          <Card
+            sx={{ backgroundColor: "#f0f4ff" }}
+            onClick={() => navigate("/users")}
+          >
+            <CardActionArea>
+              <CardContent>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Total Users
+                </Typography>
+                <Typography variant="h5" style={{ marginTop: "30px" }}>
+                  {data.totalUsers}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
         </Grid>
-
-        <div className="row gy-4">
-          <div className="col-lg-8">
-            <Grid style={{ height: "100%" }} size={{ xs: 8 }}>
-              <Card style={{ height: "100%" }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Location-wise Activity
+        <Grid size={{ xs: 12, sm: 2.4 }}>
+          <Card sx={{ backgroundColor: "#e3fce3" }}>
+            <CardActionArea>
+              <CardContent>
+                <Typography variant="subtitle2" color="textSecondary">
+                  New This Month
+                </Typography>
+                <Typography variant="h5" style={{ marginTop: "30px" }}>
+                  {data.newUsersThisMonth || 0}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 2.4 }}>
+          <Card sx={{ backgroundColor: "#ecf3f0", height: "100%" }}>
+            <CardActionArea style={{ height: "100%" }}>
+              <CardContent
+                className="d-flex flex-column justify-content-between"
+                style={{ height: "100%" }}
+              >
+                <Typography variant="subtitle2" color="textSecondary">
+                  Overall Test
+                </Typography>
+                <div className="d-flex flex-row justify-content-between align-items-center">
+                 
+                  <Typography variant="h6">
+                    Total: {data.totalUsers || 0}
                   </Typography>
-                  <Bar
-                    data={chartData}
-                    options={{ responsive: true }}
-                    style={{ height: "100%" }}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-          </div>
-          <div className="col-lg-4">
-            <Grid size={{ xs: 12 }} className="mb-2">
-              <Card>
-                <CardActionArea>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Tests Overview
-                    </Typography>
-                    <Typography variant="body1">
-                      Total Tests: {data.totalTests || 0}
-                    </Typography>
-                    <Typography variant="body1">
-                      Passed: {data.passedTests || 0}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
+                </div>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 2.4 }}>
+          <Card sx={{ backgroundColor: "#f3efef", height: "100%" }}>
+            <CardActionArea style={{ height: "100%" }}>
+              <CardContent
+                className="d-flex flex-column justify-content-between"
+                style={{ height: "100%" }}
+              >
+                <Typography variant="subtitle2" color="textSecondary">
+                  Passed Test
+                </Typography>
+                <div className="d-flex flex-row justify-content-between align-items-center">
+                  <Typography variant="h6">
+                    Passed: {data.passedTests || 0}
+                  </Typography>
+                </div>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 2.4 }}>
+          <Card sx={{ backgroundColor: "#fff4e5" }}>
+            <CardActionArea>
+              <CardContent>
+                <Typography variant="subtitle2" color="textSecondary">
+                  Certificates Issued{" "}
+                </Typography>
+                <Typography variant="h5" style={{ marginTop: "30px" }}>
+                  {data.certificatesIssued || 0}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+      </Grid>
 
-            {/* Manage Videos */}
-            <Grid size={{ xs: 12 }} className="mb-2">
-              <Card>
-                <CardContent>
+      <div className="row gy-4">
+        <div className="col-lg-8">
+          <Grid style={{ height: "100%" }} size={{ xs: 8 }}>
+            <Card style={{ height: "100%" }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Location-wise Activity
+                </Typography>
+                <Bar
+                  data={chartData}
+                  options={{ responsive: true }}
+                  style={{ height: "100%" }}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+        </div>
+        <div className="col-lg-4">
+          <div className="d-flex flex-column h-100">
+            <Grid size={{ xs: 12 }} className="mb-2 h-100">
+              <Card className="h-100">
+                <CardContent className="d-flex flex-column justify-content-between h-100 text-center">
                   <Typography variant="h6">Manage Training Videos</Typography>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    //  color="secondary"
                     onClick={() => navigate("/videos")}
-                    className="mt-2 w-100"
+                    className="mt-2 w-100  py-2 rounded-4"
                   >
                     View Videos
                   </Button>
@@ -196,17 +202,17 @@ const Dashboard = () => {
 
             {/* Manage LSV */}
 
-            <Grid size={{ xs: 12 }} className="mb-2">
-              <Card>
-                <CardContent>
+            <Grid size={{ xs: 12 }} className="mb-2 h-100">
+              <Card className="h-100">
+                <CardContent className="d-flex flex-column justify-content-between h-100 text-center">
                   <Typography variant="h6">
                     Rules and Regulations for LSV
                   </Typography>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    //  color="secondary"
                     onClick={() => navigate("/add-lsvrules")}
-                    className="mt-2 w-100"
+                    className="mt-2 w-100  py-2 rounded-4"
                   >
                     View LSV
                   </Button>
@@ -215,15 +221,15 @@ const Dashboard = () => {
             </Grid>
 
             {/* Manage Low speed vehicle */}
-            <Grid size={{ xs: 12 }}>
-              <Card>
-                <CardContent>
+            <Grid size={{ xs: 12 }} className="h-100">
+              <Card className="h-100">
+                <CardContent className="d-flex flex-column justify-content-between h-100 text-center">
                   <Typography variant="h6">ADD Low Speed Vehicle</Typography>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    //  color="secondary"
                     onClick={() => navigate("/addlsv-laws")}
-                    className="mt-2 w-100"
+                    className="mt-2 w-100 py-2 rounded-4"
                   >
                     View Low Speed Vehicle
                   </Button>
@@ -232,8 +238,8 @@ const Dashboard = () => {
             </Grid>
           </div>
         </div>
-      </Box>
-    </div>
+      </div>
+    </Box>
   );
 };
 

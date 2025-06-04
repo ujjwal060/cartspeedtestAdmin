@@ -400,7 +400,7 @@ const VideoDashboard = () => {
   }, [filters, order, orderBy, viewType]);
 
   return (
-    <Box p={4}>
+    <Box>
       {uploadingloading ? (
         <>
           {" "}
@@ -515,55 +515,59 @@ const VideoDashboard = () => {
                   ))}
               </div>
             </div>
-
-            <Paper elevation={3} className="mt-3">
+            {(inputValue.title ||
+              inputValue.description ||
+              (viewType === "videos" &&
+                (inputValue.section ||
+                  inputValue.sectionTitle ||
+                  inputValue.locationName))) && (
+              <Stack direction="row" spacing={1}>
+                {inputValue.title && (
+                  <Chip
+                    label={`Title: ${inputValue.title}`}
+                    onDelete={() => handleFilterChange("title", "")}
+                  />
+                )}
+                {inputValue.description && (
+                  <Chip
+                    label={`Description: ${inputValue.description}`}
+                    onDelete={() => handleFilterChange("description", "")}
+                  />
+                )}
+                {viewType === "videos" && inputValue.section && (
+                  <Chip
+                    label={`Section: ${inputValue.section}`}
+                    onDelete={() => handleFilterChange("section", "")}
+                  />
+                )}
+                {viewType === "videos" && inputValue.sectionTitle && (
+                  <Chip
+                    label={`Section Title: ${inputValue.sectionTitle}`}
+                    onDelete={() => handleFilterChange("sectionTitle", "")}
+                  />
+                )}
+                {viewType === "videos" && inputValue.locationName && (
+                  <Chip
+                    label={`Location: ${inputValue.locationName}`}
+                    onDelete={() => handleFilterChange("locationName", "")}
+                  />
+                )}
+                {viewType !== "videos" && inputValue.locationName && (
+                  <Chip
+                    label={`Location: ${inputValue.locationName}`}
+                    onDelete={() => handleFilterChange("locationName", "")}
+                  />
+                )}
+                {viewType !== "videos" && inputValue.adminName && (
+                  <Chip
+                    label={`admin name: ${inputValue.adminName}`}
+                    onDelete={() => handleFilterChange("adminName", "")}
+                  />
+                )}
+              </Stack>
+            )}
+            <Paper elevation={3} className="mt-3 max-full-height">
               <TableContainer>
-                {
-                  <Stack direction="row" spacing={1} className="p-3">
-                    {inputValue.title && (
-                      <Chip
-                        label={`Title: ${inputValue.title}`}
-                        onDelete={() => handleFilterChange("title", "")}
-                      />
-                    )}
-                    {inputValue.description && (
-                      <Chip
-                        label={`Description: ${inputValue.description}`}
-                        onDelete={() => handleFilterChange("description", "")}
-                      />
-                    )}
-                    {viewType === "videos" && inputValue.section && (
-                      <Chip
-                        label={`Section: ${inputValue.section}`}
-                        onDelete={() => handleFilterChange("section", "")}
-                      />
-                    )}
-                    {viewType === "videos" && inputValue.sectionTitle && (
-                      <Chip
-                        label={`Section Title: ${inputValue.sectionTitle}`}
-                        onDelete={() => handleFilterChange("sectionTitle", "")}
-                      />
-                    )}
-                    {viewType === "videos" && inputValue.locationName && (
-                      <Chip
-                        label={`Location: ${inputValue.locationName}`}
-                        onDelete={() => handleFilterChange("locationName", "")}
-                      />
-                    )}
-                    {viewType !== "videos" && inputValue.locationName && (
-                      <Chip
-                        label={`Location: ${inputValue.locationName}`}
-                        onDelete={() => handleFilterChange("locationName", "")}
-                      />
-                    )}
-                    {viewType !== "videos" && inputValue.adminName && (
-                      <Chip
-                        label={`admin name: ${inputValue.adminName}`}
-                        onDelete={() => handleFilterChange("adminName", "")}
-                      />
-                    )}
-                  </Stack>
-                }
                 {loading && <LinearProgress />}
                 <Table>
                   <EnhancedTableHead

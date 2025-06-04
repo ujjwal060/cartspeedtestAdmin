@@ -368,7 +368,7 @@ const TestDashboard = () => {
   };
 
   return (
-    <Box p={4}>
+    <Box>
       <Box>
         <div className="d-flex justify-content-end align-items-center mb-2">
           <div className="d-flex justify-content-end gap-2 align-items-center">
@@ -395,9 +395,11 @@ const TestDashboard = () => {
             </Tooltip>
           </div>
         </div>
-
-        <Paper elevation={3} className="mt-3">
-          <TableContainer>
+        {(inputValue.name ||
+          inputValue.email ||
+          inputValue.result ||
+          inputValue.status) && (
+          <>
             <Stack direction="row" spacing={1} className="p-3">
               {inputValue.name && (
                 <Chip
@@ -424,7 +426,11 @@ const TestDashboard = () => {
                 />
               )}
             </Stack>
+          </>
+        )}
 
+        <Paper elevation={3} className="mt-3 ">
+          <TableContainer className="max-full-height">
             {loading && <LinearProgress />}
 
             <Table>

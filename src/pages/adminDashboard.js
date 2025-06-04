@@ -202,7 +202,7 @@ export default function AdminDashboard() {
   }, [filters, order, orderBy]);
   console.log(filters);
   return (
-    <Box p={4}>
+    <Box>
       <Box>
         <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
           <div className="custom-picker date-picker-custom-design">
@@ -245,36 +245,39 @@ export default function AdminDashboard() {
             />
           </div>
         </div>
+        {(inputValue.name ||
+          inputValue.email ||
+          inputValue.locationName ||
+          inputValue.Number) && (
+          <Stack direction="row" spacing={1} className="p-3">
+            {inputValue.name && (
+              <Chip
+                label={`name: ${inputValue.name}`}
+                onDelete={() => handleFilterChange("name", "")}
+              />
+            )}
+            {inputValue.email && (
+              <Chip
+                label={`email: ${inputValue.email}`}
+                onDelete={() => handleFilterChange("email", "")}
+              />
+            )}
+            {inputValue.locationName && (
+              <Chip
+                label={`location: ${inputValue.locationName}`}
+                onDelete={() => handleFilterChange("locationName", "")}
+              />
+            )}
+            {inputValue.Number && (
+              <Chip
+                label={`Uploaded By: ${inputValue.Number}`}
+                onDelete={() => handleFilterChange("Number", "")}
+              />
+            )}
+          </Stack>
+        )}
         <Paper elevation={3} className="mt-3">
-          <TableContainer>
-            {
-              <Stack direction="row" spacing={1} className="p-3">
-                {inputValue.name && (
-                  <Chip
-                    label={`name: ${inputValue.name}`}
-                    onDelete={() => handleFilterChange("name", "")}
-                  />
-                )}
-                {inputValue.email && (
-                  <Chip
-                    label={`email: ${inputValue.email}`}
-                    onDelete={() => handleFilterChange("email", "")}
-                  />
-                )}
-                {inputValue.locationName && (
-                  <Chip
-                    label={`location: ${inputValue.locationName}`}
-                    onDelete={() => handleFilterChange("locationName", "")}
-                  />
-                )}
-                {inputValue.Number && (
-                  <Chip
-                    label={`Uploaded By: ${inputValue.Number}`}
-                    onDelete={() => handleFilterChange("Number", "")}
-                  />
-                )}
-              </Stack>
-            }
+          <TableContainer className="max-full-height">
             {loading && <LinearProgress />}
             <Table>
               <EnhancedTableHead
