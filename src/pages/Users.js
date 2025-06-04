@@ -32,21 +32,21 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Name",
-     disableSort: true,
+    disableSort: true,
   },
   {
     id: "Email",
     numeric: false,
     disablePadding: false,
     label: "Email",
-     disableSort: true,
+    disableSort: true,
   },
   {
     id: "Phone",
     numeric: false,
     disablePadding: false,
     label: "Phone",
-     disableSort: true,
+    disableSort: true,
   },
   {
     id: "Address",
@@ -192,8 +192,10 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy]);
 
+  console.log(inputValue);
+
   return (
-    <Box p={4}>
+    <Box>
       <Box>
         <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
           <div className="custom-picker date-picker-custom-design">
@@ -220,36 +222,39 @@ const VideoDashboard = () => {
             </Tooltip>
           </div>
         </div>
-        <Paper elevation={3} className="mt-3">
+        {(inputValue.name ||
+          inputValue.email ||
+          inputValue.mobile ||
+          inputValue.address) && (
+          <Stack direction="row" spacing={1}>
+            {inputValue.name && (
+              <Chip
+                label={`name: ${inputValue.name}`}
+                onDelete={() => handleFilterChange("name", "")}
+              />
+            )}
+            {inputValue.email && (
+              <Chip
+                label={`email: ${inputValue.email}`}
+                onDelete={() => handleFilterChange("email", "")}
+              />
+            )}
+            {inputValue.mobile && (
+              <Chip
+                label={`phone: ${inputValue.mobile}`}
+                onDelete={() => handleFilterChange("mobile", "")}
+              />
+            )}
+            {inputValue.address && (
+              <Chip
+                label={`Address: ${inputValue.address}`}
+                onDelete={() => handleFilterChange("address", "")}
+              />
+            )}
+          </Stack>
+        )}
+        <Paper elevation={3} className="mt-3 max-full-height">
           <TableContainer>
-            {
-              <Stack direction="row" spacing={1} className="p-3">
-                {inputValue.name && (
-                  <Chip
-                    label={`name: ${inputValue.name}`}
-                    onDelete={() => handleFilterChange("name", "")}
-                  />
-                )}
-                {inputValue.email && (
-                  <Chip
-                    label={`email: ${inputValue.email}`}
-                    onDelete={() => handleFilterChange("email", "")}
-                  />
-                )}
-                {inputValue.mobile && (
-                  <Chip
-                    label={`phone: ${inputValue.mobile}`}
-                    onDelete={() => handleFilterChange("mobile", "")}
-                  />
-                )}
-                {inputValue.address && (
-                  <Chip
-                    label={`Address: ${inputValue.address}`}
-                    onDelete={() => handleFilterChange("address", "")}
-                  />
-                )}
-              </Stack>
-            }
             {loading && <LinearProgress />}
             <Table>
               <EnhancedTableHead

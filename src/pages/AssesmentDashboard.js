@@ -370,7 +370,7 @@ const AssessmentDashboard = () => {
     );
   };
   return (
-    <Box p={4}>
+    <Box>
       {loading ? (
         <>
           {" "}

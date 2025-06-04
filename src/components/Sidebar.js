@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import {
   Drawer as MuiDrawer,
   List,
@@ -15,6 +20,7 @@ import {
   styled,
   AppBar as MuiAppBar,
   Toolbar,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -25,6 +31,11 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import Slide from "@mui/material/Slide";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const drawerWidth = 240;
 
@@ -99,11 +110,17 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const rawRole = localStorage.getItem("role") || "";
+  const role = rawRole.toLowerCase();
+  const userRole = localStorage.getItem("role"); // 👈 Define it first
+  const [modelOpen, setModalOpen] = useState(false);
+  const handleClickOpen = () => {
+    setModalOpen(true);
+  };
 
-   const rawRole = localStorage.getItem("role") || "";
-const role = rawRole.toLowerCase();
-const userRole = localStorage.getItem("role"); // 👈 Define it first
-
+  const handleClose = () => {
+    setModalOpen(false);
+  };
   const user = {
     role: role,
     companyName: "Cart Speed Test",
@@ -131,24 +148,29 @@ const userRole = localStorage.getItem("role"); // 👈 Define it first
     navigate("/login");
   };
 
+  const baseMenuItems = [
+    { text: "Dashboard", link: "/dashboard", icon: <DashboardIcon /> },
+    { text: "Users", link: "/users", icon: <PeopleIcon /> },
+    { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
+    { text: "Assessment", link: "/assessment", icon: <AssignmentIcon /> },
+    { text: "Test", link: "/test", icon: <PendingActionsIcon /> },
+    {
+      text: "Certificate",
+      link: "/certificate",
+      icon: <WorkspacePremiumIcon />,
+    },
 
+    {
+      text: "Admin",
+      link: "/admin",
+      icon: <SupervisorAccountIcon />,
+      role: "superAdmin",
+    },
+  ];
 
- const baseMenuItems = [
-  { text: "Dashboard", link: "/dashboard", icon: <DashboardIcon /> },
-  { text: "Users", link: "/users", icon: <PeopleIcon /> },
-  { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
-  { text: "Assessment", link: "/assessment", icon: <AssignmentIcon /> },
-  { text: "Test", link: "/test", icon: <PendingActionsIcon /> },
-  { text: "Certificate", link: "/certificate", icon: <WorkspacePremiumIcon /> },
- 
-  { text: "Admin", link: "/admin", icon: <SupervisorAccountIcon />, role: "superAdmin" },
-];
-
-
-const menuItems = baseMenuItems.filter((item) => {
-
-  return !item.role || item.role === userRole;
-});
+  const menuItems = baseMenuItems.filter((item) => {
+    return !item.role || item.role === userRole;
+  });
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -219,10 +241,11 @@ const menuItems = baseMenuItems.filter((item) => {
                 button
                 key={index}
                 component={Link}
+                className={open ? "flex-row" : "flex-column"}
                 to={item.link}
                 sx={{
                   minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
+                  justifyContent: open ? "center" : "start",
                   px: 2.5,
                   backgroundColor: isSelected
                     ? "rgba(0, 0, 0, 0.2)"
@@ -247,21 +270,25 @@ const menuItems = baseMenuItems.filter((item) => {
                 </ListItemIcon>
                 <ListItemText
                   primary={item.text}
-                  sx={{ opacity: open ? 1 : 0 }}
+                  sx={{ opacity: 1, fontSize: open ? "14px" : "10px" }}
+                  className={!open && "text-font-set"}
                 />
               </ListItem>
             );
           })}
         </List>
         <Divider />
-        <List className="position-relative h-100">
+        <List className={`position-relative h-100 text-hover-logout `}>
           <ListItem
             button
-            onClick={handleLogout}
-            className="position-absolute bottom-0 w-100"
+            onClick={handleClickOpen}
+            className={`position-absolute bottom-0 w-100 ${
+              open ? "flex-row" : "flex-column"
+            } `}
             sx={{
               minHeight: 48,
               justifyContent: open ? "initial" : "center",
+
               px: 2.5,
               cursor: "pointer",
               "&:hover": {
@@ -279,10 +306,52 @@ const menuItems = baseMenuItems.filter((item) => {
             >
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
+            <ListItemText
+              primary="Logout"
+              sx={{ opacity: 1 }}
+              className={!open && "text-font-set"}
+            />
           </ListItem>
         </List>
       </Drawer>
+      <Dialog
+        open={modelOpen}
+        onClose={handleClose}
+        slots={{
+          transition: Transition,
+        }}
+        maxWidth="sm"
+        fullWidth
+        keepMounted
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Logout"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Do you really want to logout?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions className="d-flex justify-content-between align-items-center px-4">
+          <Button
+            onClick={handleClose}
+            variant="outlined"
+            color="error"
+            autoFocus
+            style={{ width: "100px" }}
+          >
+            No
+          </Button>
+          <Button
+            onClick={handleLogout}
+            variant="outlined"
+            color="success"
+            style={{ width: "100px" }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
