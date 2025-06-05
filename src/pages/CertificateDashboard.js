@@ -221,7 +221,7 @@ export default function CertificateDashboard() {
           </Box>
         ) : (
           <TableContainer>
-            <Table>
+            <Table >
               <TableHead>
                 <TableRow>
                   <TableCell>Certificate ID</TableCell>

@@ -279,7 +279,7 @@ export default function AdminDashboard() {
         <Paper elevation={3} className="mt-3">
           <TableContainer className="max-full-height">
             {loading && <LinearProgress />}
-            <Table>
+            <Table stickyHeader aria-label="sticky table">
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}

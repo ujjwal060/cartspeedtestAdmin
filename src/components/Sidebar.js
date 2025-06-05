@@ -320,7 +320,7 @@ const Sidebar = () => {
         slots={{
           transition: Transition,
         }}
-        maxWidth="sm"
+        maxWidth="xs"
         fullWidth
         keepMounted
         aria-labelledby="alert-dialog-title"

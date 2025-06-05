@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { Box, Paper, Chip, Tooltip, Stack } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { debounce } from "lodash";
@@ -107,6 +108,8 @@ function EnhancedTableHead(props) {
 
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
+  const location = useLocation();
+  const { state } = location;
   const [getVideo, setGetVideo] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
@@ -174,15 +177,34 @@ const VideoDashboard = () => {
     []
   );
 
+  useEffect(() => {
+    if (state?.startDate && state?.endDate) {
+      setDateRange([new Date(state.startDate), new Date(state.endDate)]);
+      setFilters((prev) => ({
+        ...prev,
+        startDate: new Date(state.startDate),
+        endDate: new Date(state.endDate),
+      }));
+    }
+  }, [state]); // Run only when `state` changes
+
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+    if (!update[0] && !update[1]) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    } else {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
   };
-
   useEffect(() => {
     fetchVideos();
   }, [currentPage]);
@@ -192,7 +214,7 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy]);
 
-  console.log(inputValue);
+  console.log(state);
 
   return (
     <Box>
@@ -256,7 +278,7 @@ const VideoDashboard = () => {
         <Paper elevation={3} className="mt-3 max-full-height">
           <TableContainer>
             {loading && <LinearProgress />}
-            <Table>
+            <Table >
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}
