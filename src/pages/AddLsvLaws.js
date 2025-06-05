@@ -284,7 +284,7 @@ const AddLsvLaws = () => {
                 Add and manage Low-Speed Vehicle regulations
               </p>
             </div>
-            {role === "Admin" && (
+            {role === "admin" && (
               <Button
                 variant="primary"
                 onClick={() => setShowModal(true)}
@@ -723,13 +723,15 @@ const AddLsvLaws = () => {
               Start by adding your first LSV law section to manage regulations
               and guidelines.
             </p>
-            <Button
-              variant="primary"
-              onClick={() => setShowModal(true)}
-              className="d-flex align-items-center mx-auto"
-            >
-              <FaPlus className="me-2" /> Add New Section
-            </Button>
+            {role === "admin" && (
+              <Button
+                variant="primary"
+                onClick={() => setShowModal(true)}
+                className="d-flex align-items-center mx-auto"
+              >
+                <FaPlus className="me-2" /> Add New Section
+              </Button>
+            )}
           </Card.Body>
         </Card>
       )}

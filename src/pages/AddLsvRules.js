@@ -218,7 +218,7 @@ const AddLsvRules = () => {
                 Manage Low-Speed Vehicle regulations and guidelines
               </p>
             </div>
-            {role === "Admin" && (
+            {role === "admin" && (
               <Button
                 variant="primary"
                 onClick={() => setShowModal(true)}
