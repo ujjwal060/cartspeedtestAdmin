@@ -204,7 +204,7 @@ const AddLsvRules = () => {
   };
 
   return (
-    <Container className="py-4">
+    <>
       <ToastContainer position="top-right" autoClose={5000} />
 
       {/* Header Card */}
@@ -786,7 +786,7 @@ const AddLsvRules = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </>
   );
 };
 

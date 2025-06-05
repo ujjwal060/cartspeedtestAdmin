@@ -433,7 +433,7 @@ const TestDashboard = () => {
           <TableContainer className="max-full-height">
             {loading && <LinearProgress />}
 
-            <Table>
+            <Table >
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}

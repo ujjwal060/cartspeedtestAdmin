@@ -76,6 +76,19 @@ const Dashboard = () => {
     ],
   };
 
+  const handleUserFilter = () => {
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1); // First day of current month
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Last day of current month
+
+    navigate("/users", {
+      state: {
+        startDate: startDate,
+        endDate: endDate,
+      },
+    });
+  };
+
   return (
     <Box>
       <Grid container spacing={3} sx={{ marginBottom: 2 }}>
@@ -97,21 +110,27 @@ const Dashboard = () => {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 2.4 }}>
-          <Card sx={{ backgroundColor: "#e3fce3" }}>
+          <Card
+            sx={{ backgroundColor: "#e3fce3" }}
+            onClick={() => handleUserFilter()}
+          >
             <CardActionArea>
               <CardContent>
                 <Typography variant="subtitle2" color="textSecondary">
                   New This Month
                 </Typography>
                 <Typography variant="h5" style={{ marginTop: "30px" }}>
-                  {data.newUsersThisMonth || 0}
+                  {data?.newUsersThisMonth || 0}
                 </Typography>
               </CardContent>
             </CardActionArea>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 2.4 }}>
-          <Card sx={{ backgroundColor: "#ecf3f0", height: "100%" }}>
+          <Card
+            sx={{ backgroundColor: "#ecf3f0", height: "100%" }}
+            onClick={() => navigate("/test")}
+          >
             <CardActionArea style={{ height: "100%" }}>
               <CardContent
                 className="d-flex flex-column justify-content-between"
@@ -121,7 +140,6 @@ const Dashboard = () => {
                   Overall Test
                 </Typography>
                 <div className="d-flex flex-row justify-content-between align-items-center">
-                 
                   <Typography variant="h6">
                     Total: {data.totalUsers || 0}
                   </Typography>
@@ -131,7 +149,10 @@ const Dashboard = () => {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 2.4 }}>
-          <Card sx={{ backgroundColor: "#f3efef", height: "100%" }}>
+          <Card
+            sx={{ backgroundColor: "#f3efef", height: "100%" }}
+            onClick={() => navigate("/test")}
+          >
             <CardActionArea style={{ height: "100%" }}>
               <CardContent
                 className="d-flex flex-column justify-content-between"
@@ -150,7 +171,10 @@ const Dashboard = () => {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 2.4 }}>
-          <Card sx={{ backgroundColor: "#fff4e5" }}>
+          <Card
+            sx={{ backgroundColor: "#fff4e5" }}
+            onClick={() => navigate("/certificate")}
+          >
             <CardActionArea>
               <CardContent>
                 <Typography variant="subtitle2" color="textSecondary">
