@@ -64,67 +64,12 @@ export default function CertificateDashboard() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
-      const mockData = [
-        {
-          id: 1,
-          name: "Web Development Fundamentals",
-          recipient: "John Doe",
-          issueDate: "2023-05-15",
-          expiryDate: "2024-05-15",
-          status: "active",
-          certificateId: "CERT-001",
-        },
-        {
-          id: 2,
-          name: "Advanced JavaScript",
-          recipient: "Jane Smith",
-          issueDate: "2023-06-20",
-          expiryDate: "2024-06-20",
-          status: "active",
-          certificateId: "CERT-002",
-        },
-        {
-          id: 3,
-          name: "React Masterclass",
-          recipient: "Alice Johnson",
-          issueDate: "2023-03-10",
-          expiryDate: "2023-09-10",
-          status: "expired",
-          certificateId: "CERT-003",
-        },
-        {
-          id: 4,
-          name: "Node.js Backend Development",
-          recipient: "Bob Williams",
-          issueDate: "2023-07-01",
-          expiryDate: "2024-07-01",
-          status: "active",
-          certificateId: "CERT-004",
-        },
-        {
-          id: 5,
-          name: "UI/UX Design Principles",
-          recipient: "Charlie Brown",
-          issueDate: "2023-01-15",
-          expiryDate: "2023-07-15",
-          status: "expired",
-          certificateId: "CERT-005",
-        },
-      ];
       setCertificates(response?.data?.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching certificates:", error);
       setLoading(false);
     }
-  };
-
-  const handleViewCertificate = (id) => {
-    navigate(`/certificate/${id}`);
-  };
-
-  const handleRevokeCertificate = (id) => {
-    alert(`Certificate ${id} would be revoked in a real application`);
   };
 
   const handleRefresh = () => {
@@ -263,14 +208,14 @@ export default function CertificateDashboard() {
                           {new Date(cert?.validUntil).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
-                          {/* <Chip
+                           <Chip
                           label={
                             cert.status.charAt(0).toUpperCase() +
                             cert.status.slice(1)
                           }
-                          color={cert.status === "active" ? "success" : "error"}
+                          color={cert.status === "Active" ? "success" : "error"}
                           size="small"
-                        /> */}
+                        />
                         </TableCell>
                         <TableCell align="right">
                           <IconButton
