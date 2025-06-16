@@ -153,7 +153,7 @@ const Sidebar = () => {
     { text: "Users", link: "/users", icon: <PeopleIcon /> },
     { text: "Videos", link: "/videos", icon: <VideoLibraryIcon /> },
     { text: "Assessment", link: "/assessment", icon: <AssignmentIcon /> },
-    { text: "Test", link: "/test", icon: <PendingActionsIcon /> },
+    // { text: "Test", link: "/test", icon: <PendingActionsIcon /> },
     {
       text: "Certificate",
       link: "/certificate",
