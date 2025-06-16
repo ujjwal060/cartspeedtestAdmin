@@ -131,13 +131,13 @@ const Dashboard = () => {
                   New This Month
                 </Typography>
                 <Typography variant="h5" style={{ marginTop: "30px" }}>
-                  {data?.newUsersThisMonth || 0}
+                  {data?.thisMonthUsers || 0}
                 </Typography>
               </CardContent>
             </CardActionArea>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, sm: 2.4 }}>
+        {/* <Grid size={{ xs: 12, sm: 2.4 }}>
           <Card
             sx={{ backgroundColor: "#ecf3f0", height: "100%" }}
             onClick={() => navigate("/test")}
@@ -158,8 +158,8 @@ const Dashboard = () => {
               </CardContent>
             </CardActionArea>
           </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 2.4 }}>
+        </Grid> */}
+        {/* <Grid size={{ xs: 12, sm: 2.4 }}>
           <Card
             sx={{ backgroundColor: "#f3efef", height: "100%" }}
             onClick={() => navigate("/test")}
@@ -180,7 +180,7 @@ const Dashboard = () => {
               </CardContent>
             </CardActionArea>
           </Card>
-        </Grid>
+        </Grid> */}
         <Grid size={{ xs: 12, sm: 2.4 }}>
           <Card
             sx={{ backgroundColor: "#fff4e5" }}
@@ -192,7 +192,7 @@ const Dashboard = () => {
                   Certificates Issued{" "}
                 </Typography>
                 <Typography variant="h5" style={{ marginTop: "30px" }}>
-                  {data.certificatesIssued || 0}
+                  {data.totalCertificatesIssued || 0}
                 </Typography>
               </CardContent>
             </CardActionArea>
