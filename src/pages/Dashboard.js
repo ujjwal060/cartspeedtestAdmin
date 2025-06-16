@@ -51,8 +51,19 @@ const Dashboard = () => {
   const sortedStates = [...data.topStates].sort((a, b) =>
     a.state.localeCompare(b.state)
   );
+
+  const formatStateLabel = (stateName) => {
+    const parts = stateName.split(', ');
+    if (parts.length > 1) {
+      const lastPart = parts.pop();
+      const firstPart = parts.join(', ');
+      return [firstPart, lastPart];
+    }
+    return stateName;
+  };
+
   const chartData = {
-    labels: sortedStates.map((state) => state.state),
+    labels: sortedStates.map((state) => formatStateLabel(state.state)),
     datasets: [
       {
         label: "Users",
@@ -61,14 +72,14 @@ const Dashboard = () => {
           "rgba(255, 99, 132, 0.6)",
           "rgba(54, 162, 235, 0.6)",
           "rgba(255, 206, 86, 0.6)",
-          "rgba(75, 192, 192, 0.6)",
+          "rgb(75, 116, 192)",
           "rgba(153, 102, 255, 0.6)",
         ],
         borderColor: [
           "rgba(255, 99, 132, 1)",
           "rgba(54, 162, 235, 1)",
           "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
+          "rgb(75, 116, 192)",
           "rgba(153, 102, 255, 1)",
         ],
         borderWidth: 1,
@@ -78,8 +89,8 @@ const Dashboard = () => {
 
   const handleUserFilter = () => {
     const now = new Date();
-    const startDate = new Date(now.getFullYear(), now.getMonth(), 1); // First day of current month
-    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Last day of current month
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     navigate("/users", {
       state: {
@@ -199,7 +210,31 @@ const Dashboard = () => {
                 </Typography>
                 <Bar
                   data={chartData}
-                  options={{ responsive: true }}
+                  options={{
+                    responsive: true,
+                    scales: {
+                      x: {
+                        ticks: {
+                          color: '#000',
+                          maxRotation: 45,
+                          minRotation: 45,
+                          autoSkip: false,
+                        },
+                      },
+                    },
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          title: function(context) {
+                            return sortedStates[context[0].dataIndex].state;
+                          },
+                          label: function(context) {
+                            return `Users: ${context.raw}`;
+                          }
+                        }
+                      }
+                    }
+                  }}
                   style={{ height: "100%" }}
                 />
               </CardContent>
