@@ -9,6 +9,19 @@ export const registerUser = async (data, token) => {
   return response.data;
 };
 
+export const changeAdminStatus = async(id , token) => {
+  const response = await axios.put(
+    `/admin/status/${id}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+}
+
 export const getAdmin = async (
   token,
   offset,
