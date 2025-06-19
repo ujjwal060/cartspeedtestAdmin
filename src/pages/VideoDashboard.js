@@ -235,8 +235,6 @@ const VideoDashboard = () => {
   const [filters, setFilters] = useState({});
   const [viewType, setViewType] = useState("videos");
   const location = useLocation();
-  const adminName = location.state?.adminName;
-  console.log(adminName, "....adminanem");
   const handleClickOpen = () => setOpen(true);
   const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true);
   const handleClose = () => setOpen(false);

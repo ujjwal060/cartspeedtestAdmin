@@ -252,25 +252,25 @@ export default function AdminDashboard() {
           <Stack direction="row" spacing={1} className="p-3">
             {inputValue.name && (
               <Chip
-                label={`name: ${inputValue.name}`}
+                label={`name: ${inputValue?.name}`}
                 onDelete={() => handleFilterChange("name", "")}
               />
             )}
             {inputValue.email && (
               <Chip
-                label={`email: ${inputValue.email}`}
+                label={`email: ${inputValue?.email}`}
                 onDelete={() => handleFilterChange("email", "")}
               />
             )}
             {inputValue.locationName && (
               <Chip
-                label={`location: ${inputValue.locationName}`}
+                label={`location: ${inputValue?.locationName}`}
                 onDelete={() => handleFilterChange("locationName", "")}
               />
             )}
             {inputValue.Number && (
               <Chip
-                label={`Uploaded By: ${inputValue.Number}`}
+                label={`Uploaded By: ${inputValue?.Number}`}
                 onDelete={() => handleFilterChange("Number", "")}
               />
             )}
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-name"
                         placeholder="Filter Name"
-                        value={inputValue.name || ""}
+                        value={inputValue?.name || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("name", e.target.value)
@@ -306,7 +306,7 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-email"
                         placeholder="Filter Email"
-                        value={inputValue.email || ""}
+                        value={inputValue?.email || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("email", e.target.value)
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-address"
                         placeholder="Filter Address"
-                        value={inputValue.locationName || ""}
+                        value={inputValue?.locationName || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("locationName", e.target.value)
@@ -332,7 +332,7 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-number"
                         placeholder="Filter Number"
-                        value={inputValue.number || ""}
+                        value={inputValue?.number || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("number", e.target.value)
@@ -358,27 +358,27 @@ export default function AdminDashboard() {
                         });
                       }}
                     >
-                      {video.name}
+                      {video?.name}
                     </TableCell>
-                    <TableCell>{video.email}</TableCell>
-                    <TableCell>{video.locationDetails?.name}</TableCell>
-                    <TableCell>{video.mobile}</TableCell>
+                    <TableCell>{video?.email}</TableCell>
+                    <TableCell>{video?.locationDetails?.name}</TableCell>
+                    <TableCell>{video?.mobile}</TableCell>
                     <TableCell>
                       <FormGroup>
                         <FormControlLabel
                           control={
                             <Switch
-                              checked={video.isActive}
+                              checked={video?.isActive}
                               onChange={() => {
                                 // Add your status change handler here
                               }}
                             />
                           }
-                          label={video.isActive ? "Active" : "Inactive"}
+                          label={video?.isActive ? "Active" : "Inactive"}
                         />
                       </FormGroup>
                     </TableCell>
-                    <TableCell>{video.role}</TableCell>
+                    <TableCell>{video?.role}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
