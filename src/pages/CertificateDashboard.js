@@ -221,8 +221,8 @@ export default function CertificateDashboard() {
         sortField
       );
 
-      setCertificates(response?.data);
-      setTotalData(response?.data?.length);
+      setCertificates(response);
+      setTotalData(response?.total);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching certificates:", error);
@@ -252,14 +252,17 @@ export default function CertificateDashboard() {
       <Box>
         <div className="row gy-3 mb-4">
           <div className="col-md-4">
-            <Card sx={{ bgcolor: "#e3f2fd" }}>
+            <Card
+              sx={{ bgcolor: "#e3f2fd" }}
+              onClick={() => handleCertificates()}
+            >
               <CardActionArea>
                 <CardContent>
                   <Typography color="text.secondary" gutterBottom>
                     Total Certificates
                   </Typography>
                   <Typography variant="h4" color="primary">
-                    {certificates?.length}
+                    {certificates?.totalCertificate}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -267,14 +270,17 @@ export default function CertificateDashboard() {
           </div>
 
           <div className="col-md-4">
-            <Card sx={{ bgcolor: "#e8f5e9" }}>
+            <Card
+              sx={{ bgcolor: "#e8f5e9" }}
+              onClick={() => handleFilterChange("status", "Active")}
+            >
               <CardActionArea>
                 <CardContent>
                   <Typography color="text.secondary" gutterBottom>
                     Active Certificates
                   </Typography>
                   <Typography variant="h4" color="success.main">
-                    {certificates?.filter((c) => c.status === "active")?.length}
+                    {certificates?.totalActive}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -282,17 +288,17 @@ export default function CertificateDashboard() {
           </div>
 
           <div className="col-md-4">
-            <Card sx={{ bgcolor: "#ffebee" }}>
+            <Card
+              sx={{ bgcolor: "#ffebee" }}
+              onClick={() => handleFilterChange("status", "Expired")}
+            >
               <CardActionArea>
                 <CardContent>
                   <Typography color="text.secondary" gutterBottom>
                     Expired Certificates
                   </Typography>
                   <Typography variant="h4" color="error.main">
-                    {
-                      certificates?.filter((c) => c.status === "expired")
-                        ?.length
-                    }
+                    {certificates?.totalExpired}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -353,9 +359,7 @@ export default function CertificateDashboard() {
         <Paper className="max-full-height-2">
           {/* Table */}
           {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-              <LinearProgress />
-            </Box>
+            <LinearProgress />
           ) : (
             <TableContainer>
               <Table>
@@ -370,14 +374,18 @@ export default function CertificateDashboard() {
                       <TableCell>
                         <Form.Control
                           placeholder="Certificate Number"
-                          value={inputValue?.certificateNumber || ""}
-                          className="rounded-0 custom-input"
-                          onChange={(e) =>
-                            handleFilterChange(
-                              "certificateNumber",
-                              e.target.value
-                            )
+                          value={
+                            inputValue?.certificateNumber
+                              ? `CERT-${inputValue.certificateNumber}`
+                              : "CERT-"
                           }
+                          className="rounded-0 custom-input"
+                          onChange={(e) => {
+                            const rawValue = e.target.value
+                              .replace(/^CERT-/, "")
+                              .replace(/[^0-9]/g, "");
+                            handleFilterChange("certificateNumber", rawValue);
+                          }}
                         />
                       </TableCell>
                       <TableCell>
@@ -422,9 +430,9 @@ export default function CertificateDashboard() {
                       <TableCell></TableCell>
                     </TableRow>
                   )}
-                  {certificates?.length > 0 ? (
-                    certificates.map((cert) => (
-                      <TableRow key={cert.id} hover>
+                  {certificates?.data?.length > 0 ? (
+                    certificates?.data.map((cert) => (
+                      <TableRow key={cert?.id} hover>
                         <TableCell>{cert?.certificateNumber}</TableCell>
                         <TableCell>{cert?.certificateName}</TableCell>
                         <TableCell>{cert?.email}</TableCell>
@@ -440,11 +448,11 @@ export default function CertificateDashboard() {
                         <TableCell>
                           <Chip
                             label={
-                              cert.status.charAt(0).toUpperCase() +
-                              cert.status.slice(1)
+                              cert?.status?.charAt(0).toUpperCase() +
+                              cert?.status?.slice(1)
                             }
                             color={
-                              cert.status === "Active" ? "success" : "error"
+                              cert?.status === "Active" ? "success" : "error"
                             }
                             size="small"
                           />

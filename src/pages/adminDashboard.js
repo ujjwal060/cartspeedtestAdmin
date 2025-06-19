@@ -16,7 +16,7 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getAdmin } from "../api/auth";
+import { getAdmin, changeAdminStatus } from "../api/auth";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
         limit,
         sortBy,
         sortField,
-        filters
+        filters || {}
       );
       setData(response.data);
       setTotalData(response.total);
@@ -152,7 +152,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     handleAdmin({ filters });
-  }, [filters]);
+  }, [filters, currentPage, order, orderBy]); // Add all dependencies
+
+  const handleToggleStatus = async (videoId) => {
+    try {
+      const res = await changeAdminStatus(videoId, token);
+      toast.success(res.message[0]);
+      handleAdmin({ filters });
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -369,9 +379,7 @@ export default function AdminDashboard() {
                           control={
                             <Switch
                               checked={video?.isActive}
-                              onChange={() => {
-                                // Add your status change handler here
-                              }}
+                              onChange={() => handleToggleStatus(video._id)}
                             />
                           }
                           label={video?.isActive ? "Active" : "Inactive"}
