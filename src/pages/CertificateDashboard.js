@@ -10,6 +10,7 @@ import {
   InputAdornment,
   MenuItem,
   Paper,
+  Stack,
   Select,
   Table,
   TableBody,
@@ -68,6 +69,7 @@ export default function CertificateDashboard() {
   const [startDate, endDate] = dateRange;
   const [filters, setFilters] = useState({});
   const [totalData, setTotalData] = useState([]);
+  const [activeFilters, setActiveFilters] = useState({});
   const handleClickOpen = (certificate) => {
     setSelectedCertificate(certificate);
     setOpen(true);
@@ -88,7 +90,7 @@ export default function CertificateDashboard() {
       disableSort: true,
     },
     {
-      id: "Recipient",
+      id: "Email",
       numeric: false,
       disablePadding: false,
       label: "Recipient",
@@ -97,7 +99,7 @@ export default function CertificateDashboard() {
     ...(userRole === "superAdmin"
       ? [
           {
-            id: "Recipient Location",
+            id: "Location",
             numeric: false,
             disablePadding: false,
             label: "Recipient Location",
@@ -141,7 +143,7 @@ export default function CertificateDashboard() {
     };
 
     return (
-      <TableHead className="tableHead-custom">
+      <TableHead className="tableHead-custom tableHead-sticky-custom">
         <TableRow>
           {HeadCell.map((headCell) => (
             <TableCell
@@ -194,6 +196,23 @@ export default function CertificateDashboard() {
     debouncedUpdateFilters(filterName, value);
   };
 
+  const handleStatusFilter = (status) => {
+    if (filters.status === status) {
+      // If clicking the same status again, remove the filter
+      handleFilterChange("status", "");
+    } else {
+      handleFilterChange("status", status);
+    }
+  };
+
+  const handleTotalClick = () => {
+    // Remove status filter when Total is clicked
+    if (filters.status) {
+      handleFilterChange("status", "");
+    }
+    handleCertificates();
+  };
+
   const debouncedUpdateFilters = useCallback(
     debounce((key, value) => {
       setFilters((prevFilters) => ({
@@ -229,10 +248,15 @@ export default function CertificateDashboard() {
       setLoading(false);
     }
   };
-  console.log(totalData);
   useEffect(() => {
-    handleCertificates({ filters });
-  }, [filters]);
+    // Reset to first page when filters change
+    setCurrentPage(0);
+    handleCertificates();
+  }, [filters, order, orderBy]);
+
+  useEffect(() => {
+    handleCertificates();
+  }, [currentPage]);
 
   const handeOpenFilter = () => {
     setOpenFilter(!openFilter);
@@ -247,19 +271,89 @@ export default function CertificateDashboard() {
     }));
   };
 
+  console.log(inputValue);
+
   return (
     <>
       <Box>
-        <div className="row gy-3 mb-4">
-          <div className="col-md-4">
+        {
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mb: 2, flexWrap: "wrap", gap: 1 }}
+          >
+            {inputValue.certificateNumber && (
+              <Chip
+                label={`Certificate: CERT-${inputValue.certificateNumber}`}
+                onDelete={() => handleFilterChange("certificateNumber", "")}
+                
+                variant="outlined"
+              />
+            )}
+            {inputValue.certificateName && (
+              <Chip
+                label={`Name: ${inputValue.certificateName}`}
+                onDelete={() => handleFilterChange("certificateName", "")}
+                
+                variant="outlined"
+              />
+            )}
+            {inputValue.email && (
+              <Chip
+                label={`Email: ${inputValue.email}`}
+                onDelete={() => handleFilterChange("email", "")}
+                
+                variant="outlined"
+              />
+            )}
+            {inputValue.locationName && (
+              <Chip
+                label={`Location: ${inputValue.locationName}`}
+                onDelete={() => handleFilterChange("locationName", "")}
+                
+                variant="outlined"
+              />
+            )}
+            {inputValue.status && (
+              <Chip
+                label={`Status: ${inputValue.status}`}
+                onDelete={() => handleFilterChange("status", "")}
+                
+                variant="outlined"
+              />
+            )}
+            {(inputValue.startDate || inputValue.endDate) && (
+              <Chip
+                label={`Date: ${
+                  inputValue.startDate
+                    ? new Date(inputValue.startDate).toLocaleDateString()
+                    : ""
+                } - ${
+                  inputValue.endDate
+                    ? new Date(inputValue.endDate).toLocaleDateString()
+                    : ""
+                }`}
+                onDelete={() => {
+                  setDateRange([null, null]);
+                  handleFilterChange("startDate", "");
+                  handleFilterChange("endDate", "");
+                }}
+                
+                variant="outlined"
+              />
+            )}
+          </Stack>
+        }
+        <div className="row gy-3 mb-4 align-items-center">
+          <div className="col-md-3">
             <Card
               sx={{ bgcolor: "#e3f2fd" }}
-              onClick={() => handleCertificates()}
+              onClick={handleTotalClick} // Changed to use handleTotalClick
             >
               <CardActionArea>
                 <CardContent>
                   <Typography color="text.secondary" gutterBottom>
-                    Total Certificates
+                    Total
                   </Typography>
                   <Typography variant="h4" color="primary">
                     {certificates?.totalCertificate}
@@ -269,15 +363,15 @@ export default function CertificateDashboard() {
             </Card>
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-3">
             <Card
               sx={{ bgcolor: "#e8f5e9" }}
-              onClick={() => handleFilterChange("status", "Active")}
+              onClick={() => handleStatusFilter("Active")} // Keep using handleStatusFilter
             >
               <CardActionArea>
                 <CardContent>
                   <Typography color="text.secondary" gutterBottom>
-                    Active Certificates
+                    Active
                   </Typography>
                   <Typography variant="h4" color="success.main">
                     {certificates?.totalActive}
@@ -287,15 +381,15 @@ export default function CertificateDashboard() {
             </Card>
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-3">
             <Card
               sx={{ bgcolor: "#ffebee" }}
-              onClick={() => handleFilterChange("status", "Expired")}
+              onClick={() => handleStatusFilter("Expired")} // Keep using handleStatusFilter
             >
               <CardActionArea>
                 <CardContent>
                   <Typography color="text.secondary" gutterBottom>
-                    Expired Certificates
+                    Expired
                   </Typography>
                   <Typography variant="h4" color="error.main">
                     {certificates?.totalExpired}
@@ -304,65 +398,56 @@ export default function CertificateDashboard() {
               </CardActionArea>
             </Card>
           </div>
+
+          <div className="col-md-3">
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                justifyContent: "end",
+                gap: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  width: "100%",
+                }}
+              >
+                <Box className="custom-picker date-picker-custom-design">
+                  <CalendarMonthIcon className="svg-custom" />
+                  <DatePicker
+                    selectsRange
+                    startDate={startDate}
+                    endDate={endDate}
+                    onChange={handleDateChange}
+                    isClearable
+                    placeholderText="Select date range"
+                    className="form-control"
+                    maxDate={new Date()}
+                  />
+                </Box>
+                <FilterListIcon
+                  onClick={handeOpenFilter}
+                  color="primary"
+                  style={{ cursor: "pointer" }}
+                />
+              </Box>
+            </Box>
+          </div>
         </div>
 
         {/* Search and Filter */}
 
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            justifyContent: "end",
-            gap: 2,
-            mb: 3,
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-
-              gap: 2,
-              minWidth: 200,
-            }}
-          >
-            {/* <Select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                size="small"
-                fullWidth
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="active">Active</MenuItem>
-                <MenuItem value="expired">Expired</MenuItem>
-              </Select> */}
-            <Box className="custom-picker date-picker-custom-design">
-              <CalendarMonthIcon className="svg-custom" />
-              <DatePicker
-                selectsRange
-                startDate={startDate}
-                endDate={endDate}
-                onChange={handleDateChange}
-                isClearable
-                placeholderText="Select date range"
-                className="form-control"
-                maxDate={new Date()}
-              />
-            </Box>
-            <FilterListIcon
-              onClick={handeOpenFilter}
-              color="primary"
-              style={{ cursor: "pointer" }}
-            />
-          </Box>
-        </Box>
         <Paper className="max-full-height-2">
           {/* Table */}
           {loading ? (
             <LinearProgress />
           ) : (
             <TableContainer>
-              <Table>
+              <Table stickyHeader aria-label="sticky table">
                 <EnhancedTableHead
                   order={order}
                   orderBy={orderBy}

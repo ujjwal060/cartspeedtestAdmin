@@ -14,6 +14,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from "@mui/material";
+import DialogBox from "../components/deleteDialog";
 import { useNavigate } from "react-router-dom";
 import Select from "@mui/material/Select";
 import Switch from "@mui/material/Switch";
@@ -183,7 +184,7 @@ function EnhancedTableHead(props) {
     viewType === "videos" ? videoHeadCells : safetyVideoHeadCells;
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -235,6 +236,9 @@ const VideoDashboard = () => {
   const [filters, setFilters] = useState({});
   const [viewType, setViewType] = useState("videos");
   const location = useLocation();
+  const [currentId, setCurrentId] = useState(null);
+  const [DialogOpen, setDialogOpen] = useState(false);
+
   const handleClickOpen = () => setOpen(true);
   const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true);
   const handleClose = () => setOpen(false);
@@ -304,18 +308,25 @@ const VideoDashboard = () => {
     setVideoFiles((prev) => prev.filter((v) => v.id !== id));
   };
 
+  const dialogClose = () => setDialogOpen(false);
+  const dialogOpen = (id) => {
+    setDialogOpen(true);
+    setCurrentId(id);
+  };
+
   const deleteUploadedSafetyVideo = (id) => {
     setSafetyVideoFiles((prev) => prev.filter((v) => v.id !== id));
   };
 
-  const handleDelete = async (videoId) => {
+  const handleDelete = async () => {
     try {
       const res =
         viewType === "videos"
-          ? await deleteVideos(videoId, token)
-          : await deleteSafetyVideos(videoId, token);
-      toast.success(res.message[0]);
+          ? await deleteVideos(currentId, token)
+          : await deleteSafetyVideos(currentId, token);
+      toast.success(res?.message[0]);
       fetchVideos();
+      setDialogOpen(false);
     } catch (error) {
       toast.error(error.response.data.message[0]);
     }
@@ -567,7 +578,7 @@ const VideoDashboard = () => {
             <Paper elevation={3} className="mt-3 max-full-height">
               <TableContainer>
                 {loading && <LinearProgress />}
-                <Table >
+                <Table stickyHeader aria-label="sticky table">
                   <EnhancedTableHead
                     order={order}
                     orderBy={orderBy}
@@ -746,7 +757,7 @@ const VideoDashboard = () => {
                               <DeleteIcon
                                 color="error"
                                 style={{ cursor: "pointer" }}
-                                onClick={() => handleDelete(item.video._id)}
+                                onClick={() => dialogOpen(item.video._id)}
                               />
                             </TableCell>
                           </TableRow>
@@ -789,7 +800,7 @@ const VideoDashboard = () => {
                               <DeleteIcon
                                 color="error"
                                 style={{ cursor: "pointer" }}
-                                onClick={() => handleDelete(item._id)}
+                                onClick={() => dialogOpen(item._id)}
                               />
                             </TableCell>
                           </TableRow>
@@ -838,6 +849,11 @@ const VideoDashboard = () => {
           </Box>
         </>
       )}
+      <DialogBox
+        open={DialogOpen}
+        onClose={dialogClose}
+        onDelete={handleDelete}
+      />
 
       <AddVideoOffcanvas
         open={open}
