@@ -47,8 +47,6 @@ import {
 } from "../api/video";
 import { getSafetyVideos } from "../api/video";
 import { useLocation } from "react-router-dom";
-
-// import {deleteSafetyVideos, isActiveSafetyVideos }  from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 import AddSafetyVideoOffcanvas from "./AddSafetyVideosForm";
 import DatePicker from "react-datepicker";
@@ -742,6 +740,7 @@ const VideoDashboard = () => {
                                 onChange={() =>
                                   handleToggleStatus(item.video._id)
                                 }
+                                disabled={userRole === "superAdmin"}
                                 color="primary"
                                 inputProps={{
                                   "aria-label": "toggle video status",
@@ -784,6 +783,7 @@ const VideoDashboard = () => {
                             <TableCell>
                               <Switch
                                 checked={item.isActive}
+                                disabled={userRole === "superAdmin"}
                                 onChange={() => handleToggleStatus(item._id)}
                                 color="primary"
                                 inputProps={{
