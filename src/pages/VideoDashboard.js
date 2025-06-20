@@ -322,7 +322,13 @@ const VideoDashboard = () => {
         viewType === "videos"
           ? await deleteVideos(currentId, token)
           : await deleteSafetyVideos(currentId, token);
-      toast.success(res?.message[0]);
+      if (viewType === "videos") {
+        toast.success(res?.message[0]);
+        fetchVideos();
+        setDialogOpen(false);
+        return;
+      }
+      toast.success(res?.message);
       fetchVideos();
       setDialogOpen(false);
     } catch (error) {
