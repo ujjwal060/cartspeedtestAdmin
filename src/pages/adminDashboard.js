@@ -60,12 +60,6 @@ const headCells = [
     disablePadding: false,
     label: "Status",
   },
-  {
-    id: "Role",
-    numeric: false,
-    disablePadding: false,
-    label: "Role",
-  },
 ];
 
 function EnhancedTableHead(props) {
@@ -75,7 +69,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -286,8 +280,8 @@ export default function AdminDashboard() {
             )}
           </Stack>
         )}
-        <Paper elevation={3} className="mt-3">
-          <TableContainer className="max-full-height">
+        <Paper elevation={3} className="mt-3 max-full-height">
+          <TableContainer>
             {loading && <LinearProgress />}
             <Table stickyHeader aria-label="sticky table">
               <EnhancedTableHead
@@ -386,7 +380,6 @@ export default function AdminDashboard() {
                         />
                       </FormGroup>
                     </TableCell>
-                    <TableCell>{video?.role}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

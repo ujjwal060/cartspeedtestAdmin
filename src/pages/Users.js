@@ -72,7 +72,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell

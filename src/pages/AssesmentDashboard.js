@@ -36,6 +36,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import Radio from "@mui/material/Radio";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import { debounce } from "lodash";
+import DialogBox from "../components/deleteDialog";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -59,6 +60,7 @@ const sectionOptions = [
 
 const AssessmentDashboard = () => {
   const rowsPerPage = 10;
+  const [currentId, setCurrentId] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [filters, setFilters] = useState({});
   const [show, setShow] = useState(false);
@@ -74,7 +76,7 @@ const AssessmentDashboard = () => {
   const [editData, setEditData] = useState(null);
   const [data, setData] = useState([]);
   const [inputValue, setInputValue] = useState("");
-
+  const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -182,16 +184,25 @@ const AssessmentDashboard = () => {
     setEditForm({ question: "", options: [] });
   };
 
-  const handleDelete = async (id) => {
+  const dialogClose = () => setOpen(false);
+  const dialogOpen = (id) => {
+    setOpen(true);
+    setCurrentId(id);
+  };
+
+  const handleDelete = async () => {
+    console.log(currentId);
     try {
-      const response = await deleteQA( id);
+      const response = await deleteQA(currentId);
       if (response && response.status === 200) {
         toast.success(response.message || "Question deleted successfully");
         fetchQA(); // Refresh the data
+        setOpen(false);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to delete question");
       console.error("Error deleting question:", error);
+      setOpen(false);
     }
   };
   const handleSaveEdit = async () => {
@@ -555,7 +566,7 @@ const AssessmentDashboard = () => {
                                   size={16}
                                   color="red"
                                   className="cursor-pointer"
-                                  onClick={() => handleDelete(item._id)}
+                                  onClick={() => dialogOpen(item._id)}
                                 />
                               </>
                             )}
@@ -736,6 +747,8 @@ const AssessmentDashboard = () => {
         onVideoUploaded={fetchQA}
         editData={editData}
       />
+
+      <DialogBox open={open} onClose={dialogClose} onDelete={handleDelete} />
     </Box>
   );
 };
