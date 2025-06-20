@@ -342,7 +342,12 @@ const VideoDashboard = () => {
         viewType === "videos"
           ? await isActiveVideos(videoId, token)
           : await isActiveSafetyVideos(videoId, token);
-      toast.success(res.message[0]);
+      if (viewType === "videos") {
+        toast.success(res?.message[0]);
+        fetchVideos();
+        return;
+      }
+      toast.success(res.message);
       fetchVideos();
     } catch (error) {
       toast.error(error.response.data.message[0]);

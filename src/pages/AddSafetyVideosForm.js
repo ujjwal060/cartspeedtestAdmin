@@ -106,34 +106,6 @@ const AddSafetyVideoOffcanvas = ({
         <form onSubmit={handleSubmit}>
           <div className="row gy-4 mb-4">
             <div className="col-lg-12">
-              <TextField
-                variant="outlined"
-                size="small"
-                className="w-100"
-                placeholder="Enter safety video title.."
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            <div className="col-lg-12">
-              <TextField
-                variant="outlined"
-                size="small"
-                placeholder="Enter safety video description.."
-                className="w-100"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                required
-                multiline
-                rows={4}
-              />
-            </div>
-
-            <div className="col-lg-12">
               <div className="fileupload-view">
                 <div className="kb-data-box">
                   <div className="kb-file-upload">
@@ -193,6 +165,33 @@ const AddSafetyVideoOffcanvas = ({
                   )}
                 </div>
               </div>
+            </div>
+            <div className="col-lg-12">
+              <TextField
+                variant="outlined"
+                size="small"
+                className="w-100"
+                placeholder="Enter safety video title.."
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="col-lg-12">
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Enter safety video description.."
+                className="w-100"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                required
+                multiline
+                rows={4}
+              />
             </div>
           </div>
 
