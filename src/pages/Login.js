@@ -1,12 +1,19 @@
 import {
-  Box, Button, Card, Checkbox, FormControlLabel, TextField, Typography,
-  InputAdornment, IconButton,
+  Box,
+  Button,
+  Card,
+  Checkbox,
+  FormControlLabel,
+  TextField,
+  Typography,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,10 +27,10 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === 'email') {
+    if (e.target.name === "email") {
       setEmailError("");
     }
-    if (e.target.name === 'password') {
+    if (e.target.name === "password") {
       setPasswordError("");
     }
   };
@@ -55,18 +62,23 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("refreshToken", res.data.refreshToken);
       localStorage.setItem("userId", res.data.id);
-          localStorage.setItem("role", res.data.role); // ✅ Store role here
+      localStorage.setItem("role", res.data.role); // ✅ Store role here
 
-      localStorage.setItem('keepLogin', keepLoggedIn ? 'true' : 'false');
+      localStorage.setItem("keepLogin", keepLoggedIn ? "true" : "false");
 
-      toast.success('Login successful!', {
+      toast.success("Login successful!", {
         autoClose: 3000,
       });
+
       navigate("/dashboard");
     } catch (err) {
       toast.error(err.response?.data?.message[0] || "Login failed", {
         autoClose: 3000,
       });
+      if (err?.response?.data?.isActive === false) {
+        navigate("/blockedAccount");
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -77,15 +89,35 @@ const Login = () => {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh"
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
       sx={{ background: "linear-gradient(to right, #3f87a6, #ebf8e1)" }}
     >
-      <Card sx={{ p: 4, width: 400, borderRadius: "20px", boxShadow: "0 8px 32px rgba(0,0,0,0.2)", textAlign: "center" }}>
-        <img src="/logo.jpg" alt="avatar" style={{ width: 60, marginBottom: 20 }} />
-        <Typography variant="h6" mb={2}>Login to your account</Typography>
+      <Card
+        sx={{
+          p: 4,
+          width: 400,
+          borderRadius: "20px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+          textAlign: "center",
+        }}
+      >
+        <img
+          src="/logo.jpg"
+          alt="avatar"
+          style={{ width: 60, marginBottom: 20 }}
+        />
+        <Typography variant="h6" mb={2}>
+          Login to your account
+        </Typography>
 
         {error && (
-          <Typography color="error" fontSize={14} mb={1}>{error}</Typography>
+          <Typography color="error" fontSize={14} mb={1}>
+            {error}
+          </Typography>
         )}
 
         <TextField
@@ -133,8 +165,15 @@ const Login = () => {
             ),
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  {showPassword ? <VisibilityOff sx={{ color: "#000" }} /> : <Visibility sx={{ color: "#000" }} />}
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? (
+                    <VisibilityOff sx={{ color: "#000" }} />
+                  ) : (
+                    <Visibility sx={{ color: "#000" }} />
+                  )}
                 </IconButton>
               </InputAdornment>
             ),
@@ -154,11 +193,24 @@ const Login = () => {
 
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <FormControlLabel
-            control={<Checkbox sx={{ color: "#000" }} checked={keepLoggedIn} onChange={handleKeepLoggedInChange} />}
-            label={<Typography sx={{ fontSize: 14 }}>Keep me logged in</Typography>}
+            control={
+              <Checkbox
+                sx={{ color: "#000" }}
+                checked={keepLoggedIn}
+                onChange={handleKeepLoggedInChange}
+              />
+            }
+            label={
+              <Typography sx={{ fontSize: 14 }}>Keep me logged in</Typography>
+            }
           />
           <Typography
-            sx={{ fontSize: 14, textDecoration: "underline", cursor: "pointer", color: "#1976d2" }}
+            sx={{
+              fontSize: 14,
+              textDecoration: "underline",
+              cursor: "pointer",
+              color: "#1976d2",
+            }}
             onClick={() => navigate("/forgot-password")}
           >
             Forgot password?
@@ -179,11 +231,7 @@ const Login = () => {
             height: 48,
           }}
         >
-          {loading ? (
-            <Box className="dot-loader" />
-          ) : (
-            "Login"
-          )}
+          {loading ? <Box className="dot-loader" /> : "Login"}
         </Button>
 
         <style>

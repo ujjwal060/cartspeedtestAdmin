@@ -21,6 +21,7 @@ import LSVLawsPage from "./pages/LSVLawsPage";
 // import EditorTablePage from "./pages/AddLsvRules";
 import AddLsvRules from "./pages/AddLsvRules";
 import AddLsvLaws from "./pages/AddLsvLaws";
+import BlockedAccountPage from "./components/blockedPage";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -45,6 +46,7 @@ function App() {
           <Suspense fallback={<Loader />}>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/blockedAccount" element={<BlockedAccountPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/verify-otp" element={<VerifyOTP />} />
               <Route path="/set-password" element={<SetNewPassword />} />
