@@ -51,7 +51,7 @@ export default function DialogBox({ open, onClose, onDelete }) {
           onClick={onDelete}
           style={{
             background: "linear-gradient(to right, #3f87a6, #ebf8e1)",
-            color: "white",
+            color: "black",
           }}
           color="success"
           className="w-100"
