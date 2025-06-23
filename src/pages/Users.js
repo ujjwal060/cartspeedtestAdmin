@@ -190,19 +190,23 @@ const VideoDashboard = () => {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    if (!update[0] && !update[1]) {
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
       setFilters((prev) => {
         const newFilters = { ...prev };
         delete newFilters.startDate;
         delete newFilters.endDate;
         return newFilters;
       });
-    } else {
-      setFilters((prev) => ({
-        ...prev,
-        startDate: update[0],
-        endDate: update[1],
-      }));
     }
   };
   useEffect(() => {
@@ -278,7 +282,7 @@ const VideoDashboard = () => {
         <Paper elevation={3} className="mt-3 max-full-height">
           <TableContainer>
             {loading && <LinearProgress />}
-            <Table >
+            <Table>
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}
@@ -305,9 +309,18 @@ const VideoDashboard = () => {
                         placeholder="Email"
                         value={inputValue.email}
                         className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("email", e.target.value)
-                        }
+                        onChange={(e) => {
+                          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
+                          const isValidEmail = emailRegex.test(e.target.value);
+
+                          if (isValidEmail) {
+                            console.log("Valid email:", e.target.value);
+                            handleFilterChange("email", e.target.value);
+                          } else {
+                            // Optionally show a warning or prevent invalid input
+                            toast.warning("Please enter a valid email address");
+                          }
+                        }}
                       />
                     </TableCell>
                     <TableCell>
