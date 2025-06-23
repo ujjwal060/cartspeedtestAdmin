@@ -63,10 +63,9 @@ export const isActiveVideos = async (id, token) => {
   return response.data;
 };
 
-
 export const isActiveSafetyVideos = async (id, token) => {
   const response = await axios.patch(
-    `/admin/safetyvideo/status/${id}`,
+    `http://18.209.91.97:9090/api/admin/video/saftyStatus/${id}`,
     {},
     {
       headers: {
@@ -76,7 +75,7 @@ export const isActiveSafetyVideos = async (id, token) => {
   );
   return response.data;
 };
-export const sectionVideos = async (id, number, token , userId) => {
+export const sectionVideos = async (id, number, token, userId) => {
   const response = await axios.post(
     `/admin/video/checkExSection/${userId}`,
     {
@@ -91,19 +90,14 @@ export const sectionVideos = async (id, number, token , userId) => {
   return response.data;
 };
 
-
 export const addSafetyVideo = async (token, formData) => {
   try {
-    const response = await axios.post(
-      "/admin/video/addSafityVideo",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      }
-    );
+    const response = await axios.post("/admin/video/addSafityVideo", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error adding safety video:", error);
@@ -111,7 +105,14 @@ export const addSafetyVideo = async (token, formData) => {
   }
 };
 
-export const getSafetyVideos = async (token, offset = 0, limit = 10, sortBy = 1, sortField = "createdAt", filters = {}) => {
+export const getSafetyVideos = async (
+  token,
+  offset = 0,
+  limit = 10,
+  sortBy = 1,
+  sortField = "createdAt",
+  filters
+) => {
   try {
     const response = await axios.post(
       "http://18.209.91.97:9090/api/admin/video/getSeftyVideo",
@@ -120,13 +121,13 @@ export const getSafetyVideos = async (token, offset = 0, limit = 10, sortBy = 1,
         limit,
         sortBy,
         sortField,
-        ...filters
+        ...filters,
       },
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       }
     );
     return response.data;
@@ -134,17 +135,12 @@ export const getSafetyVideos = async (token, offset = 0, limit = 10, sortBy = 1,
     console.error("Error fetching safety videos:", error);
     throw error;
   }
-}
-
-
-
-
-
+};
 
 // For safety videos (assuming similar endpoint structure)
 export const deleteSafetyVideos = async (videoId, token) => {
   const response = await axios.delete(
-    `/admin/safetyVideo/deleteSafetyVideo/${videoId}`,
+    `http://18.209.91.97:9090/api/admin/video/deleteSaftyVideo/${videoId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

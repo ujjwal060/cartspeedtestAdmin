@@ -16,13 +16,15 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getAdmin } from "../api/auth";
+import { getAdmin, changeAdminStatus } from "../api/auth";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Button from "@mui/material/Button";
 import AddAdminForm from "./AddAdminForm";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 const rowsPerPage = 10;
 
 const headCells = [
@@ -40,10 +42,10 @@ const headCells = [
     disableSort: false,
   },
   {
-    id: "Address",
+    id: "locationName",
     numeric: false,
     disablePadding: false,
-    label: "Address",
+    label: "locationName",
     disableSort: false,
   },
   {
@@ -58,12 +60,6 @@ const headCells = [
     disablePadding: false,
     label: "Status",
   },
-  {
-    id: "Role",
-    numeric: false,
-    disablePadding: false,
-    label: "Role",
-  },
 ];
 
 function EnhancedTableHead(props) {
@@ -73,7 +69,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -109,7 +105,6 @@ function EnhancedTableHead(props) {
 
 export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(0);
-  const [getVideo, setGetVideo] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
   const [totalData, setTotalData] = useState([]);
@@ -118,12 +113,14 @@ export default function AdminDashboard() {
   const [filters, setFilters] = useState({});
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
   const [dateRange, setDateRange] = useState([null, null]);
   const [open, setOpen] = useState(false);
   const [startDate, endDate] = dateRange;
   const [data, setData] = useState([]);
 
-  const handleAdmin = async () => {
+  const handleAdmin = async ({ filters }) => {
     setLoading(true);
     try {
       const offset = currentPage * rowsPerPage;
@@ -135,7 +132,7 @@ export default function AdminDashboard() {
         limit,
         sortBy,
         sortField,
-        filters
+        filters || {}
       );
       setData(response.data);
       setTotalData(response.total);
@@ -148,8 +145,18 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    handleAdmin();
-  }, []);
+    handleAdmin({ filters });
+  }, [filters, currentPage, order, orderBy]); // Add all dependencies
+
+  const handleToggleStatus = async (videoId) => {
+    try {
+      const res = await changeAdminStatus(videoId, token);
+      toast.success(res.message[0]);
+      handleAdmin({ filters });
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -192,19 +199,17 @@ export default function AdminDashboard() {
     }));
   };
 
-  useEffect(() => {
-    // fetchVideos();
-  }, [currentPage]);
+  useEffect(() => {}, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(0);
-    // fetchVideos();
   }, [filters, order, orderBy]);
+  console.log(filters);
   return (
-    <Box p={4}>
+    <Box>
       <Box>
         <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
-          <div className="custom-picker">
+          <div className="custom-picker date-picker-custom-design">
             <CalendarMonthIcon className="svg-custom" />
             <DatePicker
               selectsRange={true}
@@ -239,43 +244,46 @@ export default function AdminDashboard() {
               open={open}
               setOpen={setOpen}
               handleClose={handleClose}
+              handleAdmin={handleAdmin}
               selectedVideos={[]}
-
             />
           </div>
         </div>
-        <Paper elevation={3} className="mt-3">
+        {(inputValue.name ||
+          inputValue.email ||
+          inputValue.locationName ||
+          inputValue.Number) && (
+          <Stack direction="row" spacing={1} className="p-3">
+            {inputValue.name && (
+              <Chip
+                label={`name: ${inputValue?.name}`}
+                onDelete={() => handleFilterChange("name", "")}
+              />
+            )}
+            {inputValue.email && (
+              <Chip
+                label={`email: ${inputValue?.email}`}
+                onDelete={() => handleFilterChange("email", "")}
+              />
+            )}
+            {inputValue.locationName && (
+              <Chip
+                label={`location: ${inputValue?.locationName}`}
+                onDelete={() => handleFilterChange("locationName", "")}
+              />
+            )}
+            {inputValue.Number && (
+              <Chip
+                label={`Uploaded By: ${inputValue?.Number}`}
+                onDelete={() => handleFilterChange("Number", "")}
+              />
+            )}
+          </Stack>
+        )}
+        <Paper elevation={3} className="mt-3 max-full-height">
           <TableContainer>
-            {
-              <Stack direction="row" spacing={1} className="p-3">
-                {inputValue.title && (
-                  <Chip
-                    label={`name: ${inputValue.name}`}
-                    onDelete={() => handleFilterChange("name", "")}
-                  />
-                )}
-                {inputValue.email && (
-                  <Chip
-                    label={`Desc: ${inputValue.email}`}
-                    onDelete={() => handleFilterChange("email", "")}
-                  />
-                )}
-                {inputValue.mobile && (
-                  <Chip
-                    label={`phone: ${inputValue.locationState}`}
-                    onDelete={() => handleFilterChange("mobile", "")}
-                  />
-                )}
-                {inputValue.state && (
-                  <Chip
-                    label={`Uploaded By: ${inputValue.state}`}
-                    onDelete={() => handleFilterChange("state", "")}
-                  />
-                )}
-              </Stack>
-            }
             {loading && <LinearProgress />}
-            <Table>
+            <Table stickyHeader aria-label="sticky table">
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}
@@ -284,64 +292,94 @@ export default function AdminDashboard() {
               <TableBody>
                 {openFilter && (
                   <TableRow>
-                    <TableCell></TableCell>
+                    {/* Name filter */}
                     <TableCell>
                       <Form.Control
                         id="filter-name"
-                        placeholder="Name"
-                        value={inputValue.name}
+                        placeholder="Filter Name"
+                        value={inputValue?.name || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("name", e.target.value)
                         }
                       />
                     </TableCell>
+
+                    {/* Email filter */}
                     <TableCell>
                       <Form.Control
                         id="filter-email"
-                        placeholder="Email"
-                        value={inputValue.email}
+                        placeholder="Filter Email"
+                        value={inputValue?.email || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("email", e.target.value)
                         }
                       />
                     </TableCell>
+
+                    {/* Address filter */}
                     <TableCell>
                       <Form.Control
-                        id="filter-mobile"
-                        placeholder="Phone"
-                        value={inputValue.mobile}
+                        id="filter-address"
+                        placeholder="Filter Address"
+                        value={inputValue?.locationName || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
-                          handleFilterChange("mobile", e.target.value)
+                          handleFilterChange("locationName", e.target.value)
                         }
                       />
                     </TableCell>
+
+                    {/* Number filter */}
+                    <TableCell>
+                      <Form.Control
+                        id="filter-number"
+                        placeholder="Filter Number"
+                        value={inputValue?.number || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("number", e.target.value)
+                        }
+                      />
+                    </TableCell>
+
+                    {/* Status filter */}
+                    <TableCell></TableCell>
+
+                    {/* Role filter */}
+                    <TableCell></TableCell>
                   </TableRow>
                 )}
                 {data.map((video, index) => (
                   <TableRow key={video._id || index}>
-                    <TableCell>{video.name}</TableCell>
-                    <TableCell>{video.email}</TableCell>
-                        <TableCell>{video.locationDetails?.name}</TableCell>
-                    <TableCell>{video.mobile}</TableCell>
+                    {/* <TableCell>{video.name}</TableCell> */}
+                    <TableCell
+                      style={{ cursor: "pointer", color: "blue" }}
+                      onClick={() => {
+                        navigate("/videos", {
+                          state: { adminName: video.name },
+                        });
+                      }}
+                    >
+                      {video?.name}
+                    </TableCell>
+                    <TableCell>{video?.email}</TableCell>
+                    <TableCell>{video?.locationDetails?.name}</TableCell>
+                    <TableCell>{video?.mobile}</TableCell>
                     <TableCell>
                       <FormGroup>
                         <FormControlLabel
                           control={
                             <Switch
-                              checked={video.isActive}
-                              onChange={() => {
-                                // Add your status change handler here
-                              }}
+                              checked={video?.isActive}
+                              onChange={() => handleToggleStatus(video._id)}
                             />
                           }
-                          label={video.isActive ? "Active" : "Inactive"}
+                          label={video?.isActive ? "Active" : "Inactive"}
                         />
                       </FormGroup>
                     </TableCell>
-                    <TableCell>{video.role}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

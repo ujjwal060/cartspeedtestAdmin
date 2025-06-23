@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Tooltip,
@@ -6,13 +6,13 @@ import {
   Dialog,
   DialogContent,
   Slide,
-  Breadcrumbs,
+  // Breadcrumbs,
   Button,
   Chip,
-  InputLabel,
-  MenuItem,
-  FormControl,
-  Select,
+  // InputLabel,
+  // MenuItem,
+  // FormControl,
+  // Select,
   TablePagination,
   TextField,
 } from "@mui/material";
@@ -20,22 +20,23 @@ import CloseIcon from "@mui/icons-material/Close";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Accordion from "react-bootstrap/Accordion";
 import { useLocation } from "react-router-dom";
-import { getQA } from "../api/test";
+import { getQA, editQA, deleteQA } from "../api/test";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddAssesmentFormFile from "./AddAssesmentForm";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Link, useNavigate } from "react-router-dom";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Radio from "@mui/material/Radio";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { debounce } from "lodash";
+import DialogBox from "../components/deleteDialog";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -59,6 +60,7 @@ const sectionOptions = [
 
 const AssessmentDashboard = () => {
   const rowsPerPage = 10;
+  const [currentId, setCurrentId] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [filters, setFilters] = useState({});
   const [show, setShow] = useState(false);
@@ -68,11 +70,13 @@ const AssessmentDashboard = () => {
   const [openFilter, setOpenFilter] = useState(false);
   const [sectionNumber, setSectionNumber] = useState("");
   const location = useLocation();
-  const { title: initialTitle, videoId } = location.state || {};
+  const { title: initialTitle, videoId, adminName } = location.state || {};
+  console.log(adminName, "..assesment page admin");
   const [title, setTitle] = useState(initialTitle || "");
   const [editData, setEditData] = useState(null);
   const [data, setData] = useState([]);
-
+  const [inputValue, setInputValue] = useState("");
+  const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -123,6 +127,24 @@ const AssessmentDashboard = () => {
     });
   };
 
+  const handleFilterChange = (filterName, value) => {
+    setInputValue((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+    debouncedUpdateFilters(filterName, value);
+  };
+
+  const debouncedUpdateFilters = useCallback(
+    debounce((key, value) => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [key]: value,
+      }));
+    }, 2000),
+    []
+  );
+
   const handleDateChange = (update) => {
     setDateRange(update);
     setFilters((prev) => ({
@@ -162,30 +184,75 @@ const AssessmentDashboard = () => {
     setEditForm({ question: "", options: [] });
   };
 
-  const handleSaveEdit = () => {
-    setGetData((prevData) =>
-      prevData.map((q) =>
-        q._id === editId
-          ? {
-              ...q,
-              question: editForm.question,
-              options: editForm.options,
-            }
-          : q
-      )
-    );
-
-    toast.success("Question updated!");
-    setEditId(null);
-    setEditForm({ question: "", options: [] });
+  const dialogClose = () => setOpen(false);
+  const dialogOpen = (id) => {
+    setOpen(true);
+    setCurrentId(id);
   };
 
+  const handleDelete = async () => {
+    console.log(currentId);
+    try {
+      const response = await deleteQA(currentId);
+      if (response && response.status === 200) {
+        toast.success(response.message || "Question deleted successfully");
+        fetchQA(); // Refresh the data
+        setOpen(false);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete question");
+      console.error("Error deleting question:", error);
+      setOpen(false);
+    }
+  };
+  const handleSaveEdit = async () => {
+    try {
+      // Find the correct answer index
+      const correctAnswerIndex = editForm.options.findIndex(
+        (opt) => opt.isCorrect
+      );
+      const answer =
+        correctAnswerIndex >= 0
+          ? editForm.options[correctAnswerIndex].text
+          : "";
+
+      const response = await editQA(
+        token,
+        editId,
+        editForm.question,
+        editForm.options,
+        answer
+      );
+
+      if (response && response.status === 200) {
+        toast.success(response.message || "Question updated successfully");
+        fetchQA(); // Refresh the data
+        setEditId(null);
+        setEditForm({ question: "", options: [] });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update question");
+      console.error("Error updating question:", error);
+    }
+  };
+
+  // const handleEditClick = (item) => {
+  //   console.log("Rendering options for:", item._id, item.options);
+  //   setEditId(item._id);
+  //   setEditForm({
+  //     question: item.question,
+  //     options: item.options.map((opt) => ({ ...opt })),
+  //   });
+  // };
+
   const handleEditClick = (item) => {
-    console.log("Rendering options for:", item._id, item.options);
     setEditId(item._id);
     setEditForm({
       question: item.question,
-      options: item.options.map((opt) => ({ ...opt })),
+      options: item.options.map((opt) => ({
+        text: opt.text,
+        isCorrect: opt.isCorrect,
+      })),
     });
   };
 
@@ -195,11 +262,32 @@ const AssessmentDashboard = () => {
     );
 
     return (
-      <Box display="flex" alignItems="center" mb={2} flexWrap="wrap">
+      <Box display="flex" alignItems="center" mb={2} flexWrap="wrap" gap={1}>
+        {adminName && (
+          <Chip
+            label={`Admin: ${adminName}`}
+            sx={{
+              backgroundColor: "#2E5AAC",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              maxWidth: 200,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              padding: "0 20px",
+              height: "32px",
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
+            }}
+          />
+        )}
+
         {title && (
           <Link to="/videos" style={{ textDecoration: "none" }}>
             <Chip
               label={title}
+              className="custom-design-chip"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/videos");
@@ -213,9 +301,13 @@ const AssessmentDashboard = () => {
                 textOverflow: "ellipsis",
                 overflow: "hidden",
                 padding: "0 20px",
+                height: "32px",
                 cursor: "pointer",
                 "&:hover": {
                   backgroundColor: "#1d4a9c",
+                },
+                "& .MuiChip-label": {
+                  padding: "0 8px",
                 },
               }}
             />
@@ -225,7 +317,7 @@ const AssessmentDashboard = () => {
         {selectedSection && (
           <Chip
             label={selectedSection.label.replace("Section ", "section")}
-            className={`${title && "custom-design-chip"}`}
+            className="custom-design-chip"
             sx={{
               backgroundColor: "#2E5AAC",
               color: "white",
@@ -236,17 +328,35 @@ const AssessmentDashboard = () => {
               textOverflow: "ellipsis",
               overflow: "hidden",
               padding: "0 20px",
+              height: "32px",
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
             }}
           />
         )}
 
-        {(title || selectedSection) && (
+        {(adminName || title || selectedSection) && (
           <Chip
             icon={<CloseIcon fontSize="small" />}
             label="Clear"
             onClick={() => {
               setSectionNumber("");
               setTitle("");
+              // Clear adminName if it exists
+              if (adminName) {
+                // You might need to update the state in the parent component
+                // or use a different approach depending on how adminName is managed
+                // This assumes adminName is managed in this component's state
+                // If it comes from props, you'll need to call a prop function to clear it
+                navigate(location.pathname, {
+                  state: {
+                    ...(location.state || {}),
+                    adminName: undefined,
+                  },
+                  replace: true,
+                });
+              }
               setFilters((prev) => {
                 const { sectionNumber, title, ...rest } = prev;
                 return rest;
@@ -257,33 +367,21 @@ const AssessmentDashboard = () => {
               color: "#2E5AAC",
               fontWeight: 500,
               fontSize: "0.85rem",
+              height: "32px",
               "& .MuiChip-icon": {
                 color: "#2E5AAC",
               },
-              ml: 1,
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
             }}
           />
         )}
       </Box>
     );
   };
-
-  // if (loading) {
-  //   return (
-  //     <div className="">
-  //       <div className="global-loader margin-loader ">
-  //         <div className="loader-animation">
-  //           <span></span>
-  //           <span></span>
-  //           <span></span>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   return (
-    <Box p={4}>
+    <Box>
       {loading ? (
         <>
           {" "}
@@ -344,15 +442,17 @@ const AssessmentDashboard = () => {
                         label="Search by Location"
                         variant="outlined"
                         size="small"
+                        value={inputValue.location}
                         onChange={(e) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            location: e.target.value,
-                          }))
+                          // setFilters((prev) => ({
+                          //   ...prev,
+                          //   location: e.target.value,
+                          // }))
+                          handleFilterChange("location", e.target.value)
                         }
                       />
 
-                      <Box className="custom-picker">
+                      <Box className="custom-picker date-picker-custom-design">
                         <CalendarMonthIcon className="svg-custom" />
                         <DatePicker
                           selectsRange
@@ -424,14 +524,16 @@ const AssessmentDashboard = () => {
                           item.question
                         )}
                       </span>
-
-                      <div
-                        className="d-flex align-items-center me-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {editId === item._id ? (
-                          <>
-                            {/* <Button
+                      {role === "admin" && (
+                        <>
+                          {" "}
+                          <div
+                            className="d-flex align-items-center me-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {editId === item._id ? (
+                              <>
+                                {/* <Button
                           size="small"
                           color="success"
                           onClick={handleSaveEdit}
@@ -439,48 +541,57 @@ const AssessmentDashboard = () => {
                         >
                           Save
                         </Button> */}
-                            <CheckCircleOutlineIcon
-                              onClick={handleSaveEdit}
-                              fontSize="medium"
-                              color="success"
-                              className="me-2 cursor-pointer"
-                            />
-                            <CancelIcon
-                              onClick={handleCancelEdit}
-                              fontSize="medium"
-                              color="error"
-                              className="cursor-pointer"
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <FaEdit
-                              size={16}
-                              color="blue"
-                              className="me-3 cursor-pointer"
-                              onClick={() => handleEditClick(item)}
-                            />
-                            <FaTrash
-                              size={16}
-                              color="red"
-                              className="cursor-pointer"
-                              onClick={() => {
-                                alert("Delete API not implemented");
-                              }}
-                            />
-                          </>
-                        )}
-                      </div>
+                                <CheckCircleOutlineIcon
+                                  onClick={handleSaveEdit}
+                                  fontSize="medium"
+                                  color="success"
+                                  className="me-2 cursor-pointer"
+                                />
+                                <CancelIcon
+                                  onClick={handleCancelEdit}
+                                  fontSize="medium"
+                                  color="error"
+                                  className="cursor-pointer"
+                                />
+                              </>
+                            ) : (
+                              <>
+                                <FaEdit
+                                  size={16}
+                                  color="blue"
+                                  className="me-3 cursor-pointer"
+                                  onClick={() => handleEditClick(item)}
+                                />
+                                <FaTrash
+                                  size={16}
+                                  color="red"
+                                  className="cursor-pointer"
+                                  onClick={() => dialogOpen(item._id)}
+                                />
+                              </>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </Accordion.Header>
 
                   <Accordion.Body>
                     <div className="row gy-4 ">
                       <div className="col-lg-12">
-                        <p>
-                          <LocationPinIcon />
-                          {item.locationName}
-                        </p>
+                        <div className="d-flex flex-row justify-content-between align-items-center">
+                          <p>
+                            <LocationPinIcon />
+                            {item?.locationName}
+                          </p>
+                          {role !== "admin" && (
+                            <p>
+                              <SupervisorAccountIcon />
+                              {item?.adminName}
+                            </p>
+                          )}
+                        </div>
+
                         <Box
                           display="grid"
                           gridTemplateColumns="repeat(4, 1fr)"
@@ -636,6 +747,8 @@ const AssessmentDashboard = () => {
         onVideoUploaded={fetchQA}
         editData={editData}
       />
+
+      <DialogBox open={open} onClose={dialogClose} onDelete={handleDelete} />
     </Box>
   );
 };

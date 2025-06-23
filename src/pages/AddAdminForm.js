@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { Button } from "@mui/material";
@@ -6,7 +7,12 @@ import { registerUser } from "../api/auth";
 import { toast } from "react-toastify";
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 
-export default function AddAdminForm({ open, setOpen, handleClose }) {
+export default function AddAdminForm({
+  open,
+  setOpen,
+  handleClose,
+  handleAdmin,
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,6 +32,71 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
     marginTop: "20px",
   };
 
+  const ResetForm = () => {
+    handleClose();
+    setName("");
+    setEmail("");
+    setLocation("");
+    setPassword("");
+    setMobile("");
+    setZipCode("");
+    setGeoJsonData(null);
+    setBoundaryPaths([]);
+    setLocationNames([]);
+  };
+
+  // const fetchBoundariesData = async (zipCodesString) => {
+  //   try {
+  //     const response = await fetch(
+  //       `https://vanitysoft-boundaries-io-v1.p.rapidapi.com/reaperfire/rest/v1/public/boundary?zipcode=${zipCodesString}`,
+  //       {
+  //         headers: {
+  //           'x-rapidapi-host': 'vanitysoft-boundaries-io-v1.p.rapidapi.com',
+  //           // 'x-rapidapi-key': 'e163d0e06amshc17b5bebe33fa65p18635ejsncf9f11d9cf1a',
+  //           'x-rapidapi-key': '6b2095e1b8msh39fd101b0770949p19ca7fjsn7becf7fcb69f'
+  //         }
+  //       }
+  //     );
+  //     const data = await response.json();
+
+  //     if (data && data.features) {
+  //       const paths = [];
+  //       const names = [];
+
+  //       data.features.forEach(feature => {
+  //         const coordinates = feature.geometry.coordinates[0].map(coord => ({
+  //           lat: coord[1],
+  //           lng: coord[0],
+  //         }));
+  //         paths.push(coordinates);
+
+  //         const locationName = `${feature.properties.city}, ${feature.properties.state} (${feature.properties.zipCode})`;
+  //         names.push(locationName);
+  //       });
+
+  //       setBoundaryPaths(paths);
+  //       setLocationNames(names);
+  //       setGeoJsonData(data);
+  //       setLocation(names.join(', '));
+
+  //       if (paths.length > 0) {
+  //         const firstPath = paths[0];
+  //         const center = firstPath.reduce(
+  //           (acc, point) => ({
+  //             lat: acc.lat + point.lat / firstPath.length,
+  //             lng: acc.lng + point.lng / firstPath.length,
+  //           }),
+  //           { lat: 0, lng: 0 }
+  //         );
+  //         setMapCenter(center);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching boundaries:", error);
+  //     toast.error("Error fetching boundaries data");
+  //   }
+  // };
+
   const fetchBoundariesData = async (zipCodesString) => {
     try {
       const response = await fetch(
@@ -33,42 +104,69 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
         {
           headers: {
             'x-rapidapi-host': 'vanitysoft-boundaries-io-v1.p.rapidapi.com',
-            'x-rapidapi-key': 'e163d0e06amshc17b5bebe33fa65p18635ejsncf9f11d9cf1a'
+            'x-rapidapi-key': '6b2095e1b8msh39fd101b0770949p19ca7fjsn7becf7fcb69f'
           }
         }
       );
       const data = await response.json();
-      
+      debugger;
+
       if (data && data.features) {
         const paths = [];
         const names = [];
-        
-        data.features.forEach(feature => {
-          const coordinates = feature.geometry.coordinates[0].map(coord => ({
-            lat: coord[1],
-            lng: coord[0]
-          }));
-          paths.push(coordinates);
-          
+
+        data.features.forEach((feature) => {
+          const geometry = feature.geometry;
+
+          // Handle both Polygon and MultiPolygon
+          if (geometry.type === "Polygon") {
+            geometry.coordinates.forEach((ring) => {
+              const path = ring.map(coord => ({
+                lat: coord[1],
+                lng: coord[0],
+              }));
+              paths.push(path);
+            });
+          } else if (geometry.type === "MultiPolygon") {
+            geometry.coordinates.forEach((polygon) => {
+              polygon.forEach((ring) => {
+                const path = ring.map(coord => ({
+                  lat: coord[1],
+                  lng: coord[0],
+                }));
+                paths.push(path);
+              });
+            });
+          }
+
           const locationName = `${feature.properties.city}, ${feature.properties.state} (${feature.properties.zipCode})`;
           names.push(locationName);
         });
-        
+
         setBoundaryPaths(paths);
         setLocationNames(names);
         setGeoJsonData(data);
         setLocation(names.join(', '));
-        
-        if (paths.length > 0) {
-          const firstPath = paths[0];
-          const center = firstPath.reduce(
-            (acc, point) => ({
-              lat: acc.lat + point.lat / firstPath.length,
-              lng: acc.lng + point.lng / firstPath.length,
-            }),
-            { lat: 0, lng: 0 }
+
+        // ✅ Safe center calculation
+        const allPoints = paths.flat();
+        if (allPoints.length > 0) {
+          const validPoints = allPoints.filter(
+            point => typeof point.lat === "number" &&
+              typeof point.lng === "number" &&
+              !isNaN(point.lat) &&
+              !isNaN(point.lng)
           );
-          setMapCenter(center);
+          if (validPoints.length > 0) {
+            const center = validPoints.reduce(
+              (acc, point) => ({
+                lat: acc.lat + point.lat / validPoints.length,
+                lng: acc.lng + point.lng / validPoints.length,
+              }),
+              { lat: 0, lng: 0 }
+            );
+            setMapCenter(center);
+          }
         }
       }
     } catch (error) {
@@ -76,24 +174,46 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
       toast.error("Error fetching boundaries data");
     }
   };
-
   const handleZipCodeChange = (e) => {
     const value = e.target.value;
     setZipCode(value);
-    
+
     const zipCodesArray = value.split(',').map(zip => zip.trim()).filter(zip => /^\d{5}$/.test(zip));
     setZipCodes(zipCodesArray);
-    
+
     if (zipCodesArray.length > 0) {
-      fetchBoundariesData(zipCodesArray.join(','));
+      fetchBoundariesData(zipCodesArray.join(","));
     }
+  };
+
+  const handleReset = () => {
+    setName("");
+    setEmail("");
+    setLocation("");
+    setPassword("");
+    setMobile("");
+    setZipCode("");
+    setGeoJsonData(null);
+    setBoundaryPaths([]);
+    setLocationNames([]);
+    setMapCenter({ lat: 37.0902, lng: -95.7129 });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    if (!name || !email || !location || !password || !mobile || !zipCode || !geoJsonData) {
-      toast.error("Please fill all the fields and ensure location data is loaded");
+    if (
+      !name ||
+      !email ||
+      !location ||
+      !password ||
+      !mobile ||
+      !zipCode ||
+      !geoJsonData
+    ) {
+      toast.error(
+        "Please fill all the fields and ensure location data is loaded"
+      );
       setIsSubmitting(false);
       return;
     }
@@ -112,36 +232,43 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
       const response = await registerUser(data, token);
       if (response.status === 201) {
         handleClose();
-        setName("");
-        setEmail("");
-        setLocation("");
-        setPassword("");
-        setMobile("");
-        setZipCode("");
-        setGeoJsonData(null);
-        setBoundaryPaths([]);
-        setLocationNames([]);
+        handleReset();
         toast.success("User registered successfully");
+        handleAdmin();
         setIsSubmitting(false);
-        setOpen(false);
       }
     } catch (error) {
       toast.error(error?.response?.data?.message[0]);
-      console.error("Error registering user:", error?.response?.data?.message[0]);
+      console.error(
+        "Error registering user:",
+        error?.response?.data?.message[0]
+      );
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Offcanvas show={open} onHide={handleClose} placement="end">
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Add Your Admin</Offcanvas.Title>
-      </Offcanvas.Header>
+    <Offcanvas
+      show={open}
+      onHide={handleClose}
+      placement="end"
+      backdrop="static"
+    >
+      {isSubmitting ? (
+        <Offcanvas.Header>
+          <Offcanvas.Title>Add Your Admin</Offcanvas.Title>
+        </Offcanvas.Header>
+      ) : (
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Add Your Admin </Offcanvas.Title>
+        </Offcanvas.Header>
+      )}
+
       <Offcanvas.Body>
         <div className="row gy-4">
           <div className="col-lg-12 me-auto">
             <TextField
-              label="Enter Zip Codes (comma separated)"
+              label="Enter Zip Codes"
               variant="standard"
               size="small"
               className="w-100"
@@ -246,7 +373,7 @@ export default function AddAdminForm({ open, setOpen, handleClose }) {
             variant="contained"
             color="error"
             className="rounded-4"
-            onClick={handleClose}
+            onClick={ResetForm}
           >
             Reset
           </Button>

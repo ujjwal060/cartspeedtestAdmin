@@ -37,7 +37,7 @@ code {
   height: 89% !important;
 }
 .react-datepicker-wrapper input {
-  width: 200px !important;
+  width: 230px !important;
   padding-left: 30px !important;
 }
 .custom-picker {
@@ -208,17 +208,76 @@ code {
   position: relative;
   border-radius: 0 16px 16px 0 !important;
 }
+.date-picker-custom-design,
+.react-datepicker {
+  font-family: "Atlassian Sans";
+}
+.date-picker-custom-design .react-datepicker-popper .react-datepicker__header {
+  background: #5797ae;
+  color: #fff;
+}
+
+.date-picker-custom-design .react-datepicker__navigation {
+  background-color: #fff !important;
+  border-radius: 50%;
+  height: 30px !important;
+  width: 30px !important;
+}
+.date-picker-custom-design .react-datepicker__navigation-icon::before {
+  /* background-color: #5797ae !important; */
+  border-color: #fff !important;
+  /* border-radius: 50%; */
+  border-color: #000 !important;
+  top: 8px !important;
+}
+.date-picker-custom-design ..react-datepicker__day-names {
+  white-space: nowrap;
+  margin-bottom: -9px !important;
+  padding-top: 11px !important;
+}
+.date-picker-custom-design .react-datepicker__day--range-start {
+  background-color: #216ba5 !important;
+  color: #fff !important;
+}
+.date-picker-custom-design .react-datepicker__navigation-icon--next::before {
+  transform: rotate(45deg);
+  left: -5px;
+}
+.date-picker-custom-design
+  .react-datepicker-popper[data-placement^="bottom"]
+  .react-datepicker__triangle {
+  fill: #5797ae;
+  stroke: #ebf8e1;
+}
+
+.date-picker-custom-design
+  .react-datepicker-popper
+  .react-datepicker__header
+  .react-datepicker__day-name,
+.date-picker-custom-design
+  .react-datepicker-popper
+  .react-datepicker__header
+  .react-datepicker__current-month {
+  color: #fff;
+}
 .custom-design-chip::before {
   position: absolute;
   content: "";
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 35px;
   top: 0;
   left: -45px;
   box-shadow: 20px 10px 0px 0px rgb(245 245 245);
   z-index: 1;
   border-radius: 50%;
-  transform: rotate(-38deg);
+  transform: rotate(-35deg);
+}
+
+.text-hover-logout:hover svg {
+  color: #fff;
+}
+.text-font-set span {
+  font-size: 10px;
 }
 .accordion-button {
   position: static !important;
@@ -238,6 +297,55 @@ code {
   text-decoration: underline;
   margin-right: 15px;
   cursor: pointer;
+}
+.max-full-height {
+  max-height: calc(100vh - 30vh);
+  /* height: 100%; */
+  overflow: auto;
+  overflow-x: hidden;
+}
+.max-full-height .MuiTableContainer-root {
+  width: 100%;
+  overflow-x: auto;
+  /* height: inherit; */
+  max-height: calc(100vh - 30vh);
+}
+.max-full-height tbody {
+  max-height: inherit;
+  /* height: 100%; */
+  overflow: scroll;
+  overflow-x: hidden;
+}
+.max-full-height-2 {
+  max-height: calc(100vh - 45vh);
+  min-height: calc(100vh - 45vh);
+  height: 100%;
+  overflow: auto;
+  overflow-x: hidden;
+}
+.max-full-height-2 .MuiTableContainer-root {
+  width: 100%;
+  overflow-x: auto;
+  /* height: inherit; */
+  max-height: calc(100vh - 45vh);
+}
+.delete-icon-custom {
+  background-color: #d53342;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+}
+.tableHead-sticky-custom {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: white;
+}
+.max-full-height-2 tbody {
+  max-height: inherit;
+  /* height: 100%; */
+  overflow: scroll;
+  overflow-x: hidden;
 }
 .file-action-btn:hover {
   color: #3d546f;

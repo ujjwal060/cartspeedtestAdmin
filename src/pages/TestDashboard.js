@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from "react";
-import { 
-  Box, 
-  Paper, 
-  Chip, 
-  Tooltip, 
-  Stack, 
+import {
+  Box,
+  Paper,
+  Chip,
+  Tooltip,
+  Stack,
   Modal,
   Typography,
   Button,
@@ -18,7 +18,7 @@ import {
   TablePagination,
   TableSortLabel,
   TextField,
-  InputAdornment
+  InputAdornment,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { debounce } from "lodash";
@@ -28,7 +28,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import SearchIcon from "@mui/icons-material/Search";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
 const rowsPerPage = 10;
 
@@ -126,21 +126,20 @@ function EnhancedTableHead(props) {
   );
 }
 
-
 const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '80%',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80%",
   maxWidth: 800,
-  bgcolor: 'background.paper',
+  bgcolor: "background.paper",
   boxShadow: 24,
   p: 3,
   borderRadius: 2,
-  display: 'flex',
-  flexDirection: 'column',
-  maxHeight: '90vh',
+  display: "flex",
+  flexDirection: "column",
+  maxHeight: "90vh",
 };
 const TestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -155,7 +154,7 @@ const TestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
-  
+
   const [data, setData] = useState([
     {
       id: 1,
@@ -177,7 +176,7 @@ const TestDashboard = () => {
           optionD: "sadsf",
           correctAnswer: "B",
           userAnswer: "B",
-          isCorrect: true
+          isCorrect: true,
         },
         {
           id: 2,
@@ -188,7 +187,7 @@ const TestDashboard = () => {
           optionD: "Chennai",
           correctAnswer: "B",
           userAnswer: "B",
-          isCorrect: true
+          isCorrect: true,
         },
         {
           id: 3,
@@ -199,7 +198,7 @@ const TestDashboard = () => {
           optionD: "Saturn",
           correctAnswer: "C",
           userAnswer: "C",
-          isCorrect: true
+          isCorrect: true,
         },
         {
           id: 4,
@@ -210,9 +209,9 @@ const TestDashboard = () => {
           optionD: "divya",
           correctAnswer: "A",
           userAnswer: "A",
-          isCorrect: true
-        }
-      ]
+          isCorrect: true,
+        },
+      ],
     },
     {
       id: 2,
@@ -234,7 +233,7 @@ const TestDashboard = () => {
           optionD: "sadsf",
           correctAnswer: "B",
           userAnswer: "A",
-          isCorrect: false
+          isCorrect: false,
         },
         {
           id: 2,
@@ -245,10 +244,10 @@ const TestDashboard = () => {
           optionD: "Chennai",
           correctAnswer: "B",
           userAnswer: "",
-          isCorrect: false
-        }
-      ]
-    }
+          isCorrect: false,
+        },
+      ],
+    },
   ]);
 
   // Filter and sort data
@@ -358,7 +357,6 @@ const TestDashboard = () => {
     setCurrentPage(0);
   };
 
-
   const handleOpenModal = (test) => {
     setSelectedTest(test);
     setOpenModal(true);
@@ -370,13 +368,11 @@ const TestDashboard = () => {
   };
 
   return (
-    <Box p={4}>
+    <Box>
       <Box>
-
-
         <div className="d-flex justify-content-end align-items-center mb-2">
           <div className="d-flex justify-content-end gap-2 align-items-center">
-            <div className="custom-picker">
+            <div className="custom-picker date-picker-custom-design">
               <CalendarMonthIcon className="svg-custom" />
               <DatePicker
                 selectsRange={true}
@@ -399,9 +395,11 @@ const TestDashboard = () => {
             </Tooltip>
           </div>
         </div>
-
-        <Paper elevation={3} className="mt-3">
-          <TableContainer>
+        {(inputValue.name ||
+          inputValue.email ||
+          inputValue.result ||
+          inputValue.status) && (
+          <>
             <Stack direction="row" spacing={1} className="p-3">
               {inputValue.name && (
                 <Chip
@@ -428,10 +426,14 @@ const TestDashboard = () => {
                 />
               )}
             </Stack>
+          </>
+        )}
 
+        <Paper elevation={3} className="mt-3 ">
+          <TableContainer className="max-full-height">
             {loading && <LinearProgress />}
 
-            <Table>
+            <Table >
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}
@@ -441,10 +443,12 @@ const TestDashboard = () => {
               <TableBody>
                 {openFilter && (
                   <TableRow>
+                    <TableCell></TableCell>
+
                     <TableCell>
                       <Form.Control
                         id="filter-name"
-                        placeholder="Name"
+                        placeholder=" Name"
                         value={inputValue.name || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
@@ -452,10 +456,11 @@ const TestDashboard = () => {
                         }
                       />
                     </TableCell>
+
                     <TableCell>
                       <Form.Control
                         id="filter-email"
-                        placeholder="Email"
+                        placeholder=" Email"
                         value={inputValue.email || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
@@ -463,10 +468,15 @@ const TestDashboard = () => {
                         }
                       />
                     </TableCell>
-                    <TableCell colSpan={2}>
+
+                    <TableCell></TableCell>
+
+                    <TableCell></TableCell>
+
+                    <TableCell>
                       <Form.Control
                         id="filter-status"
-                        placeholder="Status"
+                        placeholder=" Status"
                         value={inputValue.status || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
@@ -474,7 +484,20 @@ const TestDashboard = () => {
                         }
                       />
                     </TableCell>
-                    <TableCell colSpan={4}></TableCell>
+
+                    <TableCell>
+                      <Form.Control
+                        id="filter-result"
+                        placeholder=" Result"
+                        value={inputValue.result || ""}
+                        className="rounded-0 custom-input"
+                        onChange={(e) =>
+                          handleFilterChange("result", e.target.value)
+                        }
+                      />
+                    </TableCell>
+
+                    <TableCell></TableCell>
                   </TableRow>
                 )}
 
@@ -487,44 +510,43 @@ const TestDashboard = () => {
                       <TableCell>{item.attemptedQuestions}</TableCell>
                       <TableCell>{item.totalQuestions}</TableCell>
                       <TableCell>
-                        <Chip 
-                          label={item.status} 
-                          color={item.status === "Completed" ? "success" : "warning"} 
+                        <Chip
+                          label={item.status}
+                          color={
+                            item.status === "Completed" ? "success" : "warning"
+                          }
                           size="small"
                         />
                       </TableCell>
                       <TableCell>
-                        <Chip 
-                          label={item.result} 
-                          color={item.result === "Pass" ? "success" : "error"} 
+                        <Chip
+                          label={item.result}
+                          color={item.result === "Pass" ? "success" : "error"}
                           size="small"
                         />
                       </TableCell>
                       <TableCell>
-                      
                         <Tooltip title="View details">
-  <Button
-    variant="outlined"
-    size="small"
-    onClick={() => handleOpenModal(item)}
-    startIcon={<VisibilityIcon fontSize="small" />}
-    sx={{
-      borderRadius: '20px',
-      textTransform: 'none',
-      padding: '4px 10px',
-      fontSize: '0.75rem',
-      minWidth: 0,
-      lineHeight: 1.5,
-     
-      backgroundColor:'#2e7d32',
-      color: '#fff',
-   
-    }}
-  >
-    View
-  </Button>
-</Tooltip>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => handleOpenModal(item)}
+                            startIcon={<VisibilityIcon fontSize="small" />}
+                            sx={{
+                              borderRadius: "20px",
+                              textTransform: "none",
+                              padding: "4px 10px",
+                              fontSize: "0.75rem",
+                              minWidth: 0,
+                              lineHeight: 1.5,
 
+                              backgroundColor: "#2e7d32",
+                              color: "#fff",
+                            }}
+                          >
+                            View
+                          </Button>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))
@@ -558,7 +580,12 @@ const TestDashboard = () => {
         aria-describedby="test-questions-and-answers"
       >
         <Box sx={modalStyle}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={3}
+          >
             <Typography variant="h5" component="h2" fontWeight="bold">
               Test Review - {selectedTest?.name}
             </Typography>
@@ -566,108 +593,159 @@ const TestDashboard = () => {
               <CloseIcon />
             </Button>
           </Box>
-          
+
           {selectedTest && (
             <>
-              <Box mb={4} p={2} sx={{ backgroundColor: '#f5f5f5', borderRadius: 2 }}>
+              <Box
+                mb={4}
+                p={2}
+                sx={{ backgroundColor: "#f5f5f5", borderRadius: 2 }}
+              >
                 <Stack direction="row" spacing={3} flexWrap="wrap">
                   <Box>
-                    <Typography variant="subtitle2" color="text.secondary">Score</Typography>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Score
+                    </Typography>
                     <Typography fontWeight="bold">
-                      {selectedTest.attemptedQuestions}/{selectedTest.totalQuestions}
+                      {selectedTest.attemptedQuestions}/
+                      {selectedTest.totalQuestions}
                     </Typography>
                   </Box>
                   <Box>
-                    <Typography variant="subtitle2" color="text.secondary">Status</Typography>
-                    <Chip 
-                      label={selectedTest.status} 
-                      color={selectedTest.status === "Completed" ? "success" : "warning"} 
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Status
+                    </Typography>
+                    <Chip
+                      label={selectedTest.status}
+                      color={
+                        selectedTest.status === "Completed"
+                          ? "success"
+                          : "warning"
+                      }
                       size="small"
                     />
                   </Box>
                   <Box>
-                    <Typography variant="subtitle2" color="text.secondary">Result</Typography>
-                    <Chip 
-                      label={selectedTest.result} 
-                      color={selectedTest.result === "Pass" ? "success" : "error"} 
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Result
+                    </Typography>
+                    <Chip
+                      label={selectedTest.result}
+                      color={
+                        selectedTest.result === "Pass" ? "success" : "error"
+                      }
                       size="small"
                     />
                   </Box>
                 </Stack>
               </Box>
-              
-              <Box sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
+
+              <Box sx={{ maxHeight: "60vh", overflowY: "auto", pr: 1 }}>
                 {selectedTest.questions.map((q, index) => (
-                  <Box key={q.id} mb={4} sx={{ 
-                    border: '1px solid #e0e0e0',
-                    borderRadius: 2,
-                    p: 2,
-                    backgroundColor: '#fff'
-                  }}>
+                  <Box
+                    key={q.id}
+                    mb={4}
+                    sx={{
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 2,
+                      p: 2,
+                      backgroundColor: "#fff",
+                    }}
+                  >
                     <Typography variant="h6" fontWeight="bold" mb={1}>
                       Q{index + 1}. {q.question}
                     </Typography>
-                    
+
                     {q.level && (
-                      <Typography variant="caption" color="text.secondary" mb={2} display="block">
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        mb={2}
+                        display="block"
+                      >
                         Level: {q.level}
                       </Typography>
                     )}
-                    
+
                     {/* Options */}
                     <Box mb={2}>
-                      {['A', 'B', 'C', 'D'].map((option) => (
-                        q[`option${option}`] && (
-                          <Box key={option} display="flex" alignItems="center" mb={1}>
-                            <Box 
-                              sx={{
-                                width: 24,
-                                height: 24,
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                mr: 1,
-                                backgroundColor: 
-                                  q.correctAnswer === option ? '#4caf50' :
-                                  q.userAnswer === option && !q.isCorrect ? '#f44336' :
-                                  '#e0e0e0',
-                                color: 
-                                  q.correctAnswer === option || 
-                                  (q.userAnswer === option && !q.isCorrect) ? '#fff' : '#000'
-                              }}
+                      {["A", "B", "C", "D"].map(
+                        (option) =>
+                          q[`option${option}`] && (
+                            <Box
+                              key={option}
+                              display="flex"
+                              alignItems="center"
+                              mb={1}
                             >
-                              {option}
+                              <Box
+                                sx={{
+                                  width: 24,
+                                  height: 24,
+                                  borderRadius: "50%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  mr: 1,
+                                  backgroundColor:
+                                    q.correctAnswer === option
+                                      ? "#4caf50"
+                                      : q.userAnswer === option && !q.isCorrect
+                                      ? "#f44336"
+                                      : "#e0e0e0",
+                                  color:
+                                    q.correctAnswer === option ||
+                                    (q.userAnswer === option && !q.isCorrect)
+                                      ? "#fff"
+                                      : "#000",
+                                }}
+                              >
+                                {option}
+                              </Box>
+                              <Typography>{q[`option${option}`]}</Typography>
                             </Box>
-                            <Typography>{q[`option${option}`]}</Typography>
-                          </Box>
-                        )
-                      ))}
+                          )
+                      )}
                     </Box>
-                    
+
                     {/* User's answer and correct answer */}
                     <Box mt={2} pt={2} borderTop="1px dashed #e0e0e0">
                       <Box mb={1}>
-                        <Typography variant="subtitle2" color="text.secondary">Your Answer:</Typography>
-                        <Typography sx={{ 
-                          p: 1,
-                          backgroundColor: q.isCorrect ? '#e8f5e9' : '#ffebee',
-                          borderRadius: 1,
-                          borderLeft: `3px solid ${q.isCorrect ? '#4caf50' : '#f44336'}`
-                        }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Your Answer:
+                        </Typography>
+                        <Typography
+                          sx={{
+                            p: 1,
+                            backgroundColor: q.isCorrect
+                              ? "#e8f5e9"
+                              : "#ffebee",
+                            borderRadius: 1,
+                            borderLeft: `3px solid ${
+                              q.isCorrect ? "#4caf50" : "#f44336"
+                            }`,
+                          }}
+                        >
                           {q.userAnswer || "Not answered"}
                         </Typography>
                       </Box>
-                      
+
                       {!q.isCorrect && (
                         <Box>
-                          <Typography variant="subtitle2" color="text.secondary">Correct Answer:</Typography>
-                          <Typography sx={{ 
-                            p: 1,
-                            backgroundColor: '#e8f5e9',
-                            borderRadius: 1,
-                            borderLeft: '3px solid #4caf50'
-                          }}>
+                          <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                          >
+                            Correct Answer:
+                          </Typography>
+                          <Typography
+                            sx={{
+                              p: 1,
+                              backgroundColor: "#e8f5e9",
+                              borderRadius: 1,
+                              borderLeft: "3px solid #4caf50",
+                            }}
+                          >
                             {q.correctAnswer}
                           </Typography>
                         </Box>
@@ -676,12 +754,17 @@ const TestDashboard = () => {
                   </Box>
                 ))}
               </Box>
-              
-              <Box mt={3} display="flex" justifyContent="space-between" alignItems="center">
+
+              <Box
+                mt={3}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Typography variant="body2" color="text.secondary">
-                  Showing {selectedTest.questions.length} of {selectedTest.questions.length} questions
+                  Showing {selectedTest.questions.length} of{" "}
+                  {selectedTest.questions.length} questions
                 </Typography>
-              
               </Box>
             </>
           )}

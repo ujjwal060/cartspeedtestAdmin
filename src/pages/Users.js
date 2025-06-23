@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { Box, Paper, Chip, Tooltip, Stack } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { debounce } from "lodash";
@@ -32,20 +33,21 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Name",
+    disableSort: true,
   },
   {
     id: "Email",
     numeric: false,
     disablePadding: false,
     label: "Email",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "Phone",
     numeric: false,
     disablePadding: false,
     label: "Phone",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "Address",
@@ -59,6 +61,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Date",
+    // disableSort: false,
   },
 ];
 
@@ -69,7 +72,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -105,6 +108,8 @@ function EnhancedTableHead(props) {
 
 const VideoDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0);
+  const location = useLocation();
+  const { state } = location;
   const [getVideo, setGetVideo] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("");
@@ -172,15 +177,34 @@ const VideoDashboard = () => {
     []
   );
 
+  useEffect(() => {
+    if (state?.startDate && state?.endDate) {
+      setDateRange([new Date(state.startDate), new Date(state.endDate)]);
+      setFilters((prev) => ({
+        ...prev,
+        startDate: new Date(state.startDate),
+        endDate: new Date(state.endDate),
+      }));
+    }
+  }, [state]); // Run only when `state` changes
+
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+    if (!update[0] && !update[1]) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    } else {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
   };
-
   useEffect(() => {
     fetchVideos();
   }, [currentPage]);
@@ -190,11 +214,13 @@ const VideoDashboard = () => {
     fetchVideos();
   }, [filters, order, orderBy]);
 
+  console.log(state);
+
   return (
-    <Box p={4}>
+    <Box>
       <Box>
         <div className="d-flex justify-content-end gap-2 align-items-center pad-root ">
-          <div className="custom-picker">
+          <div className="custom-picker date-picker-custom-design">
             <CalendarMonthIcon className="svg-custom" />
             <DatePicker
               selectsRange={true}
@@ -218,38 +244,41 @@ const VideoDashboard = () => {
             </Tooltip>
           </div>
         </div>
-        <Paper elevation={3} className="mt-3">
+        {(inputValue.name ||
+          inputValue.email ||
+          inputValue.mobile ||
+          inputValue.address) && (
+          <Stack direction="row" spacing={1}>
+            {inputValue.name && (
+              <Chip
+                label={`name: ${inputValue.name}`}
+                onDelete={() => handleFilterChange("name", "")}
+              />
+            )}
+            {inputValue.email && (
+              <Chip
+                label={`email: ${inputValue.email}`}
+                onDelete={() => handleFilterChange("email", "")}
+              />
+            )}
+            {inputValue.mobile && (
+              <Chip
+                label={`phone: ${inputValue.mobile}`}
+                onDelete={() => handleFilterChange("mobile", "")}
+              />
+            )}
+            {inputValue.address && (
+              <Chip
+                label={`Address: ${inputValue.address}`}
+                onDelete={() => handleFilterChange("address", "")}
+              />
+            )}
+          </Stack>
+        )}
+        <Paper elevation={3} className="mt-3 max-full-height">
           <TableContainer>
-            {
-              <Stack direction="row" spacing={1} className="p-3">
-                {inputValue.title && (
-                  <Chip
-                    label={`name: ${inputValue.name}`}
-                    onDelete={() => handleFilterChange("name", "")}
-                  />
-                )}
-                {inputValue.email && (
-                  <Chip
-                    label={`Desc: ${inputValue.email}`}
-                    onDelete={() => handleFilterChange("email", "")}
-                  />
-                )}
-                {inputValue.mobile && (
-                  <Chip
-                    label={`phone: ${inputValue.locationState}`}
-                    onDelete={() => handleFilterChange("mobile", "")}
-                  />
-                )}
-                {inputValue.state && (
-                  <Chip
-                    label={`Uploaded By: ${inputValue.state}`}
-                    onDelete={() => handleFilterChange("state", "")}
-                  />
-                )}
-              </Stack>
-            }
             {loading && <LinearProgress />}
-            <Table>
+            <Table >
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}
@@ -296,10 +325,10 @@ const VideoDashboard = () => {
                       <Form.Control
                         id="filter-state"
                         placeholder="Address"
-                        value={inputValue.state}
+                        value={inputValue.address}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
-                          handleFilterChange("state", e.target.value)
+                          handleFilterChange("address", e.target.value)
                         }
                       />
                     </TableCell>
