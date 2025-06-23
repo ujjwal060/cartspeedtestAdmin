@@ -452,19 +452,28 @@ const AssessmentDashboard = () => {
                   {openFilter && (
                     <>
                       <TextField
-                        label="Search by Location"
+                        label="Search by PinCode"
                         variant="outlined"
                         size="small"
-                        value={inputValue.location}
-                        onChange={(e) =>
-                          // setFilters((prev) => ({
-                          //   ...prev,
-                          //   location: e.target.value,
-                          // }))
-                          handleFilterChange("location", e.target.value)
+                        value={inputValue.location || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Only allow numbers and max 6 digits
+                          if (/^\d{0,6}$/.test(value)) {
+                            handleFilterChange("location", value);
+                          }
+                        }}
+                        inputProps={{
+                          inputMode: "numeric", // Shows numeric keyboard on mobile
+                          pattern: "[0-9]{6}", // HTML5 validation pattern
+                          maxLength: 6, // Hard limit on input length
+                        }}
+                      
+                        error={
+                          inputValue.location &&
+                          inputValue.location.length !== 6
                         }
                       />
-
                       <Box className="custom-picker date-picker-custom-design">
                         <CalendarMonthIcon className="svg-custom" />
                         <DatePicker

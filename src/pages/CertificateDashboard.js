@@ -245,6 +245,7 @@ export default function CertificateDashboard() {
       const offset = currentPage * rowsPerPage;
       const limit = rowsPerPage;
       const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+
       const response = await fetchCertificates(
         token,
         filters,
@@ -298,7 +299,7 @@ export default function CertificateDashboard() {
     }
   };
 
-  console.log(inputValue);
+  console.log(inputValue.certificateNumber);
 
   return (
     <>
@@ -311,14 +312,14 @@ export default function CertificateDashboard() {
           >
             {inputValue.certificateNumber && (
               <Chip
-                label={`Certificate: CERT-${inputValue.certificateNumber}`}
+                label={`Certificate: ${inputValue.certificateNumber}`}
                 onDelete={() => handleFilterChange("certificateNumber", "")}
                 variant="outlined"
               />
             )}
             {inputValue.certificateName && (
               <Chip
-                label={`Name: ${inputValue.certificateName}`}
+                label={`Certificate: ${inputValue.certificateNumber}`}
                 onDelete={() => handleFilterChange("certificateName", "")}
                 variant="outlined"
               />
@@ -482,15 +483,23 @@ export default function CertificateDashboard() {
                           placeholder="Certificate Number"
                           value={
                             inputValue?.certificateNumber
-                              ? `CERT-${inputValue.certificateNumber}`
+                              ? inputValue.certificateNumber.startsWith("CERT-")
+                                ? inputValue.certificateNumber
+                                : `CERT-${inputValue.certificateNumber}`
                               : "CERT-"
                           }
                           className="rounded-0 custom-input"
                           onChange={(e) => {
-                            const rawValue = e.target.value
-                              .replace(/^CERT-/, "")
-                              .replace(/[^0-9]/g, "");
-                            handleFilterChange("certificateNumber", rawValue);
+                            // Remove all "CERT-" prefixes to get the raw number
+                            const rawValue = e.target.value.replace(
+                              /^CERT-/,
+                              ""
+                            );
+                            // Store just the number part in state
+                            handleFilterChange(
+                              "certificateNumber",
+                              `CERT-${rawValue}`
+                            );
                           }}
                         />
                       </TableCell>

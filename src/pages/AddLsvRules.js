@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Button,
   Modal,
-  Table,
   Container,
   Form,
   Card,
@@ -27,6 +26,20 @@ import {
 } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "../api/axios";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  TablePagination,
+  TableSortLabel,
+  MuiIconButton,
+  Box,
+} from "@mui/material";
 
 const AddLsvRules = () => {
   const [showModal, setShowModal] = useState(false);
@@ -594,86 +607,70 @@ const AddLsvRules = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* Data Table */}
-      <Card className="shadow-sm">
-        <Card.Header className="bg-light d-flex align-items-center">
-          <FaBook className="text-primary me-2" />
-          <h5 className="mb-0">Current LSV Rules</h5>
-        </Card.Header>
-        <Card.Body>
-          <div className="table-responsive">
-            <Table striped bordered hover className="mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th>#</th>
-                  <th>What Is LSV?</th>
-                  <th>Importance</th>
-                  <th>Safety</th>
-                  <th>Guidelines</th>
-                  <th>Sections</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item, index) => (
-                  <tr key={item._id}>
-                    <td>{index + 1}</td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {item.questions.whatIsLSV}
-                      </div>
-                    </td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {item.questions.importance}
-                      </div>
-                    </td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {item.questions.safety}
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <Badge bg="info" pill>
-                        {item.guidelines?.length || 0}
-                      </Badge>
-                    </td>
-                    <td className="text-center">
-                      <Badge bg="primary" pill>
-                        {item.sections?.length || 0}
-                      </Badge>
-                    </td>
-                    <td className="text-center">
-                      <Button
-                        variant="outline-info"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => {
-                          setSelectedSection(item);
-                          setViewModal(true);
-                        }}
-                        title="View Details"
-                      >
-                        <FaEye />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </Card.Body>
-      </Card>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>#</TableCell>
+              <TableCell>What Is LSV?</TableCell>
+              <TableCell>Importance</TableCell>
+              <TableCell>Safety</TableCell>
+              <TableCell>Guidelines</TableCell>
+              <TableCell>Sections</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.map((item, index) => (
+              <TableRow key={item._id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell sx={{ maxWidth: 200 }}>
+                  <Box sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {item.questions.whatIsLSV}
+                  </Box>
+                </TableCell>
+                <TableCell sx={{ maxWidth: 200 }}>
+                  <Box sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {item.questions.importance}
+                  </Box>
+                </TableCell>
+                <TableCell sx={{ maxWidth: 200 }}>
+                  <Box sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {item.questions.safety}
+                  </Box>
+                </TableCell>
+                <TableCell align="center">
+                  <Chip
+                    label={item.guidelines?.length || 0}
+                    color="info"
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <Chip
+                    label={item.sections?.length || 0}
+                    color="primary"
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <Button
+                    color="info"
+                    size="small"
+                    onClick={() => {
+                      setSelectedSection(item);
+                      setViewModal(true);
+                    }}
+                    title="View Details"
+                  >
+                    <FaEye />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <Modal
         show={viewModal}
