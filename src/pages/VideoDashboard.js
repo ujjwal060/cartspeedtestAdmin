@@ -123,6 +123,7 @@ const safetyVideoHeadCells = [
     numeric: false,
     disablePadding: false,
     label: "Title",
+    disableSort: true,
   },
   {
     id: "description",

@@ -335,7 +335,7 @@ const Sidebar = () => {
             id="alert-dialog-description"
             className="text-center"
           >
-            Do you really want to logout?
+            Are You Sure Do you really want to logout?
           </DialogContentText>
         </DialogContent>
         <DialogActions className="d-flex justify-content-center align-items-center px-4">
@@ -352,7 +352,7 @@ const Sidebar = () => {
             onClick={handleLogout}
             style={{
               background: "linear-gradient(to right, #3f87a6, #ebf8e1)",
-              color: "white",
+              color: "#000",
             }}
             color="success"
             className="w-100"

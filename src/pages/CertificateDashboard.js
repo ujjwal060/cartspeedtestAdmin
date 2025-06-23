@@ -77,7 +77,7 @@ export default function CertificateDashboard() {
 
   const HeadCell = [
     {
-      id: "Certificate ID",
+      id: "certificateNumber",
       numeric: false,
       disablePadding: false,
       label: "Certificate ID",
@@ -109,13 +109,13 @@ export default function CertificateDashboard() {
       : []),
 
     {
-      id: "Issue Date",
+      id: "issueDate",
       numeric: false,
       disablePadding: false,
       label: "Issue Date",
     },
     {
-      id: "Expiry Date",
+      id: "validUntil",
       numeric: false,
       disablePadding: false,
       label: "Expiry Date",

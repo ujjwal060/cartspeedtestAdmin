@@ -57,7 +57,7 @@ const headCells = [
     disableSort: true,
   },
   {
-    id: "uploadDate",
+    id: "updatedAt",
     numeric: false,
     disablePadding: false,
     label: "Date",

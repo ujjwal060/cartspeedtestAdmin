@@ -147,11 +147,24 @@ const AssessmentDashboard = () => {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
   const fetchQA = async () => {
