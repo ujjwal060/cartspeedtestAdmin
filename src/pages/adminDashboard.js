@@ -33,32 +33,35 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "name",
+    disableSort: true,
   },
   {
     id: "Email",
     numeric: false,
     disablePadding: false,
     label: "email",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "locationName",
     numeric: false,
     disablePadding: false,
     label: "locationName",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "Number",
     numeric: false,
     disablePadding: false,
     label: "Number",
+    disableSort: true,
   },
   {
     id: "Status",
     numeric: false,
     disablePadding: false,
     label: "Status",
+    disableSort: true,
   },
 ];
 
