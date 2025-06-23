@@ -122,7 +122,7 @@ export default function AdminDashboard() {
   const [open, setOpen] = useState(false);
   const [startDate, endDate] = dateRange;
   const [data, setData] = useState([]);
-
+  const [displayedFilters, setDisplayedFilters] = useState({});
   const handleAdmin = async ({ filters }) => {
     setLoading(true);
     try {
@@ -189,6 +189,10 @@ export default function AdminDashboard() {
         ...prevFilters,
         [key]: value,
       }));
+      setDisplayedFilters((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
     }, 2000),
     []
   );
@@ -203,6 +207,10 @@ export default function AdminDashboard() {
         }
       }
       setFilters((prev) => ({ ...prev, [key]: value }));
+      setDisplayedFilters((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
     }, 2000),
     []
   );
@@ -234,7 +242,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     setCurrentPage(0);
   }, [filters, order, orderBy]);
-  console.log(filters);
+  console.log(displayedFilters);
   return (
     <Box>
       <Box>
@@ -279,33 +287,49 @@ export default function AdminDashboard() {
             />
           </div>
         </div>
-        {(inputValue.name ||
-          inputValue.email ||
-          inputValue.locationName ||
-          inputValue.Number) && (
+        {(displayedFilters.name ||
+          displayedFilters.email ||
+          displayedFilters.locationName ||
+          displayedFilters.number) && (
           <Stack direction="row" spacing={1} className="p-3">
-            {inputValue.name && (
+            {displayedFilters.name && (
               <Chip
-                label={`name: ${inputValue?.name}`}
-                onDelete={() => handleFilterChange("name", "")}
+                label={`name: ${displayedFilters?.name}`}
+                onDelete={() => {
+                  handleFilterChange("name", "");
+                  setDisplayedFilters((prev) => ({ ...prev, name: "" }));
+                  setFilters((prev) => ({ ...prev, name: undefined }));
+                }}
               />
             )}
-            {inputValue.email && (
+            {displayedFilters.email && (
               <Chip
-                label={`email: ${inputValue?.email}`}
-                onDelete={() => handleFilterChange("email", "")}
+                label={`email: ${displayedFilters?.email}`}
+                onDelete={() => {
+                  handleFilterChange("email", "");
+                  setDisplayedFilters((prev) => ({ ...prev, email: "" }));
+                  setFilters((prev) => ({ ...prev, email: undefined }));
+                }}
               />
             )}
-            {inputValue.locationName && (
+            {displayedFilters.locationName && (
               <Chip
-                label={`location: ${inputValue?.locationName}`}
-                onDelete={() => handleFilterChange("locationName", "")}
+                label={`location: ${displayedFilters?.locationName}`}
+                onDelete={() => {
+                  handleFilterChange("locationName", "");
+                  setDisplayedFilters((prev) => ({ ...prev, locationName: "" }));
+                  setFilters((prev) => ({ ...prev, locationName: undefined }));
+                }}
               />
             )}
-            {inputValue.Number && (
+            {displayedFilters.number && (
               <Chip
-                label={`Uploaded By: ${inputValue?.Number}`}
-                onDelete={() => handleFilterChange("Number", "")}
+                label={`Number: ${displayedFilters?.number}`}
+               onDelete={() => {
+                  handleFilterChange("number", "");
+                  setDisplayedFilters((prev) => ({ ...prev, number: "" }));
+                  setFilters((prev) => ({ ...prev, number: undefined }));
+                }}
               />
             )}
           </Stack>

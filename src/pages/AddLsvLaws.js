@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   Modal,
-  Table,
   Container,
   Form,
   Row,
@@ -25,6 +24,29 @@ import {
   FaEye,
 } from "react-icons/fa";
 import axios from "axios";
+import {
+  Box,
+  CardContent,
+  Grid,
+  InputAdornment,
+  MenuItem,
+  Paper,
+  Stack,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  CircularProgress,
+  TablePagination,
+  Chip,
+  LinearProgress,
+  IconButton,
+} from "@mui/material";
 
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
@@ -1110,146 +1132,167 @@ const AddLsvLaws = () => {
       </Modal>
 
       {tableData.length > 0 ? (
-        <Card className="shadow-sm">
-          <Card.Header className="bg-light">
-            <h5 className="mb-0">Saved Law Sections</h5>
-          </Card.Header>
-          <Card.Body className="p-0">
-            <div className="table-responsive">
-              <Table hover className="mb-0" stickyHeader aria-label="sticky table">
-                <thead className="table-light">
-                  <tr>
-                    <th>#</th>
-
-                    <th>Title</th>
-                    <th>Description</th>
-
-                    <th>Guidelines</th>
-                    <th>What is LSV</th>
-
-                    <th>Importance</th>
-                    <th>Safety</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData.map((section, index) => (
-                    <tr key={section.id}>
-                      <td className="fw-bold">{index + 1}</td>
-                      <td>
-                        <Badge bg={getBadgeColor(section.type)}>
-                          {section?.sections[0].title}
-                        </Badge>
-                      </td>
-
-                      <td>
-                        {section.sections.map((data) => {
-                          return (
-                            <div key={data.id} className="mb-2">
-                              <small className="text-muted d-block text-truncate">
-                                <div
-                                  dangerouslySetInnerHTML={{
-                                    __html: data.description,
-                                  }}
-                                  className="text-muted"
-                                />
-                              </small>
-                            </div>
-                          );
-                        })}
-                        {/* <div
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              section.description.substring(0, 60) +
-                              (section.description.length > 60 ? "..." : ""),
-                          }}
-                          className="text-muted"
-                        /> */}
-                      </td>
-
-                      <td style={{ maxWidth: "200px" }}>
-                        {section.guidelines.map((g, i) => (
-                          <div key={i} className="mb-2">
-                            <small className="fw-bold d-block">{g.title}</small>
-                            <small className="text-muted d-block text-truncate">
-                              {g.description
-                                .replace(/<[^>]+>/g, "")
-                                .substring(0, 30)}
-                              ...
-                            </small>
-                            {g.imagePreviews?.length > 0 && (
-                              <small className="d-flex align-items-center mt-1">
-                                <FaImage className="me-1 text-primary" />
-                                {g.imagePreviews.length} image(s)
-                              </small>
-                            )}
-                          </div>
-                        ))}
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section?.questions?.whatIsLSV}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted  text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section.questions?.importance}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section?.questions?.safety}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <Button
-                          variant="outline-success"
-                          size="sm"
-                          className="me-2"
-                          onClick={() => handleViewSection(section)}
+        <TableContainer component={Paper}>
+          <Table
+            stickyHeader
+            aria-label="sticky table"
+            sx={{ "& .MuiTableCell-root": { padding: "12px 16px" } }}
+          >
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                <TableCell>#</TableCell>
+                <TableCell>Title</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Guidelines</TableCell>
+                <TableCell>What is LSV</TableCell>
+                <TableCell>Importance</TableCell>
+                <TableCell>Safety</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tableData.map((section, index) => (
+                <TableRow key={section.id} hover>
+                  <TableCell sx={{ fontWeight: "bold" }}>{index + 1}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={section?.sections[0].title}
+                      color={getBadgeColor(section.type)}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {section.sections.map((data) => (
+                      <Box key={data.id} sx={{ mb: 1 }}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          component="div"
                         >
-                          <FaEye />
-                        </Button>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="me-2"
-                           onClick={() => handleEditSection(section)}
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: data.description,
+                            }}
+                          />
+                        </Typography>
+                      </Box>
+                    ))}
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 150 }}>
+                    {section.guidelines.map((g, i) => (
+                      <Box key={i} sx={{ mb: 1 }}>
+                        <Typography
+                          variant="caption"
+                          fontWeight="bold"
+                          component="div"
                         >
-                          <FaEdit />
-                        </Button>
-                        <Button variant="outline-danger" size="sm">
-                          <FaTrash />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </Card.Body>
-        </Card>
+                          {g.title}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          noWrap
+                          component="div"
+                        >
+                          {g.description
+                            .replace(/<[^>]+>/g, "")
+                            .substring(0, 30)}
+                          ...
+                        </Typography>
+                        {g.imagePreviews?.length > 0 && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              mt: 0.5,
+                            }}
+                          >
+                            <FaImage
+                              style={{ color: "#1976d2", marginRight: 4 }}
+                              size={12}
+                            />
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {g.imagePreviews.length} image(s)
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    ))}
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 150 }}>
+                    <Typography
+                      component="p"
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{
+                        maxWidth: 150,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {section?.questions?.whatIsLSV}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 150 }}>
+                    <Typography
+                      component="p"
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{
+                        maxWidth: 150,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {section.questions?.importance}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 150 }}>
+                    <Typography
+                      component="p"
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{
+                        maxWidth: 150,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {section?.questions?.safety}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 150 }}>
+                    <Button
+                      className="btn btn-success mb-3"
+                      size="small"
+                      onClick={() => handleViewSection(section)}
+                     
+                    >
+                      <FaEye />
+                    </Button>
+                    <Button
+                      className="btn btn-info text-light mb-3"
+                      size="small"
+                      onClick={() => handleEditSection(section)}
+                      
+                    >
+                      <FaEdit />
+                    </Button>
+                    <Button className="btn btn-danger" size="small">
+                      <FaTrash />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       ) : (
         <Card className="shadow-sm text-center py-5">
           <Card.Body>

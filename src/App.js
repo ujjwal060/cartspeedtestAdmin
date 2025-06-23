@@ -16,8 +16,6 @@ import TestDashboard from "./pages/TestDashboard";
 import CertificateDashboard from "./pages/CertificateDashboard";
 import TestDetail from "./pages/TestDetail";
 import AdminDashboard from "./pages/adminDashboard";
-import LSVRulesPage from "./pages/LSVRulesPage";
-import LSVLawsPage from "./pages/LSVLawsPage";
 // import EditorTablePage from "./pages/AddLsvRules";
 import AddLsvRules from "./pages/AddLsvRules";
 import AddLsvLaws from "./pages/AddLsvLaws";
@@ -66,9 +64,7 @@ function App() {
                 <Route path="/test" element={<TestDashboard />} />
                 <Route path="/test-detail/:id" element={<TestDetail />} />
                 <Route path="/certificate" element={<CertificateDashboard />} />
-                <Route path="/lsv-rules" element={<LSVRulesPage />} />
                 <Route path="/add-lsvrules" element={<AddLsvRules />} />
-                <Route path="/lsv-laws" element={<LSVLawsPage />} />
                 <Route path="/addlsv-laws" element={<AddLsvLaws />} />
                 <Route path="/admin" element={<AdminDashboard />} />
               </Route>
