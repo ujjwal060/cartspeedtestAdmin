@@ -323,6 +323,10 @@ code {
   overflow: auto;
   overflow-x: hidden;
 }
+.react-datepicker-popper {
+    z-index: 9999 !important;
+    line-height: 0;
+}
 .max-full-height-2 .MuiTableContainer-root {
   width: 100%;
   overflow-x: auto;

@@ -47,7 +47,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import { fetchCertificates } from "../api/certificate";
 import TableSortLabel from "@mui/material/TableSortLabel";
-
+import { toast } from "react-toastify";
 export default function CertificateDashboard() {
   const rowsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(0);
@@ -83,7 +83,7 @@ export default function CertificateDashboard() {
       label: "Certificate ID",
     },
     {
-      id: "Name",
+      id: "Certificate Name",
       numeric: false,
       disablePadding: false,
       label: "Name",
@@ -93,7 +93,7 @@ export default function CertificateDashboard() {
       id: "Email",
       numeric: false,
       disablePadding: false,
-      label: "Recipient",
+      label: "Email",
       disableSort: true,
     },
     ...(userRole === "superAdmin"
@@ -102,7 +102,7 @@ export default function CertificateDashboard() {
             id: "Location",
             numeric: false,
             disablePadding: false,
-            label: "Recipient Location",
+            label: " Location",
             disableSort: true,
           },
         ]
@@ -264,11 +264,24 @@ export default function CertificateDashboard() {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
   console.log(inputValue);
@@ -286,7 +299,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Certificate: CERT-${inputValue.certificateNumber}`}
                 onDelete={() => handleFilterChange("certificateNumber", "")}
-                
                 variant="outlined"
               />
             )}
@@ -294,7 +306,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Name: ${inputValue.certificateName}`}
                 onDelete={() => handleFilterChange("certificateName", "")}
-                
                 variant="outlined"
               />
             )}
@@ -302,7 +313,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Email: ${inputValue.email}`}
                 onDelete={() => handleFilterChange("email", "")}
-                
                 variant="outlined"
               />
             )}
@@ -310,7 +320,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Location: ${inputValue.locationName}`}
                 onDelete={() => handleFilterChange("locationName", "")}
-                
                 variant="outlined"
               />
             )}
@@ -318,7 +327,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Status: ${inputValue.status}`}
                 onDelete={() => handleFilterChange("status", "")}
-                
                 variant="outlined"
               />
             )}
@@ -338,7 +346,6 @@ export default function CertificateDashboard() {
                   handleFilterChange("startDate", "");
                   handleFilterChange("endDate", "");
                 }}
-                
                 variant="outlined"
               />
             )}
@@ -491,9 +498,22 @@ export default function CertificateDashboard() {
                           placeholder="Email"
                           value={inputValue?.email || ""}
                           className="rounded-0 custom-input"
-                          onChange={(e) =>
-                            handleFilterChange("email", e.target.value)
-                          }
+                          onChange={(e) => {
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
+                            const isValidEmail = emailRegex.test(
+                              e.target.value
+                            );
+
+                            if (isValidEmail) {
+                              console.log("Valid email:", e.target.value);
+                              handleFilterChange("email", e.target.value);
+                            } else {
+                              // Optionally show a warning or prevent invalid input
+                              toast.warning(
+                                "Please enter a valid email address"
+                              );
+                            }
+                          }}
                         />
                       </TableCell>
                       {userRole === "superAdmin" && (
