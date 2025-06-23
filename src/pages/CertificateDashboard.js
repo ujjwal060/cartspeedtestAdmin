@@ -205,6 +205,20 @@ export default function CertificateDashboard() {
     }
   };
 
+  const debouncedEmalilFilters = useCallback(
+    debounce((key, value) => {
+      if (key === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value) && value !== "") {
+          toast.warning("Please enter a valid email address");
+          return;
+        }
+      }
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    }, 2000),
+    []
+  );
+
   const handleTotalClick = () => {
     // Remove status filter when Total is clicked
     if (filters.status) {
@@ -499,27 +513,18 @@ export default function CertificateDashboard() {
                           value={inputValue?.email || ""}
                           className="rounded-0 custom-input"
                           onChange={(e) => {
-                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
-                            const isValidEmail = emailRegex.test(
-                              e.target.value
-                            );
-
-                            if (isValidEmail) {
-                              console.log("Valid email:", e.target.value);
-                              handleFilterChange("email", e.target.value);
-                            } else {
-                              // Optionally show a warning or prevent invalid input
-                              toast.warning(
-                                "Please enter a valid email address"
-                              );
-                            }
+                            setInputValue((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }));
+                            debouncedEmalilFilters("email", e.target.value);
                           }}
                         />
                       </TableCell>
                       {userRole === "superAdmin" && (
                         <TableCell>
                           <Form.Control
-                            placeholder="Reciepient Location"
+                            placeholder=" Location"
                             value={inputValue?.locationName || ""}
                             className="rounded-0 custom-input"
                             onChange={(e) =>
