@@ -157,6 +157,20 @@ const VideoDashboard = () => {
     setOpenFilter(!openFilter);
   };
 
+  const debouncedEmalilFilters = useCallback(
+    debounce((key, value) => {
+      if (key === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value) && value !== "") {
+          toast.warning("Please enter a valid email address");
+          return;
+        }
+      }
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    }, 2000),
+    []
+  );
+
   const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const handleFilterChange = (filterName, value) => {
@@ -309,17 +323,12 @@ const VideoDashboard = () => {
                         placeholder="Email"
                         value={inputValue.email}
                         className="rounded-0 custom-input"
-                        onChange={(e) => {
-                          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
-                          const isValidEmail = emailRegex.test(e.target.value);
-
-                          if (isValidEmail) {
-                            console.log("Valid email:", e.target.value);
-                            handleFilterChange("email", e.target.value);
-                          } else {
-                            // Optionally show a warning or prevent invalid input
-                            toast.warning("Please enter a valid email address");
-                          }
+                          onChange={(e) => {
+                            setInputValue((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }));
+                            debouncedEmalilFilters("email", e.target.value);
                         }}
                       />
                     </TableCell>
