@@ -9,6 +9,8 @@ const AddSafetyVideoOffcanvas = ({
   setOpen,
   handleClose,
   onVideoUploaded,
+  uploadingloading,
+  setUploadingLoading,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [image, setImage] = useState(null);
@@ -48,6 +50,7 @@ const AddSafetyVideoOffcanvas = ({
       return;
     }
 
+    setUploadingLoading(true);
     setIsSubmitting(true);
     const token = localStorage.getItem("token");
 
@@ -62,9 +65,11 @@ const AddSafetyVideoOffcanvas = ({
       toast.success("Safety Video Added Successfully");
       resetForm();
       handleClose();
+      setUploadingLoading(false);
       if (onVideoUploaded) onVideoUploaded();
     } catch (error) {
       console.error("Error:", error);
+      setUploadingLoading(false);
       toast.error(error.message || "Error uploading safety video");
     } finally {
       setIsSubmitting(false);

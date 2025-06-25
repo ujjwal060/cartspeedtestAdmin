@@ -282,6 +282,7 @@ const VideoDashboard = () => {
           setTotalData(response?.total);
         }
       } else {
+        setLoading(true);
         const response = await getSafetyVideos(
           token,
           offset,
@@ -294,10 +295,12 @@ const VideoDashboard = () => {
         if (response.status === 200) {
           setGetSafetyVideo(response?.data);
           setTotalData(response?.total);
+          setLoading(false);
         }
       }
     } catch (error) {
       toast.error(error?.response?.data?.message?.[0]);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -900,6 +903,8 @@ const VideoDashboard = () => {
         selectedVideos={[]}
         videoFiles={safetyVideoFiles}
         setVideoFiles={setSafetyVideoFiles}
+        setUploadingLoading={setUploadingLoading}
+        uploadingloading={uploadingloading}
         deleteUploadedVideo={deleteUploadedSafetyVideo}
         onVideoUploaded={fetchVideos}
       />
