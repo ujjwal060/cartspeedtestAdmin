@@ -13,6 +13,8 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import DialogBox from "../components/deleteDialog";
+
 import "react-toastify/dist/ReactToastify.css";
 import {
   FaPlus,
@@ -23,7 +25,7 @@ import {
   FaImage,
   FaEye,
 } from "react-icons/fa";
-import axios from "axios";
+import axios from "../api/axios";
 import {
   Box,
   CardContent,
@@ -51,11 +53,14 @@ import {
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalData, setTotalData] = useState([]);
   const [sectionType, setSectionType] = useState("driver");
   const [laws, setLaws] = useState([{ id: 1, content: "" }]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [DialogOpen, setDialogOpen] = useState(false);
+  const [currentId, setCurrentId] = useState(null);
   const [guidelines, setGuidelines] = useState([
     {
       id: 1,
@@ -72,6 +77,12 @@ const AddLsvLaws = () => {
   const [isLoading, setIsLoading] = useState(false);
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
+
+  const dialogClose = () => setDialogOpen(false);
+  const dialogOpen = (id) => {
+    setDialogOpen(true);
+    setCurrentId(id);
+  };
 
   const staticHeadings = {
     caring:
@@ -94,6 +105,7 @@ const AddLsvLaws = () => {
       setLaws(laws.filter((law) => law.id !== id));
     }
   };
+  const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const handleAddGuideline = () => {
     setGuidelines([
@@ -238,16 +250,12 @@ const AddLsvLaws = () => {
 
       const token = localStorage.getItem("token");
 
-      const response = await axios.put(
-        "http://localhost:9090/api/admin/lsv/editGLSVRules",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.put("/admin/lsv/editGLSVRules", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200) {
         toast.success("Law section updated successfully!");
@@ -315,16 +323,12 @@ const AddLsvLaws = () => {
 
       const token = localStorage.getItem("token");
 
-      const response = await axios.post(
-        "http://18.209.91.97:9090/api/admin/lsv/addRRLSVR",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post("/admin/lsv/addRRLSVR", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Law section added successfully!");
@@ -345,6 +349,7 @@ const AddLsvLaws = () => {
 
         // setTableData([...tableData, newSection]);
         resetForm();
+        handleGetData(); // Refresh the data
         setShowModal(false);
       }
     } catch (error) {
@@ -372,13 +377,17 @@ const AddLsvLaws = () => {
 
   useEffect(() => {
     handleGetData();
-  }, []);
+  }, [currentPage]);
 
   const handleGetData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://18.209.91.97:9090/api/admin/lsv/getGLSV",
+      const response = await axios.post(
+        "/admin/lsv/getRRLSV",
+        {
+          offset: currentPage * 10,
+          limit: 10,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -386,11 +395,28 @@ const AddLsvLaws = () => {
         }
       );
       setTableData(response?.data?.data);
+      setTotalData(response?.data?.total);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
+  const deleteData = async () => {
+    const response = await axios.delete(`/admin/lsv/deleteRRLSV/${currentId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    if (response.status === 200) {
+      toast.success("Law section deleted successfully!");
+      handleGetData(); // Refresh the data
+      setDialogOpen(false);
+      resetForm();
+    } else {
+      toast.error("Failed to delete section.");
+      setDialogOpen(false);
+    }
+  };
   const getBadgeColor = (type) => {
     return "secondary";
   };
@@ -411,7 +437,6 @@ const AddLsvLaws = () => {
   return (
     <>
       <ToastContainer position="top-right" newestOnTop />
-
       <Card className="shadow-sm mb-4">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -436,7 +461,6 @@ const AddLsvLaws = () => {
           </div>
         </Card.Body>
       </Card>
-
       <Modal
         show={showModal}
         onHide={() => {
@@ -724,7 +748,6 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal
         show={viewModal}
         onHide={() => setViewModal(false)}
@@ -807,28 +830,26 @@ const AddLsvLaws = () => {
 
                   <div className="mb-4">
                     <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> What is LSV
+                      <FaInfoCircle className="me-2 text-info" /> Section
                     </h5>
                     <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.whatIsLSV}
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Importance
-                    </h5>
-                    <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.importance}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Safety
-                    </h5>
-                    <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.safety}
+                      {selectedSection.sections.map((guideline, index) => (
+                        <Card key={index} className="mb-3 border-0 shadow-sm">
+                          <Card.Header className="bg-light">
+                            <h6 className="mb-0">
+                              {guideline.title || `Guideline ${index + 1}`}
+                            </h6>
+                          </Card.Header>
+                          <Card.Body>
+                            <div
+                              className="mb-3"
+                              dangerouslySetInnerHTML={{
+                                __html: guideline.description,
+                              }}
+                            />
+                          </Card.Body>
+                        </Card>
+                      ))}
                     </div>
                   </div>
                 </Card.Body>
@@ -842,7 +863,6 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal
         show={editModal}
         onHide={() => {
@@ -1130,169 +1150,100 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       {tableData.length > 0 ? (
-        <TableContainer component={Paper}>
-          <Table
-            stickyHeader
-            aria-label="sticky table"
-            sx={{ "& .MuiTableCell-root": { padding: "12px 16px" } }}
-          >
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                <TableCell>#</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Guidelines</TableCell>
-                <TableCell>What is LSV</TableCell>
-                <TableCell>Importance</TableCell>
-                <TableCell>Safety</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.map((section, index) => (
-                <TableRow key={section.id} hover>
-                  <TableCell sx={{ fontWeight: "bold" }}>{index + 1}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={section?.sections[0].title}
-                      color={getBadgeColor(section.type)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {section.sections.map((data) => (
-                      <Box key={data.id} sx={{ mb: 1 }}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          component="div"
-                        >
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: data.description,
-                            }}
-                          />
-                        </Typography>
-                      </Box>
-                    ))}
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150 }}>
-                    {section.guidelines.map((g, i) => (
-                      <Box key={i} sx={{ mb: 1 }}>
-                        <Typography
-                          variant="caption"
-                          fontWeight="bold"
-                          component="div"
-                        >
-                          {g.title}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          noWrap
-                          component="div"
-                        >
-                          {g.description
-                            .replace(/<[^>]+>/g, "")
-                            .substring(0, 30)}
-                          ...
-                        </Typography>
-                        {g.imagePreviews?.length > 0 && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              mt: 0.5,
-                            }}
-                          >
-                            <FaImage
-                              style={{ color: "#1976d2", marginRight: 4 }}
-                              size={12}
-                            />
+        <>
+          <Paper elevation={3} className="mt-3 max-full-height">
+            <TableContainer>
+              <Table
+                stickyHeader
+                aria-label="sticky table"
+                sx={{ "& .MuiTableCell-root": { padding: "12px 16px" } }}
+              >
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                    <TableCell>#</TableCell>
+                    <TableCell>Title</TableCell>
+                    {/* <TableCell>Description</TableCell> */}
+                    <TableCell>Guidelines</TableCell>
+                    <TableCell>Section</TableCell>
+                    {/* <TableCell>Importance</TableCell>
+                    <TableCell>Safety</TableCell> */}
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {tableData.map((section, index) => (
+                    <TableRow key={section.id} hover>
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        {index + 1}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={section?.sections[0].title}
+                          color={getBadgeColor(section.type)}
+                          size="small"
+                        />
+                      </TableCell>
+                      {/* <TableCell>
+                        {section.sections.map((data) => (
+                          <Box key={data.id} sx={{ mb: 1 }}>
                             <Typography
                               variant="caption"
                               color="text.secondary"
+                              component="div"
                             >
-                              {g.imagePreviews.length} image(s)
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: data.description,
+                                }}
+                              />
                             </Typography>
                           </Box>
+                        ))}
+                      </TableCell> */}
+                      <TableCell sx={{ maxWidth: 150 }}>
+                        <Badge bg="primary">
+                          {section?.guidelines?.length}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell sx={{ maxWidth: 150 }}>
+                        <Badge bg="primary">{section?.sections?.length}</Badge>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 150 }}>
+                        <Button
+                          className="btn btn-success me-2"
+                          size="small"
+                          onClick={() => handleViewSection(section)}
+                        >
+                          <FaEye />
+                        </Button>
+                        {role === "admin" && (
+                          <Button
+                            className="btn btn-danger"
+                            size="small"
+                            onClick={() => dialogOpen(section._id)}
+                          >
+                            <FaTrash />
+                          </Button>
                         )}
-                      </Box>
-                    ))}
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150 }}>
-                    <Typography
-                      component="p"
-                      variant="body1"
-                      color="text.secondary"
-                      sx={{
-                        maxWidth: 150,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {section?.questions?.whatIsLSV}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150 }}>
-                    <Typography
-                      component="p"
-                      variant="body1"
-                      color="text.secondary"
-                      sx={{
-                        maxWidth: 150,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {section.questions?.importance}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150 }}>
-                    <Typography
-                      component="p"
-                      variant="body1"
-                      color="text.secondary"
-                      sx={{
-                        maxWidth: 150,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {section?.questions?.safety}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150 }}>
-                    <Button
-                      className="btn btn-success mb-3"
-                      size="small"
-                      onClick={() => handleViewSection(section)}
-                     
-                    >
-                      <FaEye />
-                    </Button>
-                    <Button
-                      className="btn btn-info text-light mb-3"
-                      size="small"
-                      onClick={() => handleEditSection(section)}
-                      
-                    >
-                      <FaEdit />
-                    </Button>
-                    <Button className="btn btn-danger" size="small">
-                      <FaTrash />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+          <TablePagination
+            rowsPerPageOptions={[10]}
+            component="div"
+            className="paginated-custom"
+            count={totalData}
+            rowsPerPage={10}
+            page={currentPage}
+            onPageChange={handleChangePage}
+          />
+        </>
       ) : (
         <Card className="shadow-sm text-center py-5">
           <Card.Body>
@@ -1316,6 +1267,11 @@ const AddLsvLaws = () => {
           </Card.Body>
         </Card>
       )}
+      <DialogBox
+        open={DialogOpen}
+        onClose={dialogClose}
+        onDelete={deleteData}
+      />
     </>
   );
 };
