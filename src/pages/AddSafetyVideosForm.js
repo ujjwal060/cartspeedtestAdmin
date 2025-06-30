@@ -9,6 +9,8 @@ const AddSafetyVideoOffcanvas = ({
   setOpen,
   handleClose,
   onVideoUploaded,
+  uploadingloading,
+  setUploadingLoading,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [image, setImage] = useState(null);
@@ -48,6 +50,7 @@ const AddSafetyVideoOffcanvas = ({
       return;
     }
 
+    setUploadingLoading(true);
     setIsSubmitting(true);
     const token = localStorage.getItem("token");
 
@@ -62,9 +65,11 @@ const AddSafetyVideoOffcanvas = ({
       toast.success("Safety Video Added Successfully");
       resetForm();
       handleClose();
+      setUploadingLoading(false);
       if (onVideoUploaded) onVideoUploaded();
     } catch (error) {
       console.error("Error:", error);
+      setUploadingLoading(false);
       toast.error(error.message || "Error uploading safety video");
     } finally {
       setIsSubmitting(false);
@@ -105,34 +110,6 @@ const AddSafetyVideoOffcanvas = ({
       <Offcanvas.Body>
         <form onSubmit={handleSubmit}>
           <div className="row gy-4 mb-4">
-            <div className="col-lg-12">
-              <TextField
-                variant="outlined"
-                size="small"
-                className="w-100"
-                placeholder="Enter safety video title.."
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            <div className="col-lg-12">
-              <TextField
-                variant="outlined"
-                size="small"
-                placeholder="Enter safety video description.."
-                className="w-100"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                required
-                multiline
-                rows={4}
-              />
-            </div>
-
             <div className="col-lg-12">
               <div className="fileupload-view">
                 <div className="kb-data-box">
@@ -193,6 +170,33 @@ const AddSafetyVideoOffcanvas = ({
                   )}
                 </div>
               </div>
+            </div>
+            <div className="col-lg-12">
+              <TextField
+                variant="outlined"
+                size="small"
+                className="w-100"
+                placeholder="Enter safety video title.."
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="col-lg-12">
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Enter safety video description.."
+                className="w-100"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                required
+                multiline
+                rows={4}
+              />
             </div>
           </div>
 

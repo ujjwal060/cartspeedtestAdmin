@@ -16,7 +16,7 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Form from "react-bootstrap/Form";
-import { getAdmin } from "../api/auth";
+import { getAdmin, changeAdminStatus } from "../api/auth";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -33,38 +33,35 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "name",
+    disableSort: true,
   },
   {
     id: "Email",
     numeric: false,
     disablePadding: false,
     label: "email",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "locationName",
     numeric: false,
     disablePadding: false,
     label: "locationName",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "Number",
     numeric: false,
     disablePadding: false,
     label: "Number",
+    disableSort: true,
   },
   {
     id: "Status",
     numeric: false,
     disablePadding: false,
     label: "Status",
-  },
-  {
-    id: "Role",
-    numeric: false,
-    disablePadding: false,
-    label: "Role",
+    disableSort: true,
   },
 ];
 
@@ -75,7 +72,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -125,7 +122,7 @@ export default function AdminDashboard() {
   const [open, setOpen] = useState(false);
   const [startDate, endDate] = dateRange;
   const [data, setData] = useState([]);
-
+  const [displayedFilters, setDisplayedFilters] = useState({});
   const handleAdmin = async ({ filters }) => {
     setLoading(true);
     try {
@@ -138,7 +135,7 @@ export default function AdminDashboard() {
         limit,
         sortBy,
         sortField,
-        filters
+        filters || {}
       );
       setData(response.data);
       setTotalData(response.total);
@@ -152,7 +149,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     handleAdmin({ filters });
-  }, [filters]);
+  }, [filters, currentPage, order, orderBy]); // Add all dependencies
+
+  const handleToggleStatus = async (videoId) => {
+    try {
+      const res = await changeAdminStatus(videoId, token);
+      toast.success(res.message[0]);
+      handleAdmin({ filters });
+    } catch (error) {
+      toast.error(error.response.data.message[0]);
+    }
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -182,17 +189,52 @@ export default function AdminDashboard() {
         ...prevFilters,
         [key]: value,
       }));
+      setDisplayedFilters((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    }, 2000),
+    []
+  );
+
+  const debouncedEmalilFilters = useCallback(
+    debounce((key, value) => {
+      if (key === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value) && value !== "") {
+          toast.warning("Please enter a valid email address");
+          return;
+        }
+      }
+      setFilters((prev) => ({ ...prev, [key]: value }));
+      setDisplayedFilters((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
     }, 2000),
     []
   );
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
   useEffect(() => {}, [currentPage]);
@@ -200,7 +242,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     setCurrentPage(0);
   }, [filters, order, orderBy]);
-  console.log(filters);
+  console.log(displayedFilters);
   return (
     <Box>
       <Box>
@@ -245,39 +287,55 @@ export default function AdminDashboard() {
             />
           </div>
         </div>
-        {(inputValue.name ||
-          inputValue.email ||
-          inputValue.locationName ||
-          inputValue.Number) && (
+        {(displayedFilters.name ||
+          displayedFilters.email ||
+          displayedFilters.locationName ||
+          displayedFilters.number) && (
           <Stack direction="row" spacing={1} className="p-3">
-            {inputValue.name && (
+            {displayedFilters.name && (
               <Chip
-                label={`name: ${inputValue.name}`}
-                onDelete={() => handleFilterChange("name", "")}
+                label={`name: ${displayedFilters?.name}`}
+                onDelete={() => {
+                  handleFilterChange("name", "");
+                  setDisplayedFilters((prev) => ({ ...prev, name: "" }));
+                  setFilters((prev) => ({ ...prev, name: undefined }));
+                }}
               />
             )}
-            {inputValue.email && (
+            {displayedFilters.email && (
               <Chip
-                label={`email: ${inputValue.email}`}
-                onDelete={() => handleFilterChange("email", "")}
+                label={`email: ${displayedFilters?.email}`}
+                onDelete={() => {
+                  handleFilterChange("email", "");
+                  setDisplayedFilters((prev) => ({ ...prev, email: "" }));
+                  setFilters((prev) => ({ ...prev, email: undefined }));
+                }}
               />
             )}
-            {inputValue.locationName && (
+            {displayedFilters.locationName && (
               <Chip
-                label={`location: ${inputValue.locationName}`}
-                onDelete={() => handleFilterChange("locationName", "")}
+                label={`location: ${displayedFilters?.locationName}`}
+                onDelete={() => {
+                  handleFilterChange("locationName", "");
+                  setDisplayedFilters((prev) => ({ ...prev, locationName: "" }));
+                  setFilters((prev) => ({ ...prev, locationName: undefined }));
+                }}
               />
             )}
-            {inputValue.Number && (
+            {displayedFilters.number && (
               <Chip
-                label={`Uploaded By: ${inputValue.Number}`}
-                onDelete={() => handleFilterChange("Number", "")}
+                label={`Number: ${displayedFilters?.number}`}
+               onDelete={() => {
+                  handleFilterChange("number", "");
+                  setDisplayedFilters((prev) => ({ ...prev, number: "" }));
+                  setFilters((prev) => ({ ...prev, number: undefined }));
+                }}
               />
             )}
           </Stack>
         )}
-        <Paper elevation={3} className="mt-3">
-          <TableContainer className="max-full-height">
+        <Paper elevation={3} className="mt-3 max-full-height">
+          <TableContainer>
             {loading && <LinearProgress />}
             <Table stickyHeader aria-label="sticky table">
               <EnhancedTableHead
@@ -293,7 +351,7 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-name"
                         placeholder="Filter Name"
-                        value={inputValue.name || ""}
+                        value={inputValue?.name || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("name", e.target.value)
@@ -306,11 +364,15 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-email"
                         placeholder="Filter Email"
-                        value={inputValue.email || ""}
+                        value={inputValue?.email || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("email", e.target.value)
-                        }
+                        onChange={(e) => {
+                          setInputValue((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }));
+                          debouncedEmalilFilters("email", e.target.value);
+                        }}
                       />
                     </TableCell>
 
@@ -319,7 +381,7 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-address"
                         placeholder="Filter Address"
-                        value={inputValue.locationName || ""}
+                        value={inputValue?.locationName || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("locationName", e.target.value)
@@ -332,7 +394,7 @@ export default function AdminDashboard() {
                       <Form.Control
                         id="filter-number"
                         placeholder="Filter Number"
-                        value={inputValue.number || ""}
+                        value={inputValue?.number || ""}
                         className="rounded-0 custom-input"
                         onChange={(e) =>
                           handleFilterChange("number", e.target.value)
@@ -358,27 +420,24 @@ export default function AdminDashboard() {
                         });
                       }}
                     >
-                      {video.name}
+                      {video?.name}
                     </TableCell>
-                    <TableCell>{video.email}</TableCell>
-                    <TableCell>{video.locationDetails?.name}</TableCell>
-                    <TableCell>{video.mobile}</TableCell>
+                    <TableCell>{video?.email}</TableCell>
+                    <TableCell>{video?.locationDetails?.name}</TableCell>
+                    <TableCell>{video?.mobile}</TableCell>
                     <TableCell>
                       <FormGroup>
                         <FormControlLabel
                           control={
                             <Switch
-                              checked={video.isActive}
-                              onChange={() => {
-                                // Add your status change handler here
-                              }}
+                              checked={video?.isActive}
+                              onChange={() => handleToggleStatus(video._id)}
                             />
                           }
-                          label={video.isActive ? "Active" : "Inactive"}
+                          label={video?.isActive ? "Active" : "Inactive"}
                         />
                       </FormGroup>
                     </TableCell>
-                    <TableCell>{video.role}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

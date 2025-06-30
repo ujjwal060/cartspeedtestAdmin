@@ -36,6 +36,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import Radio from "@mui/material/Radio";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import { debounce } from "lodash";
+import DialogBox from "../components/deleteDialog";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -59,6 +60,7 @@ const sectionOptions = [
 
 const AssessmentDashboard = () => {
   const rowsPerPage = 10;
+  const [currentId, setCurrentId] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [filters, setFilters] = useState({});
   const [show, setShow] = useState(false);
@@ -74,7 +76,7 @@ const AssessmentDashboard = () => {
   const [editData, setEditData] = useState(null);
   const [data, setData] = useState([]);
   const [inputValue, setInputValue] = useState("");
-
+  const [open, setOpen] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -145,11 +147,24 @@ const AssessmentDashboard = () => {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
   const fetchQA = async () => {
@@ -182,16 +197,25 @@ const AssessmentDashboard = () => {
     setEditForm({ question: "", options: [] });
   };
 
-  const handleDelete = async (id) => {
+  const dialogClose = () => setOpen(false);
+  const dialogOpen = (id) => {
+    setOpen(true);
+    setCurrentId(id);
+  };
+
+  const handleDelete = async () => {
+    console.log(currentId);
     try {
-      const response = await deleteQA( id);
+      const response = await deleteQA(currentId);
       if (response && response.status === 200) {
         toast.success(response.message || "Question deleted successfully");
         fetchQA(); // Refresh the data
+        setOpen(false);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to delete question");
       console.error("Error deleting question:", error);
+      setOpen(false);
     }
   };
   const handleSaveEdit = async () => {
@@ -428,19 +452,28 @@ const AssessmentDashboard = () => {
                   {openFilter && (
                     <>
                       <TextField
-                        label="Search by Location"
+                        label="Search by PinCode"
                         variant="outlined"
                         size="small"
-                        value={inputValue.location}
-                        onChange={(e) =>
-                          // setFilters((prev) => ({
-                          //   ...prev,
-                          //   location: e.target.value,
-                          // }))
-                          handleFilterChange("location", e.target.value)
+                        value={inputValue.location || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Only allow numbers and max 6 digits
+                          if (/^\d{0,6}$/.test(value)) {
+                            handleFilterChange("location", value);
+                          }
+                        }}
+                        inputProps={{
+                          inputMode: "numeric", // Shows numeric keyboard on mobile
+                          pattern: "[0-9]{6}", // HTML5 validation pattern
+                          maxLength: 6, // Hard limit on input length
+                        }}
+                      
+                        error={
+                          inputValue.location &&
+                          inputValue.location.length !== 6
                         }
                       />
-
                       <Box className="custom-picker date-picker-custom-design">
                         <CalendarMonthIcon className="svg-custom" />
                         <DatePicker
@@ -555,7 +588,7 @@ const AssessmentDashboard = () => {
                                   size={16}
                                   color="red"
                                   className="cursor-pointer"
-                                  onClick={() => handleDelete(item._id)}
+                                  onClick={() => dialogOpen(item._id)}
                                 />
                               </>
                             )}
@@ -736,6 +769,8 @@ const AssessmentDashboard = () => {
         onVideoUploaded={fetchQA}
         editData={editData}
       />
+
+      <DialogBox open={open} onClose={dialogClose} onDelete={handleDelete} />
     </Box>
   );
 };

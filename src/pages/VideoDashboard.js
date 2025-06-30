@@ -14,6 +14,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from "@mui/material";
+import DialogBox from "../components/deleteDialog";
 import { useNavigate } from "react-router-dom";
 import Select from "@mui/material/Select";
 import Switch from "@mui/material/Switch";
@@ -46,8 +47,6 @@ import {
 } from "../api/video";
 import { getSafetyVideos } from "../api/video";
 import { useLocation } from "react-router-dom";
-
-// import {deleteSafetyVideos, isActiveSafetyVideos }  from "../api/video";
 import AddVideoOffcanvas from "./AddVideosForm";
 import AddSafetyVideoOffcanvas from "./AddSafetyVideosForm";
 import DatePicker from "react-datepicker";
@@ -124,6 +123,7 @@ const safetyVideoHeadCells = [
     numeric: false,
     disablePadding: false,
     label: "Title",
+    disableSort: true,
   },
   {
     id: "description",
@@ -183,7 +183,7 @@ function EnhancedTableHead(props) {
     viewType === "videos" ? videoHeadCells : safetyVideoHeadCells;
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -235,8 +235,9 @@ const VideoDashboard = () => {
   const [filters, setFilters] = useState({});
   const [viewType, setViewType] = useState("videos");
   const location = useLocation();
-  const adminName = location.state?.adminName;
-  console.log(adminName, "....adminanem");
+  const [currentId, setCurrentId] = useState(null);
+  const [DialogOpen, setDialogOpen] = useState(false);
+
   const handleClickOpen = () => setOpen(true);
   const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true);
   const handleClose = () => setOpen(false);
@@ -281,6 +282,7 @@ const VideoDashboard = () => {
           setTotalData(response?.total);
         }
       } else {
+        setLoading(true);
         const response = await getSafetyVideos(
           token,
           offset,
@@ -293,10 +295,12 @@ const VideoDashboard = () => {
         if (response.status === 200) {
           setGetSafetyVideo(response?.data);
           setTotalData(response?.total);
+          setLoading(false);
         }
       }
     } catch (error) {
       toast.error(error?.response?.data?.message?.[0]);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -306,18 +310,31 @@ const VideoDashboard = () => {
     setVideoFiles((prev) => prev.filter((v) => v.id !== id));
   };
 
+  const dialogClose = () => setDialogOpen(false);
+  const dialogOpen = (id) => {
+    setDialogOpen(true);
+    setCurrentId(id);
+  };
+
   const deleteUploadedSafetyVideo = (id) => {
     setSafetyVideoFiles((prev) => prev.filter((v) => v.id !== id));
   };
 
-  const handleDelete = async (videoId) => {
+  const handleDelete = async () => {
     try {
       const res =
         viewType === "videos"
-          ? await deleteVideos(videoId, token)
-          : await deleteSafetyVideos(videoId, token);
-      toast.success(res.message[0]);
+          ? await deleteVideos(currentId, token)
+          : await deleteSafetyVideos(currentId, token);
+      if (viewType === "videos") {
+        toast.success(res?.message[0]);
+        fetchVideos();
+        setDialogOpen(false);
+        return;
+      }
+      toast.success(res?.message);
       fetchVideos();
+      setDialogOpen(false);
     } catch (error) {
       toast.error(error.response.data.message[0]);
     }
@@ -329,7 +346,12 @@ const VideoDashboard = () => {
         viewType === "videos"
           ? await isActiveVideos(videoId, token)
           : await isActiveSafetyVideos(videoId, token);
-      toast.success(res.message[0]);
+      if (viewType === "videos") {
+        toast.success(res?.message[0]);
+        fetchVideos();
+        return;
+      }
+      toast.success(res.message);
       fetchVideos();
     } catch (error) {
       toast.error(error.response.data.message[0]);
@@ -374,11 +396,24 @@ const VideoDashboard = () => {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
   const handleViewTypeChange = (event, newViewType) => {
@@ -569,7 +604,7 @@ const VideoDashboard = () => {
             <Paper elevation={3} className="mt-3 max-full-height">
               <TableContainer>
                 {loading && <LinearProgress />}
-                <Table >
+                <Table stickyHeader aria-label="sticky table">
                   <EnhancedTableHead
                     order={order}
                     orderBy={orderBy}
@@ -733,6 +768,7 @@ const VideoDashboard = () => {
                                 onChange={() =>
                                   handleToggleStatus(item.video._id)
                                 }
+                                disabled={userRole === "superAdmin"}
                                 color="primary"
                                 inputProps={{
                                   "aria-label": "toggle video status",
@@ -748,7 +784,7 @@ const VideoDashboard = () => {
                               <DeleteIcon
                                 color="error"
                                 style={{ cursor: "pointer" }}
-                                onClick={() => handleDelete(item.video._id)}
+                                onClick={() => dialogOpen(item.video._id)}
                               />
                             </TableCell>
                           </TableRow>
@@ -775,6 +811,7 @@ const VideoDashboard = () => {
                             <TableCell>
                               <Switch
                                 checked={item.isActive}
+                                disabled={userRole === "superAdmin"}
                                 onChange={() => handleToggleStatus(item._id)}
                                 color="primary"
                                 inputProps={{
@@ -791,7 +828,7 @@ const VideoDashboard = () => {
                               <DeleteIcon
                                 color="error"
                                 style={{ cursor: "pointer" }}
-                                onClick={() => handleDelete(item._id)}
+                                onClick={() => dialogOpen(item._id)}
                               />
                             </TableCell>
                           </TableRow>
@@ -840,6 +877,11 @@ const VideoDashboard = () => {
           </Box>
         </>
       )}
+      <DialogBox
+        open={DialogOpen}
+        onClose={dialogClose}
+        onDelete={handleDelete}
+      />
 
       <AddVideoOffcanvas
         open={open}
@@ -861,6 +903,8 @@ const VideoDashboard = () => {
         selectedVideos={[]}
         videoFiles={safetyVideoFiles}
         setVideoFiles={setSafetyVideoFiles}
+        setUploadingLoading={setUploadingLoading}
+        uploadingloading={uploadingloading}
         deleteUploadedVideo={deleteUploadedSafetyVideo}
         onVideoUploaded={fetchVideos}
       />

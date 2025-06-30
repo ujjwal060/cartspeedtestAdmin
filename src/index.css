@@ -272,10 +272,7 @@ code {
   border-radius: 50%;
   transform: rotate(-35deg);
 }
-.max-full-height {
-  min-height: calc(100vh - 30vh);
-  height: 100%;
-}
+
 .text-hover-logout:hover svg {
   color: #fff;
 }
@@ -300,6 +297,59 @@ code {
   text-decoration: underline;
   margin-right: 15px;
   cursor: pointer;
+}
+.max-full-height {
+  max-height: calc(100vh - 30vh);
+  /* height: 100%; */
+  overflow: auto;
+  overflow-x: hidden;
+}
+.max-full-height .MuiTableContainer-root {
+  width: 100%;
+  overflow-x: auto;
+  /* height: inherit; */
+  max-height: calc(100vh - 30vh);
+}
+.max-full-height tbody {
+  max-height: inherit;
+  /* height: 100%; */
+  overflow: scroll;
+  overflow-x: hidden;
+}
+.max-full-height-2 {
+  max-height: calc(100vh - 45vh);
+  min-height: calc(100vh - 45vh);
+  height: 100%;
+  overflow: auto;
+  overflow-x: hidden;
+}
+.react-datepicker-popper {
+    z-index: 9999 !important;
+    line-height: 0;
+}
+.max-full-height-2 .MuiTableContainer-root {
+  width: 100%;
+  overflow-x: auto;
+  /* height: inherit; */
+  max-height: calc(100vh - 45vh);
+}
+.delete-icon-custom {
+  background-color: #d53342;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+}
+.tableHead-sticky-custom {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: white;
+}
+.max-full-height-2 tbody {
+  max-height: inherit;
+  /* height: 100%; */
+  overflow: scroll;
+  overflow-x: hidden;
 }
 .file-action-btn:hover {
   color: #3d546f;

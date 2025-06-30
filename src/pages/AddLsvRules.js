@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Button,
   Modal,
-  Table,
   Container,
   Form,
   Card,
@@ -16,6 +15,8 @@ import {
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { ToastContainer, toast } from "react-toastify";
+import DialogBox from "../components/deleteDialog";
+
 import {
   FaEye,
   FaPlus,
@@ -27,8 +28,29 @@ import {
 } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "../api/axios";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  TablePagination,
+  TableSortLabel,
+  MuiIconButton,
+  Typography,
+  Box,
+} from "@mui/material";
+
+const rowsPerPage = 10;
 
 const AddLsvRules = () => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalData, setTotalData] = useState([]);
+  const [DialogOpen, setDialogOpen] = useState(false);
+  const [currentId, setCurrentId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
@@ -41,6 +63,12 @@ const AddLsvRules = () => {
     importance: "",
     safety: "",
   });
+
+  const dialogClose = () => setDialogOpen(false);
+  const dialogOpen = (id) => {
+    setDialogOpen(true);
+    setCurrentId(id);
+  };
 
   const [sectionData, setSectionData] = useState([
     { title: "", description: "", isActive: true },
@@ -57,19 +85,47 @@ const AddLsvRules = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage]);
+
+  const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("/admin/lsv/getGLSV", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const response = await axios.post(
+        "/admin/lsv/getGLSV",
+        {
+          offset: currentPage * rowsPerPage,
+          limit: 10,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       if (response.status === 200) {
         setData(response.data.data);
+        setTotalData(response?.data?.total);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to fetch LSV rules");
+    }
+  };
+
+  const deleteData = async () => {
+    const response = await axios.delete(`/admin/lsv/deleteGLSV/${currentId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    if (response.status === 200) {
+      toast.success("Law section deleted successfully!");
+      fetchData(); // Refresh the data
+
+      setDialogOpen(false);
+      resetForm();
+    } else {
+      toast.error("Failed to delete section.");
+      setDialogOpen(false);
     }
   };
 
@@ -594,91 +650,129 @@ const AddLsvRules = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* Data Table */}
-      <Card className="shadow-sm">
-        <Card.Header className="bg-light d-flex align-items-center">
-          <FaBook className="text-primary me-2" />
-          <h5 className="mb-0">Current LSV Rules</h5>
-        </Card.Header>
-        <Card.Body>
-          <div className="table-responsive">
-            <Table striped bordered hover className="mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th>#</th>
-                  <th>What Is LSV?</th>
-                  <th>Importance</th>
-                  <th>Safety</th>
-                  <th>Guidelines</th>
-                  <th>Sections</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item, index) => (
-                  <tr key={item._id}>
-                    <td>{index + 1}</td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {item.questions.whatIsLSV}
-                      </div>
-                    </td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {item.questions.importance}
-                      </div>
-                    </td>
-                    <td>
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {item.questions.safety}
-                      </div>
-                    </td>
-                    <td className="text-center">
-                      <Badge bg="info" pill>
-                        {item.guidelines?.length || 0}
-                      </Badge>
-                    </td>
-                    <td className="text-center">
-                      <Badge bg="primary" pill>
-                        {item.sections?.length || 0}
-                      </Badge>
-                    </td>
-                    <td className="text-center">
+      <Paper elevation={3} className="mt-3 max-full-height">
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>What Is LSV?</TableCell>
+                <TableCell>Importance</TableCell>
+                <TableCell>Safety</TableCell>
+                <TableCell>Guidelines</TableCell>
+                <TableCell>Sections</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((item, index) => (
+                <TableRow key={item._id}>
+                  <TableCell>
+                    {" "}
+                    {currentPage * rowsPerPage + index + 1}
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 200 }}>
+                    <Typography
+                      component="p"
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.questions.whatIsLSV}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 200 }}>
+                    <Typography
+                      component="p"
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.questions.importance}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ maxWidth: 200 }}>
+                    <Typography
+                      component="p"
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.questions.safety}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Chip
+                      label={item.guidelines?.length || 0}
+                      color="info"
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Chip
+                      label={item.sections?.length || 0}
+                      color="primary"
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      color="info"
+                      size="small"
+                      onClick={() => {
+                        setSelectedSection(item);
+                        setViewModal(true);
+                      }}
+                      title="View Details"
+                    >
+                      <FaEye />
+                    </Button>
+                    {role === "admin" && (
                       <Button
-                        variant="outline-info"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => {
-                          setSelectedSection(item);
-                          setViewModal(true);
-                        }}
-                        title="View Details"
+                        size="small"
+                        onClick={() => dialogOpen(item._id)}
+                        className="ms-2 btn-danger"
+                        title="Delete"
                       >
-                        <FaEye />
+                        <FaTrash />
                       </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </Card.Body>
-      </Card>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+      <TablePagination
+        rowsPerPageOptions={[rowsPerPage]}
+        component="div"
+        className="paginated-custom"
+        count={totalData}
+        rowsPerPage={rowsPerPage}
+        page={currentPage}
+        onPageChange={handleChangePage}
+      />
 
       <Modal
         show={viewModal}
         onHide={() => setViewModal(false)}
-        size="lg"
+        size="xl"
         centered
       >
         <Modal.Header closeButton className="bg-light">
@@ -690,90 +784,92 @@ const AddLsvRules = () => {
         <Modal.Body>
           {selectedSection && (
             <>
-              <Card className="mb-3 shadow-sm">
-                <Card.Header className="bg-light">
-                  Basic Information
-                </Card.Header>
-                <Card.Body>
-                  <h5>What is LSV?</h5>
-                  <p className="text-muted">
-                    {selectedSection.questions.whatIsLSV}
-                  </p>
+              <Accordion defaultActiveKey="0" className="mb-3">
+                <Accordion.Item eventKey="0" className="shadow-sm mb-3">
+                  <Accordion.Header className="bg-light">
+                    Basic Information
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    <h5>What is LSV?</h5>
+                    <p className="text-muted">
+                      {selectedSection.questions.whatIsLSV}
+                    </p>
 
-                  <h5 className="mt-3">Importance</h5>
-                  <p className="text-muted">
-                    {selectedSection.questions.importance}
-                  </p>
+                    <h5 className="mt-3">Importance</h5>
+                    <p className="text-muted">
+                      {selectedSection.questions.importance}
+                    </p>
 
-                  <h5 className="mt-3">Safety</h5>
-                  <p className="text-muted">
-                    {selectedSection.questions.safety}
-                  </p>
-                </Card.Body>
-              </Card>
+                    <h5 className="mt-3">Safety</h5>
+                    <p className="text-muted">
+                      {selectedSection.questions.safety}
+                    </p>
+                  </Accordion.Body>
+                </Accordion.Item>
 
-              <Card className="mb-3 shadow-sm">
-                <Card.Header className="bg-light">Sections</Card.Header>
-                <Card.Body>
-                  <ListGroup variant="flush">
-                    {selectedSection.sections?.map((section, i) => (
-                      <ListGroup.Item key={i}>
-                        <h6>{section.title}</h6>
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: section.description,
-                          }}
-                        />
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </Card.Body>
-              </Card>
-
-              <Card className="shadow-sm">
-                <Card.Header className="bg-light">Guidelines</Card.Header>
-                <Card.Body>
-                  <Accordion>
-                    {selectedSection.guidelines?.map((guideline, i) => (
-                      <Accordion.Item
-                        eventKey={i.toString()}
-                        key={i}
-                        className="mb-2"
-                      >
-                        <Accordion.Header>
-                          <strong>{guideline.title}</strong>
-                        </Accordion.Header>
-                        <Accordion.Body>
+                <Accordion.Item eventKey="1" className="shadow-sm mb-3">
+                  <Accordion.Header className="bg-light">
+                    Sections
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    <ListGroup variant="flush">
+                      {selectedSection.sections?.map((section, i) => (
+                        <ListGroup.Item key={i}>
+                          <h6>{section.title}</h6>
                           <div
                             dangerouslySetInnerHTML={{
-                              __html: guideline.description,
+                              __html: section.description,
                             }}
                           />
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  </Accordion.Body>
+                </Accordion.Item>
 
-                          {guideline.imageUrl && (
-                            <>
-                              <h6 className="mt-3">Image:</h6>
-                              <Row className="g-2 mt-2">
-                                <Col xs={12} md={6}>
-                                  <BootstrapImage
-                                    src={guideline.imageUrl}
-                                    thumbnail
-                                    className="w-100"
-                                    style={{
-                                      height: "200px",
-                                      objectFit: "contain",
-                                    }}
-                                  />
-                                </Col>
-                              </Row>
-                            </>
-                          )}
-                        </Accordion.Body>
-                      </Accordion.Item>
+                <Accordion.Item eventKey="2" className="shadow-sm">
+                  <Accordion.Header className="bg-light">
+                    Guidelines
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    {selectedSection.guidelines?.map((guideline, i) => (
+                      <Accordion key={i} className="mb-2">
+                        <Accordion.Item eventKey={`guideline-${i}`}>
+                          <Accordion.Header>
+                            <strong>{guideline.title}</strong>
+                          </Accordion.Header>
+                          <Accordion.Body>
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: guideline.description,
+                              }}
+                            />
+
+                            {guideline.imageUrl && (
+                              <>
+                                <h6 className="mt-3">Image:</h6>
+                                <Row className="g-2 mt-2">
+                                  <Col xs={12} md={6}>
+                                    <BootstrapImage
+                                      src={guideline.imageUrl}
+                                      thumbnail
+                                      className="w-100"
+                                      style={{
+                                        height: "200px",
+                                        objectFit: "contain",
+                                      }}
+                                    />
+                                  </Col>
+                                </Row>
+                              </>
+                            )}
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      </Accordion>
                     ))}
-                  </Accordion>
-                </Card.Body>
-              </Card>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
             </>
           )}
         </Modal.Body>
@@ -786,6 +882,12 @@ const AddLsvRules = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <DialogBox
+        open={DialogOpen}
+        onClose={dialogClose}
+        onDelete={deleteData}
+      />
     </>
   );
 };

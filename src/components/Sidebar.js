@@ -5,6 +5,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { FiLogOut } from "react-icons/fi";
 import {
   Drawer as MuiDrawer,
   List,
@@ -321,32 +322,40 @@ const Sidebar = () => {
           transition: Transition,
         }}
         maxWidth="xs"
-        fullWidth
         keepMounted
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Logout"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title" className="text-center">
+          {" "}
+          <FiLogOut size={40} color="white" className="delete-icon-custom" />
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Do you really want to logout?
+          <DialogContentText
+            id="alert-dialog-description"
+            className="text-center"
+          >
+            Are You Sure Do you really want to logout?
           </DialogContentText>
         </DialogContent>
-        <DialogActions className="d-flex justify-content-between align-items-center px-4">
+        <DialogActions className="d-flex justify-content-center align-items-center px-4">
           <Button
             onClick={handleClose}
             variant="outlined"
             color="error"
             autoFocus
-            style={{ width: "100px" }}
+            className="w-100"
           >
             No
           </Button>
           <Button
             onClick={handleLogout}
-            variant="outlined"
+            style={{
+              background: "linear-gradient(to right, #3f87a6, #ebf8e1)",
+              color: "#000",
+            }}
             color="success"
-            style={{ width: "100px" }}
+            className="w-100"
           >
             Yes
           </Button>

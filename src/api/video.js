@@ -65,7 +65,7 @@ export const isActiveVideos = async (id, token) => {
 
 export const isActiveSafetyVideos = async (id, token) => {
   const response = await axios.patch(
-    `/admin/safetyvideo/status/${id}`,
+    `http://18.209.91.97:9090/api/admin/video/saftyStatus/${id}`,
     {},
     {
       headers: {
@@ -140,7 +140,7 @@ export const getSafetyVideos = async (
 // For safety videos (assuming similar endpoint structure)
 export const deleteSafetyVideos = async (videoId, token) => {
   const response = await axios.delete(
-    `/admin/safetyVideo/deleteSafetyVideo/${videoId}`,
+    `http://18.209.91.97:9090/api/admin/video/deleteSaftyVideo/${videoId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

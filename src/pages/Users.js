@@ -57,7 +57,7 @@ const headCells = [
     disableSort: true,
   },
   {
-    id: "uploadDate",
+    id: "updatedAt",
     numeric: false,
     disablePadding: false,
     label: "Date",
@@ -72,7 +72,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead className="tableHead-custom">
+    <TableHead className="tableHead-custom tableHead-sticky-custom">
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
@@ -157,6 +157,20 @@ const VideoDashboard = () => {
     setOpenFilter(!openFilter);
   };
 
+  const debouncedEmalilFilters = useCallback(
+    debounce((key, value) => {
+      if (key === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value) && value !== "") {
+          toast.warning("Please enter a valid email address");
+          return;
+        }
+      }
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    }, 2000),
+    []
+  );
+
   const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const handleFilterChange = (filterName, value) => {
@@ -190,19 +204,23 @@ const VideoDashboard = () => {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    if (!update[0] && !update[1]) {
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
       setFilters((prev) => {
         const newFilters = { ...prev };
         delete newFilters.startDate;
         delete newFilters.endDate;
         return newFilters;
       });
-    } else {
-      setFilters((prev) => ({
-        ...prev,
-        startDate: update[0],
-        endDate: update[1],
-      }));
     }
   };
   useEffect(() => {
@@ -278,7 +296,7 @@ const VideoDashboard = () => {
         <Paper elevation={3} className="mt-3 max-full-height">
           <TableContainer>
             {loading && <LinearProgress />}
-            <Table >
+            <Table>
               <EnhancedTableHead
                 order={order}
                 orderBy={orderBy}
@@ -305,9 +323,13 @@ const VideoDashboard = () => {
                         placeholder="Email"
                         value={inputValue.email}
                         className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("email", e.target.value)
-                        }
+                          onChange={(e) => {
+                            setInputValue((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }));
+                            debouncedEmalilFilters("email", e.target.value);
+                        }}
                       />
                     </TableCell>
                     <TableCell>

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   Modal,
-  Table,
   Container,
   Form,
   Row,
@@ -14,6 +13,8 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import DialogBox from "../components/deleteDialog";
+
 import "react-toastify/dist/ReactToastify.css";
 import {
   FaPlus,
@@ -24,16 +25,42 @@ import {
   FaImage,
   FaEye,
 } from "react-icons/fa";
-import axios from "axios";
+import axios from "../api/axios";
+import {
+  Box,
+  CardContent,
+  Grid,
+  InputAdornment,
+  MenuItem,
+  Paper,
+  Stack,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  CircularProgress,
+  TablePagination,
+  Chip,
+  LinearProgress,
+  IconButton,
+} from "@mui/material";
 
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalData, setTotalData] = useState([]);
   const [sectionType, setSectionType] = useState("driver");
   const [laws, setLaws] = useState([{ id: 1, content: "" }]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [DialogOpen, setDialogOpen] = useState(false);
+  const [currentId, setCurrentId] = useState(null);
   const [guidelines, setGuidelines] = useState([
     {
       id: 1,
@@ -50,6 +77,12 @@ const AddLsvLaws = () => {
   const [isLoading, setIsLoading] = useState(false);
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
+
+  const dialogClose = () => setDialogOpen(false);
+  const dialogOpen = (id) => {
+    setDialogOpen(true);
+    setCurrentId(id);
+  };
 
   const staticHeadings = {
     caring:
@@ -72,6 +105,7 @@ const AddLsvLaws = () => {
       setLaws(laws.filter((law) => law.id !== id));
     }
   };
+  const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const handleAddGuideline = () => {
     setGuidelines([
@@ -216,16 +250,12 @@ const AddLsvLaws = () => {
 
       const token = localStorage.getItem("token");
 
-      const response = await axios.put(
-        "http://localhost:9090/api/admin/lsv/editGLSVRules",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.put("/admin/lsv/editGLSVRules", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200) {
         toast.success("Law section updated successfully!");
@@ -293,16 +323,12 @@ const AddLsvLaws = () => {
 
       const token = localStorage.getItem("token");
 
-      const response = await axios.post(
-        "http://18.209.91.97:9090/api/admin/lsv/addRRLSVR",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post("/admin/lsv/addRRLSVR", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Law section added successfully!");
@@ -323,6 +349,7 @@ const AddLsvLaws = () => {
 
         // setTableData([...tableData, newSection]);
         resetForm();
+        handleGetData(); // Refresh the data
         setShowModal(false);
       }
     } catch (error) {
@@ -350,13 +377,17 @@ const AddLsvLaws = () => {
 
   useEffect(() => {
     handleGetData();
-  }, []);
+  }, [currentPage]);
 
   const handleGetData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://18.209.91.97:9090/api/admin/lsv/getGLSV",
+      const response = await axios.post(
+        "/admin/lsv/getRRLSV",
+        {
+          offset: currentPage * 10,
+          limit: 10,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -364,11 +395,28 @@ const AddLsvLaws = () => {
         }
       );
       setTableData(response?.data?.data);
+      setTotalData(response?.data?.total);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
+  const deleteData = async () => {
+    const response = await axios.delete(`/admin/lsv/deleteRRLSV/${currentId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    if (response.status === 200) {
+      toast.success("Law section deleted successfully!");
+      handleGetData(); // Refresh the data
+      setDialogOpen(false);
+      resetForm();
+    } else {
+      toast.error("Failed to delete section.");
+      setDialogOpen(false);
+    }
+  };
   const getBadgeColor = (type) => {
     return "secondary";
   };
@@ -389,7 +437,6 @@ const AddLsvLaws = () => {
   return (
     <>
       <ToastContainer position="top-right" newestOnTop />
-
       <Card className="shadow-sm mb-4">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -414,7 +461,6 @@ const AddLsvLaws = () => {
           </div>
         </Card.Body>
       </Card>
-
       <Modal
         show={showModal}
         onHide={() => {
@@ -702,7 +748,6 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal
         show={viewModal}
         onHide={() => setViewModal(false)}
@@ -785,28 +830,26 @@ const AddLsvLaws = () => {
 
                   <div className="mb-4">
                     <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> What is LSV
+                      <FaInfoCircle className="me-2 text-info" /> Section
                     </h5>
                     <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.whatIsLSV}
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Importance
-                    </h5>
-                    <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.importance}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Safety
-                    </h5>
-                    <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.safety}
+                      {selectedSection.sections.map((guideline, index) => (
+                        <Card key={index} className="mb-3 border-0 shadow-sm">
+                          <Card.Header className="bg-light">
+                            <h6 className="mb-0">
+                              {guideline.title || `Guideline ${index + 1}`}
+                            </h6>
+                          </Card.Header>
+                          <Card.Body>
+                            <div
+                              className="mb-3"
+                              dangerouslySetInnerHTML={{
+                                __html: guideline.description,
+                              }}
+                            />
+                          </Card.Body>
+                        </Card>
+                      ))}
                     </div>
                   </div>
                 </Card.Body>
@@ -820,7 +863,6 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal
         show={editModal}
         onHide={() => {
@@ -1108,148 +1150,100 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       {tableData.length > 0 ? (
-        <Card className="shadow-sm">
-          <Card.Header className="bg-light">
-            <h5 className="mb-0">Saved Law Sections</h5>
-          </Card.Header>
-          <Card.Body className="p-0">
-            <div className="table-responsive">
-              <Table hover className="mb-0" stickyHeader aria-label="sticky table">
-                <thead className="table-light">
-                  <tr>
-                    <th>#</th>
-
-                    <th>Title</th>
-                    <th>Description</th>
-
-                    <th>Guidelines</th>
-                    <th>What is LSV</th>
-
-                    <th>Importance</th>
-                    <th>Safety</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+        <>
+          <Paper elevation={3} className="mt-3 max-full-height">
+            <TableContainer>
+              <Table
+                stickyHeader
+                aria-label="sticky table"
+                sx={{ "& .MuiTableCell-root": { padding: "12px 16px" } }}
+              >
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                    <TableCell>#</TableCell>
+                    <TableCell>Title</TableCell>
+                    {/* <TableCell>Description</TableCell> */}
+                    <TableCell>Guidelines</TableCell>
+                    <TableCell>Section</TableCell>
+                    {/* <TableCell>Importance</TableCell>
+                    <TableCell>Safety</TableCell> */}
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   {tableData.map((section, index) => (
-                    <tr key={section.id}>
-                      <td className="fw-bold">{index + 1}</td>
-                      <td>
-                        <Badge bg={getBadgeColor(section.type)}>
-                          {section?.sections[0].title}
-                        </Badge>
-                      </td>
-
-                      <td>
-                        {section.sections.map((data) => {
-                          return (
-                            <div key={data.id} className="mb-2">
-                              <small className="text-muted d-block text-truncate">
-                                <div
-                                  dangerouslySetInnerHTML={{
-                                    __html: data.description,
-                                  }}
-                                  className="text-muted"
-                                />
-                              </small>
-                            </div>
-                          );
-                        })}
-                        {/* <div
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              section.description.substring(0, 60) +
-                              (section.description.length > 60 ? "..." : ""),
-                          }}
-                          className="text-muted"
-                        /> */}
-                      </td>
-
-                      <td style={{ maxWidth: "200px" }}>
-                        {section.guidelines.map((g, i) => (
-                          <div key={i} className="mb-2">
-                            <small className="fw-bold d-block">{g.title}</small>
-                            <small className="text-muted d-block text-truncate">
-                              {g.description
-                                .replace(/<[^>]+>/g, "")
-                                .substring(0, 30)}
-                              ...
-                            </small>
-                            {g.imagePreviews?.length > 0 && (
-                              <small className="d-flex align-items-center mt-1">
-                                <FaImage className="me-1 text-primary" />
-                                {g.imagePreviews.length} image(s)
-                              </small>
-                            )}
-                          </div>
+                    <TableRow key={section.id} hover>
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        {index + 1}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={section?.sections[0].title}
+                          color={getBadgeColor(section.type)}
+                          size="small"
+                        />
+                      </TableCell>
+                      {/* <TableCell>
+                        {section.sections.map((data) => (
+                          <Box key={data.id} sx={{ mb: 1 }}>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              component="div"
+                            >
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: data.description,
+                                }}
+                              />
+                            </Typography>
+                          </Box>
                         ))}
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section?.questions?.whatIsLSV}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted  text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section.questions?.importance}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section?.questions?.safety}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
+                      </TableCell> */}
+                      <TableCell sx={{ maxWidth: 150 }}>
+                        <Badge bg="primary">
+                          {section?.guidelines?.length}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell sx={{ maxWidth: 150 }}>
+                        <Badge bg="primary">{section?.sections?.length}</Badge>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 150 }}>
                         <Button
-                          variant="outline-success"
-                          size="sm"
-                          className="me-2"
+                          className="btn btn-success me-2"
+                          size="small"
                           onClick={() => handleViewSection(section)}
                         >
                           <FaEye />
                         </Button>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="me-2"
-                           onClick={() => handleEditSection(section)}
-                        >
-                          <FaEdit />
-                        </Button>
-                        <Button variant="outline-danger" size="sm">
-                          <FaTrash />
-                        </Button>
-                      </td>
-                    </tr>
+                        {role === "admin" && (
+                          <Button
+                            className="btn btn-danger"
+                            size="small"
+                            onClick={() => dialogOpen(section._id)}
+                          >
+                            <FaTrash />
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
+                </TableBody>
               </Table>
-            </div>
-          </Card.Body>
-        </Card>
+            </TableContainer>
+          </Paper>
+          <TablePagination
+            rowsPerPageOptions={[10]}
+            component="div"
+            className="paginated-custom"
+            count={totalData}
+            rowsPerPage={10}
+            page={currentPage}
+            onPageChange={handleChangePage}
+          />
+        </>
       ) : (
         <Card className="shadow-sm text-center py-5">
           <Card.Body>
@@ -1273,6 +1267,11 @@ const AddLsvLaws = () => {
           </Card.Body>
         </Card>
       )}
+      <DialogBox
+        open={DialogOpen}
+        onClose={dialogClose}
+        onDelete={deleteData}
+      />
     </>
   );
 };
