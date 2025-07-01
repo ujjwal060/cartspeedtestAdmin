@@ -57,16 +57,14 @@ export default function AddAdminForm({
         }
       );
       const data = await response.json();
-      debugger;
 
-      if (data && data.features) {
+      if (data && Array.isArray(data.features)) {
         const paths = [];
         const names = [];
 
         data.features.forEach((feature) => {
           const geometry = feature.geometry;
 
-          // Handle both Polygon and MultiPolygon
           if (geometry.type === "Polygon") {
             geometry.coordinates.forEach((ring) => {
               const path = ring.map(coord => ({
@@ -122,6 +120,7 @@ export default function AddAdminForm({
       toast.error("Error fetching boundaries data");
     }
   };
+  
   const handleZipCodeChange = (e) => {
     const value = e.target.value;
     setZipCode(value);
