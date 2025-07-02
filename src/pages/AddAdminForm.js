@@ -12,6 +12,7 @@ export default function AddAdminForm({
   setOpen,
   handleClose,
   handleAdmin,
+  filters
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
@@ -181,7 +182,7 @@ export default function AddAdminForm({
         handleClose();
         handleReset();
         toast.success("User registered successfully");
-        handleAdmin();
+        await handleAdmin({ filters });
         setIsSubmitting(false);
       }
     } catch (error) {

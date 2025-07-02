@@ -283,6 +283,7 @@ export default function AdminDashboard() {
               setOpen={setOpen}
               handleClose={handleClose}
               handleAdmin={handleAdmin}
+              filters={filters}
               selectedVideos={[]}
             />
           </div>
