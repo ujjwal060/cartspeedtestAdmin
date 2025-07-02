@@ -296,6 +296,37 @@ const AssessmentDashboard = () => {
           />
         )}
 
+        {title && adminName && (
+          <Link to="/videos" style={{ textDecoration: "none" }}>
+            <Chip
+              label={title}
+              className="custom-design-chip"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/videos");
+              }}
+              sx={{
+                backgroundColor: "#2E5AAC",
+                color: "white",
+                fontWeight: "bold",
+                fontSize: "0.875rem",
+                maxWidth: 200,
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                padding: "0 20px",
+                height: "32px",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#1d4a9c",
+                },
+                "& .MuiChip-label": {
+                  padding: "0 8px",
+                },
+              }}
+            />
+          </Link>
+        )}
+
         {title && (
           <Link to="/videos" style={{ textDecoration: "none" }}>
             <Chip
@@ -468,7 +499,6 @@ const AssessmentDashboard = () => {
                           pattern: "[0-9]{6}", // HTML5 validation pattern
                           maxLength: 6, // Hard limit on input length
                         }}
-                      
                         error={
                           inputValue.location &&
                           inputValue.location.length !== 6

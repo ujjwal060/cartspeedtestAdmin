@@ -158,13 +158,13 @@ const safetyVideoHeadCells = [
     label: "Duration",
     disableSort: true,
   },
-  {
-    id: "status",
-    numeric: true,
-    disablePadding: false,
-    label: "Status",
-    disableSort: true,
-  },
+  // {
+  //   id: "status",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Status",
+  //   disableSort: true,
+  // },
   {
     id: "actions",
     numeric: false,
@@ -237,7 +237,10 @@ const VideoDashboard = () => {
   const location = useLocation();
   const [currentId, setCurrentId] = useState(null);
   const [DialogOpen, setDialogOpen] = useState(false);
-
+  const [expandedStates, setExpandedStates] = useState({
+    videos: {}, // { videoId: { title: boolean, description: boolean } }
+    safetyVideos: {}, // { videoId: { title: boolean, description: boolean } }
+  });
   const handleClickOpen = () => setOpen(true);
   const handleSafetyVideoClickOpen = () => setOpenSafetyVideo(true);
   const handleClose = () => setOpen(false);
@@ -256,6 +259,19 @@ const VideoDashboard = () => {
 
   const userRole = localStorage.getItem("role");
   console.log(userRole, "userrole..");
+
+  const toggleExpand = (type, id, field) => {
+    setExpandedStates((prev) => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        [id]: {
+          ...prev[type][id],
+          [field]: !prev[type]?.[id]?.[field],
+        },
+      },
+    }));
+  };
 
   const fetchVideos = async () => {
     const offset = currentPage * rowsPerPage;
@@ -742,9 +758,7 @@ const VideoDashboard = () => {
                               onClick={() =>
                                 navigate("/assessment", {
                                   state: {
-                                    title: item.video.title,
-                                    videoId: item.video._id,
-                                    adminName: item.adminName, // 👈 Add this line
+                                    /* ... */
                                   },
                                 })
                               }
@@ -754,10 +768,75 @@ const VideoDashboard = () => {
                                 textDecoration: "underline",
                               }}
                             >
-                              {item.video.title}
+                              {item.video.title.length > 30 ? (
+                                <>
+                                  {expandedStates.videos[item.video._id]?.title
+                                    ? item.video.title
+                                    : `${item.video.title.substring(0, 30)}...`}
+                                  <Button
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleExpand(
+                                        "videos",
+                                        item.video._id,
+                                        "title"
+                                      );
+                                    }}
+                                    sx={
+                                      {
+                                        /* ... your button styles ... */
+                                      }
+                                    }
+                                  >
+                                    {expandedStates.videos[item.video._id]
+                                      ?.title
+                                      ? "Show less"
+                                      : "Show more"}
+                                  </Button>
+                                </>
+                              ) : (
+                                item.video.title
+                              )}
                             </TableCell>
 
-                            <TableCell>{item.video.description}</TableCell>
+                            <TableCell>
+                              {item.video.description &&
+                              item.video.description.length > 50 ? (
+                                <>
+                                  {expandedStates.videos[item.video._id]
+                                    ?.description
+                                    ? item.video.description
+                                    : `${item.video.description.substring(
+                                        0,
+                                        50
+                                      )}...`}
+                                  <Button
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleExpand(
+                                        "videos",
+                                        item.video._id,
+                                        "description"
+                                      );
+                                    }}
+                                    sx={
+                                      {
+                                        /* ... your button styles ... */
+                                      }
+                                    }
+                                  >
+                                    {expandedStates.videos[item.video._id]
+                                      ?.description
+                                      ? "Show less"
+                                      : "Show more"}
+                                  </Button>
+                                </>
+                              ) : (
+                                item.video.description
+                              )}
+                            </TableCell>
                             <TableCell>{item.section}</TableCell>
                             <TableCell>{item.sectionTitle}</TableCell>
                             <TableCell>{item.locationName}</TableCell>
@@ -798,9 +877,71 @@ const VideoDashboard = () => {
                                 textDecoration: "underline",
                               }}
                             >
-                              {item.title}
+                              {item.title.length > 30 ? (
+                                <>
+                                  {expandedStates.safetyVideos[item._id]?.title
+                                    ? item.title
+                                    : `${item.title.substring(0, 30)}...`}
+                                  <Button
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleExpand(
+                                        "safetyVideos",
+                                        item._id,
+                                        "title"
+                                      );
+                                    }}
+                                    sx={
+                                      {
+                                        /* ... your button styles ... */
+                                      }
+                                    }
+                                  >
+                                    {expandedStates.safetyVideos[item._id]
+                                      ?.title
+                                      ? "Show less"
+                                      : "Show more"}
+                                  </Button>
+                                </>
+                              ) : (
+                                item.title
+                              )}
                             </TableCell>
-                            <TableCell>{item.description}</TableCell>
+                            <TableCell>
+                              {item.description &&
+                              item.description.length > 50 ? (
+                                <>
+                                  {expandedStates.safetyVideos[item._id]
+                                    ?.description
+                                    ? item.description
+                                    : `${item.description.substring(0, 50)}...`}
+                                  <Button
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleExpand(
+                                        "safetyVideos",
+                                        item._id,
+                                        "description"
+                                      );
+                                    }}
+                                    sx={
+                                      {
+                                        /* ... your button styles ... */
+                                      }
+                                    }
+                                  >
+                                    {expandedStates.safetyVideos[item._id]
+                                      ?.description
+                                      ? "Show less"
+                                      : "Show more"}
+                                  </Button>
+                                </>
+                              ) : (
+                                item.description
+                              )}
+                            </TableCell>
                             <TableCell>{item.locationName}</TableCell>
                             {userRole === "superAdmin" && (
                               <>
@@ -808,7 +949,7 @@ const VideoDashboard = () => {
                               </>
                             )}
                             <TableCell>{item.durationTime}</TableCell>
-                            <TableCell>
+                            {/* <TableCell>
                               <Switch
                                 checked={item.isActive}
                                 disabled={userRole === "superAdmin"}
@@ -818,7 +959,7 @@ const VideoDashboard = () => {
                                   "aria-label": "toggle safety video status",
                                 }}
                               />
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell>
                               <PlayArrowIcon
                                 color="success"
