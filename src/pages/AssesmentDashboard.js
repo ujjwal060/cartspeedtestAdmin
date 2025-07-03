@@ -116,6 +116,7 @@ const AssessmentDashboard = () => {
     } else {
       setSectionNumber(sectionValue);
       setFilters((prev) => ({ ...prev, sectionNumber: sectionValue }));
+      setCurrentPage(0)
     }
   };
 
@@ -296,37 +297,6 @@ const AssessmentDashboard = () => {
           />
         )}
 
-        {title && adminName && (
-          <Link to="/videos" style={{ textDecoration: "none" }}>
-            <Chip
-              label={title}
-              className="custom-design-chip"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate("/videos");
-              }}
-              sx={{
-                backgroundColor: "#2E5AAC",
-                color: "white",
-                fontWeight: "bold",
-                fontSize: "0.875rem",
-                maxWidth: 200,
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                padding: "0 20px",
-                height: "32px",
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "#1d4a9c",
-                },
-                "& .MuiChip-label": {
-                  padding: "0 8px",
-                },
-              }}
-            />
-          </Link>
-        )}
-
         {title && (
           <Link to="/videos" style={{ textDecoration: "none" }}>
             <Chip
@@ -358,7 +328,28 @@ const AssessmentDashboard = () => {
           </Link>
         )}
 
-        {selectedSection && (
+        {selectedSection && !adminName && (
+          <Chip
+            label={selectedSection.label.replace("Section ", "section")}
+            sx={{
+              backgroundColor: "#2E5AAC",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              textTransform: "lowercase",
+              maxWidth: 150,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              padding: "0 20px",
+              height: "32px",
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
+            }}
+          />
+        )}
+
+        {selectedSection && adminName && (
           <Chip
             label={selectedSection.label.replace("Section ", "section")}
             className="custom-design-chip"
@@ -490,18 +481,18 @@ const AssessmentDashboard = () => {
                         onChange={(e) => {
                           const value = e.target.value;
                           // Only allow numbers and max 6 digits
-                          if (/^\d{0,6}$/.test(value)) {
+                          if (/^\d{0,5}$/.test(value)) {
                             handleFilterChange("location", value);
                           }
                         }}
                         inputProps={{
                           inputMode: "numeric", // Shows numeric keyboard on mobile
-                          pattern: "[0-9]{6}", // HTML5 validation pattern
-                          maxLength: 6, // Hard limit on input length
+                          pattern: "[0-9]{5}", // HTML5 validation pattern
+                          maxLength: 5, // Hard limit on input length
                         }}
                         error={
                           inputValue.location &&
-                          inputValue.location.length !== 6
+                          inputValue.location.length !== 5
                         }
                       />
                       <Box className="custom-picker date-picker-custom-design">
@@ -798,6 +789,8 @@ const AssessmentDashboard = () => {
         show={show}
         onVideoUploaded={fetchQA}
         editData={editData}
+        loading={loading}
+        setLoading={setLoading}
       />
 
       <DialogBox open={open} onClose={dialogClose} onDelete={handleDelete} />
