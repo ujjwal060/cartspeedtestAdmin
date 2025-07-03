@@ -235,6 +235,7 @@ const VideoDashboard = () => {
   const [filters, setFilters] = useState({});
   const [viewType, setViewType] = useState("videos");
   const location = useLocation();
+  console.log(location, location.state, "location in video dashboard");
   const [currentId, setCurrentId] = useState(null);
   const [DialogOpen, setDialogOpen] = useState(false);
   const [expandedStates, setExpandedStates] = useState({
@@ -758,7 +759,7 @@ const VideoDashboard = () => {
                               onClick={() =>
                                 navigate("/assessment", {
                                   state: {
-                                    /* ... */
+                                   adminName: location.state?.adminName,
                                   },
                                 })
                               }
@@ -809,7 +810,7 @@ const VideoDashboard = () => {
                                     ? item.video.description
                                     : `${item.video.description.substring(
                                         0,
-                                        50
+                                        40
                                       )}...`}
                                   <Button
                                     size="small"

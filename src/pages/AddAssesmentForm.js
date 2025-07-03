@@ -22,6 +22,8 @@ export default function AddAssesmentFormFile({
   handleClose,
   show,
   onVideoUploaded,
+  setLoading,
+  loading,
 }) {
   const [answerValue, setAnswerValue] = React.useState(null);
   const [age, setAge] = React.useState("");
@@ -37,7 +39,6 @@ export default function AddAssesmentFormFile({
   const [questionsList, setQuestionsList] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const token = localStorage.getItem("token");
-
 
   useEffect(() => {
     if (age) {
@@ -147,48 +148,46 @@ export default function AddAssesmentFormFile({
     setAnswerValue(null);
   };
 
-const handleSubmit = async () => {
-  if (questionsList.length === 0) {
-    toast.error("Please add at least one question");
-    return;
-  }
-const adminId = localStorage.getItem("userId"); 
-  if (!adminId) {
-    toast.error("Admin ID not found");
-    return;
-  }
+  const handleSubmit = async () => {
+    if (questionsList.length === 0) {
+      toast.error("Please add at least one question");
+      return;
+    }
+    const adminId = localStorage.getItem("userId");
+    if (!adminId) {
+      toast.error("Admin ID not found");
+      return;
+    }
 
-  try {
-    const promises = questionsList.map((q) =>
-      addQA(
-        token,
-        age, 
-        q.question,
-        q.options,
-        q.answer,
-        selectedVideo.vId,
-        selectedVideo.location,
-        selectedVideo.sId,
-        adminId
-      )
-    );
+    try {
+      const promises = questionsList.map((q) =>
+        addQA(
+          token,
+          age,
+          q.question,
+          q.options,
+          q.answer,
+          selectedVideo.vId,
+          selectedVideo.location,
+          selectedVideo.sId,
+          adminId
+        )
+      );
 
-    await Promise.all(promises);
+      await Promise.all(promises);
 
-    handleClose();
-    modalClose();
-    onVideoUploaded();
-    toast.success(`${questionsList.length} Questions Added Successfully`, {
-      autoClose: 3000,
-    });
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message?.[0] || "Failed to add questions"
-    );
-  }
-};
-
-
+      handleClose();
+      modalClose();
+      onVideoUploaded();
+      toast.success(`${questionsList.length} Questions Added Successfully`, {
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message?.[0] || "Failed to add questions"
+      );
+    }
+  };
 
   const modalClose = () => {
     setAge("");
@@ -200,7 +199,12 @@ const adminId = localStorage.getItem("userId");
   };
 
   return (
-    <Offcanvas show={show} onHide={handleClose} placement={"end"} backdrop="static">
+    <Offcanvas
+      show={show}
+      onHide={handleClose}
+      placement={"end"}
+      backdrop="static"
+    >
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Add Your Test</Offcanvas.Title>
       </Offcanvas.Header>
@@ -411,9 +415,11 @@ const adminId = localStorage.getItem("userId");
             color="success"
             className="rounded-4"
             onClick={handleSubmit}
-            disabled={questionsList.length === 0 || editingIndex !== null}
+            disabled={
+              questionsList.length === 0 || editingIndex !== null || loading
+            }
           >
-            Save
+            {loading ? "Saving..." : "Save"}
           </Button>
         </div>
       </Offcanvas.Body>
