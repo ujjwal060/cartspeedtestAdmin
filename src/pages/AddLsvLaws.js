@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Button,
   Modal,
@@ -7,6 +7,7 @@ import {
   Row,
   Col,
   Card,
+  Accordion,
   Badge,
 } from "react-bootstrap";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
@@ -77,8 +78,9 @@ const AddLsvLaws = () => {
   const [isLoading, setIsLoading] = useState(false);
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
-
+  const fileInputRefs = useRef({});
   const dialogClose = () => setDialogOpen(false);
+  const [loading, setLoading] = useState(false);
   const dialogOpen = (id) => {
     setDialogOpen(true);
     setCurrentId(id);
@@ -120,7 +122,38 @@ const AddLsvLaws = () => {
     ]);
   };
 
+  // const handleGuidelineImageChange = (guidelineId, e) => {
+  //   const files = Array.from(e.target.files);
+  //   if (files.length > 0) {
+  //     setGuidelines(
+  //       guidelines.map((guideline) => {
+  //         if (guideline.id === guidelineId) {
+  //           const newImages = [...guideline.images];
+  //           const newPreviews = [...guideline.imagePreviews];
+
+  //           files.forEach((file) => {
+  //             newImages.push(file);
+  //             const reader = new FileReader();
+  //             reader.onloadend = () => {
+  //               newPreviews.push(reader.result);
+  //             };
+  //             reader.readAsDataURL(file);
+  //           });
+
+  //           return {
+  //             ...guideline,
+  //             images: newImages,
+  //             imagePreviews: newPreviews,
+  //           };
+  //         }
+  //         return guideline;
+  //       })
+  //     );
+  //   }
+  // };
+
   const handleGuidelineImageChange = (guidelineId, e) => {
+    setLoading(true);
     const files = Array.from(e.target.files);
     if (files.length > 0) {
       setGuidelines(
@@ -129,11 +162,19 @@ const AddLsvLaws = () => {
             const newImages = [...guideline.images];
             const newPreviews = [...guideline.imagePreviews];
 
+            // Process each file with a delay to simulate loading
             files.forEach((file) => {
               newImages.push(file);
               const reader = new FileReader();
               reader.onloadend = () => {
                 newPreviews.push(reader.result);
+                // Update the state after all images are loaded
+                if (
+                  newPreviews.length ===
+                  guideline.imagePreviews.length + files.length
+                ) {
+                  setLoading(false);
+                }
               };
               reader.readAsDataURL(file);
             });
@@ -147,9 +188,13 @@ const AddLsvLaws = () => {
           return guideline;
         })
       );
+
+      // Fallback in case the onloadend doesn't trigger
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
     }
   };
-
   const removeGuidelineImage = (guidelineId, index) => {
     setGuidelines(
       guidelines.map((guideline) => {
@@ -615,12 +660,21 @@ const AddLsvLaws = () => {
                           />
                         </div>
                       </Form.Group>
-
                       {/* Image Upload Section inside each Guideline */}
                       <Form.Group className="mt-3">
                         <Form.Label>Images</Form.Label>
                         <div className="d-flex flex-wrap gap-2 mb-3">
-                          {guideline.imagePreviews.length > 0 ? (
+                          {loading ? (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                width: "100%",
+                              }}
+                            >
+                              <CircularProgress size={24} />
+                            </Box>
+                          ) : guideline.imagePreviews.length > 0 ? (
                             guideline.imagePreviews.map((preview, imgIndex) => (
                               <div key={imgIndex} className="position-relative">
                                 <img
@@ -653,23 +707,34 @@ const AddLsvLaws = () => {
                         <Button
                           variant="outline-primary"
                           onClick={() =>
-                            document
-                              .getElementById(`image-upload-${guideline.id}`)
-                              .click()
+                            fileInputRefs.current[guideline.id]?.click()
                           }
                           className="d-flex align-items-center"
+                          disabled={loading}
                         >
-                          <FaPlus className="me-1" /> Add Images
+                          {loading ? (
+                            <>
+                              <CircularProgress size={16} className="me-2" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <FaPlus className="me-1" /> Add Images
+                            </>
+                          )}
                         </Button>
                         <input
                           type="file"
-                          id={`image-upload-${guideline.id}`}
+                          ref={(el) =>
+                            (fileInputRefs.current[guideline.id] = el)
+                          }
                           accept="image/*"
                           onChange={(e) =>
                             handleGuidelineImageChange(guideline.id, e)
                           }
                           multiple
                           style={{ display: "none" }}
+                          disabled={loading}
                         />
                       </Form.Group>
                     </Card.Body>
@@ -763,97 +828,112 @@ const AddLsvLaws = () => {
         <Modal.Body>
           {selectedSection && (
             <div className="p-3">
-              <Card className="mb-4 border-0 shadow-sm">
-                <Card.Header className="bg-primary text-white">
-                  <h4 className="mb-0">{selectedSection.sections[0].title}</h4>
-                </Card.Header>
-                <Card.Body>
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Description
-                    </h5>
+              <Accordion defaultActiveKey="0" className="mb-4">
+                {/* Section Description Accordion */}
+                <Accordion.Item
+                  eventKey="0"
+                  className="border-0 shadow-sm mb-3"
+                >
+                  <Accordion.Header className="bg-primary text-white">
+                    <h4 className="mb-0 d-flex align-items-center">
+                      <FaInfoCircle className="me-2" />
+                      {selectedSection.sections[0].title}
+                    </h4>
+                  </Accordion.Header>
+                  <Accordion.Body>
                     <div
                       className="p-3 bg-light rounded"
                       dangerouslySetInnerHTML={{
                         __html: selectedSection.sections[0].description,
                       }}
                     />
-                  </div>
+                  </Accordion.Body>
+                </Accordion.Item>
 
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
+                {/* Guidelines Accordion */}
+                <Accordion.Item
+                  eventKey="1"
+                  className="border-0 shadow-sm mb-3"
+                >
+                  <Accordion.Header className="bg-light">
+                    <h5 className="mb-0 d-flex align-items-center">
                       <FaBook className="me-2 text-info" /> Guidelines
                     </h5>
+                  </Accordion.Header>
+                  <Accordion.Body>
                     {selectedSection.guidelines.map((guideline, index) => (
-                      <Card key={index} className="mb-3 border-0 shadow-sm">
-                        <Card.Header className="bg-light">
-                          <h6 className="mb-0">
-                            {guideline.title || `Guideline ${index + 1}`}
-                          </h6>
-                        </Card.Header>
-                        <Card.Body>
-                          <div
-                            className="mb-3"
-                            dangerouslySetInnerHTML={{
-                              __html: guideline.description,
-                            }}
-                          />
-                          {guideline.imagePreviews?.length > 0 && (
-                            <div>
-                              <h6 className="d-flex align-items-center mb-2">
-                                <FaImage className="me-2 text-primary" /> Images
-                              </h6>
-                              <div className="d-flex flex-wrap gap-3">
-                                {guideline.imagePreviews.map(
-                                  (preview, imgIndex) => (
-                                    <img
-                                      key={imgIndex}
-                                      src={preview}
-                                      alt={`Guideline ${index + 1} - Image ${
-                                        imgIndex + 1
-                                      }`}
-                                      className="img-thumbnail"
-                                      style={{
-                                        maxWidth: "200px",
-                                        maxHeight: "200px",
-                                      }}
-                                    />
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </Card.Body>
-                      </Card>
-                    ))}
-                  </div>
-
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Section
-                    </h5>
-                    <div className="p-3 bg-light rounded">
-                      {selectedSection.sections.map((guideline, index) => (
-                        <Card key={index} className="mb-3 border-0 shadow-sm">
-                          <Card.Header className="bg-light">
-                            <h6 className="mb-0">
+                      <Accordion key={index} className="mb-3">
+                        <Accordion.Item eventKey={`guideline-${index}`}>
+                          <Accordion.Header>
+                            <strong>
                               {guideline.title || `Guideline ${index + 1}`}
-                            </h6>
-                          </Card.Header>
-                          <Card.Body>
+                            </strong>
+                          </Accordion.Header>
+                          <Accordion.Body>
                             <div
                               className="mb-3"
                               dangerouslySetInnerHTML={{
                                 __html: guideline.description,
                               }}
                             />
-                          </Card.Body>
-                        </Card>
+                            {guideline.imageUrl && (
+                              <>
+                                <h6 className="d-flex align-items-center mb-2 mt-3">
+                                  <FaImage className="me-2 text-primary" />{" "}
+                                  Images
+                                </h6>
+                                <div className="d-flex flex-wrap gap-3">
+                                  <img
+                                    src={guideline.imageUrl}
+                                    alt={`Guideline`}
+                                    className="img-thumbnail"
+                                    style={{
+                                      maxWidth: "200px",
+                                      maxHeight: "200px",
+                                    }}
+                                  />
+                                </div>
+                              </>
+                            )}
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      </Accordion>
+                    ))}
+                  </Accordion.Body>
+                </Accordion.Item>
+
+                {/* Sections Accordion */}
+                <Accordion.Item eventKey="2" className="border-0 shadow-sm">
+                  <Accordion.Header className="bg-light">
+                    <h5 className="mb-0 d-flex align-items-center">
+                      <FaInfoCircle className="me-2 text-info" /> Sections
+                    </h5>
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    <div className="p-3 bg-light rounded">
+                      {selectedSection.sections.map((section, index) => (
+                        <Accordion key={index} className="mb-3">
+                          <Accordion.Item eventKey={`section-${index}`}>
+                            <Accordion.Header>
+                              <strong>
+                                {section.title || `Section ${index + 1}`}
+                              </strong>
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              <div
+                                className="mb-3"
+                                dangerouslySetInnerHTML={{
+                                  __html: section.description,
+                                }}
+                              />
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        </Accordion>
                       ))}
                     </div>
-                  </div>
-                </Card.Body>
-              </Card>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
             </div>
           )}
         </Modal.Body>
@@ -1152,13 +1232,9 @@ const AddLsvLaws = () => {
       </Modal>
       {tableData.length > 0 ? (
         <>
-          <Paper elevation={3} className="mt-3 max-full-height">
+          <Paper elevation={3} className="mt-3 max-full-height-2">
             <TableContainer>
-              <Table
-                stickyHeader
-                aria-label="sticky table"
-                sx={{ "& .MuiTableCell-root": { padding: "12px 16px" } }}
-              >
+              <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
                     <TableCell>#</TableCell>
