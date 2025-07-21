@@ -1,20 +1,21 @@
 pipeline {
     agent any
-
+ 
     environment {
-        IMAGE_NAME = "docker.io/kartikeytiwari/cart-frontend"
+          IMAGE_NAME = "docker.io/kartikeytiwari/cart-frontend"
         IMAGE_TAG = "${BUILD_NUMBER}"
         CONTAINER_PORT = "1114"
         HOST_PORT = "1114"
+        CONTAINER_NAME = "${JOB_BASE_NAME}-container"
     }
-
+ 
     stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
-
+ 
         stage('Login to Docker Hub') {
             steps {
                 script {
@@ -31,7 +32,7 @@ pipeline {
                 }
             }
         }
-
+ 
         stage('Generate Next Image Tag') {
             steps {
                 script {
@@ -39,7 +40,7 @@ pipeline {
                 }
             }
         }
-
+ 
         stage('Build Docker Image') {
             steps {
                 sh '''
@@ -47,7 +48,7 @@ pipeline {
                 '''
             }
         }
-
+ 
         stage('Tag Docker Image') {
             steps {
                 sh '''
@@ -55,7 +56,7 @@ pipeline {
                 '''
             }
         }
-
+ 
         stage('Push Docker Image to Docker Hub') {
             steps {
                 sh '''
@@ -64,38 +65,38 @@ pipeline {
                 '''
             }
         }
-
+ 
         stage('Stop Existing Container') {
             steps {
                 sh '''
-                    docker stop backend-container || true
-                    docker rm backend-container || true
+                    docker stop $CONTAINER_NAME || true
+                    docker rm $CONTAINER_NAME || true
                 '''
             }
         }
-
+ 
         stage('Run New Docker Container') {
             steps {
                 sh '''
                     docker run -d \
-                    --name backend-container \
+                    --name $CONTAINER_NAME \
                     -p $HOST_PORT:$CONTAINER_PORT \
                     $IMAGE_NAME:$IMAGE_TAG
                 '''
             }
         }
     }
-
-    // post {
-    //     always {
-    //         script {
-    //             echo "📩 Sending deployment email..."
-    //             emailext (
-    //                 to: 'kartikey.tiwari@aayaninfotech.com',
-    //                 subject: "Deployment Pipeline - ${currentBuild.fullDisplayName}",
-    //                 body: "Job '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' completed with status: ${currentBuild.currentResult}"
-    //             )
-    //         }
-    //     }
-    // }
+ 
+    post {
+        always {
+            script {
+                echo "📩 Sending deployment email..."
+                emailext (
+                    to: 'kartikey.tiwari@aayaninfotech.com',
+                    subject: "Deployment Pipeline - ${currentBuild.fullDisplayName}",
+                    body: "Job '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' completed with status: ${currentBuild.currentResult}"
+                )
+            }
+        }
+    }
 }
