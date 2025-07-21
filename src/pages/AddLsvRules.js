@@ -650,10 +650,13 @@ const AddLsvRules = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Paper elevation={3} className="mt-3 max-full-height">
+      <Paper
+        elevation={3}
+        className="mt-3 max-full-height-2"
+      >
         <TableContainer>
-          <Table>
-            <TableHead>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead >
               <TableRow>
                 <TableCell>#</TableCell>
                 <TableCell>What Is LSV?</TableCell>

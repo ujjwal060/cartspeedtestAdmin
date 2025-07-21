@@ -12,6 +12,7 @@ export default function AddAdminForm({
   setOpen,
   handleClose,
   handleAdmin,
+  filters
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
@@ -52,7 +53,7 @@ export default function AddAdminForm({
         {
           headers: {
             'x-rapidapi-host': 'vanitysoft-boundaries-io-v1.p.rapidapi.com',
-            'x-rapidapi-key': 'ce87290220mshd483e54a45039adp1dfca1jsna495d93a6be5'
+            'x-rapidapi-key': 'e938c4ae82mshf6e7c5368beb212p173544jsnc3ec5cd571df'
           }
         }
       );
@@ -181,7 +182,7 @@ export default function AddAdminForm({
         handleClose();
         handleReset();
         toast.success("User registered successfully");
-        handleAdmin();
+        await handleAdmin({ filters });
         setIsSubmitting(false);
       }
     } catch (error) {
