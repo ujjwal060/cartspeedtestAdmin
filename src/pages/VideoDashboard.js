@@ -542,6 +542,17 @@ const VideoDashboard = () => {
                     style={{ cursor: "pointer" }}
                   />
                 </Tooltip>
+                {userRole === "superAdmin" && viewType === "safetyVideos" && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleClickOpen}
+                    className="rounded-4 d-flex gap-1 flex-row"
+                  >
+                    <AddCircleOutlineIcon />
+                    Add Video
+                  </Button>
+                )}
                 {userRole === "admin" &&
                   (viewType === "safetyVideos" ? (
                     <Button
@@ -759,7 +770,7 @@ const VideoDashboard = () => {
                               onClick={() =>
                                 navigate("/assessment", {
                                   state: {
-                                   adminName: location.state?.adminName,
+                                    adminName: location.state?.adminName,
                                   },
                                 })
                               }

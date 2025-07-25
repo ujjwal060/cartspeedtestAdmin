@@ -521,7 +521,7 @@ const AssessmentDashboard = () => {
                     </Box>
                   </Tooltip>
 
-                  {role === "admin" && (
+                  {/* {role === "admin" && ( */}
                     <Button
                       variant="contained"
                       color="primary"
@@ -530,7 +530,7 @@ const AssessmentDashboard = () => {
                     >
                       Assessment
                     </Button>
-                  )}
+                  {/* )} */}
                 </div>
               </div>
             </Box>
