@@ -39,6 +39,8 @@ export default function AddAssesmentFormFile({
   const [questionsList, setQuestionsList] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const token = localStorage.getItem("token");
+  const userType = localStorage.getItem("role");
+  console.log("userType", userType);
 
   useEffect(() => {
     if (age) {
@@ -158,7 +160,7 @@ export default function AddAssesmentFormFile({
       toast.error("Admin ID not found");
       return;
     }
-
+    console.log("questionsList443234324", questionsList);
     try {
       const promises = questionsList.map((q) =>
         addQA(
@@ -167,18 +169,21 @@ export default function AddAssesmentFormFile({
           q.question,
           q.options,
           q.answer,
-          selectedVideo.vId,
-          selectedVideo.location,
-          selectedVideo.sId,
+          selectedVideo?.vId,
+          selectedVideo?.location,
+          selectedVideo?.sId,
           adminId
         )
       );
+      console.log("questionsList`23213", questionsList);
 
       await Promise.all(promises);
 
       handleClose();
       modalClose();
-      onVideoUploaded();
+      if (userType === "admin") {
+        onVideoUploaded();
+      }
       toast.success(`${questionsList.length} Questions Added Successfully`, {
         autoClose: 3000,
       });
@@ -199,62 +204,19 @@ export default function AddAssesmentFormFile({
   };
 
   return (
-    <Offcanvas
-      show={show}
-      onHide={handleClose}
-      placement={"end"}
-      backdrop="static"
-    >
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Add Your Test</Offcanvas.Title>
-      </Offcanvas.Header>
-      <Offcanvas.Body>
-        <div className="col-lg-12 me-auto">
-          <FormControl size="small" className="w-100" variant="standard">
-            <InputLabel id="demo-simple-select-label">
-              Select Section
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={age}
-              label="Select Section"
-              onChange={handleChange}
-            >
-              <MenuItem value={1}>Section1</MenuItem>
-              <MenuItem value={2}>Section2</MenuItem>
-              <MenuItem value={3}>Section3</MenuItem>
-              <MenuItem value={4}>Section4</MenuItem>
-              <MenuItem value={5}>Section5</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-
-        {age && videoOptions.length > 0 && (
-          <div className="col-lg-12 mt-4">
-            <Autocomplete
-              id="video-select"
-              value={selectedVideo}
-              options={videoOptions}
-              getOptionLabel={(option) => option.title}
-              onChange={(event, newValue) => {
-                setSelectedVideo(newValue);
-                setQuestionsList([]);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select Video"
-                  variant="standard"
-                />
-              )}
-            />
-          </div>
-        )}
-
-        {selectedVideo && (
-          <>
-            <div className="row gy-4 mt-4">
+    <>
+      {userType === "superAdmin" ? (
+        <Offcanvas
+          show={show}
+          onHide={handleClose}
+          placement={"end"}
+          backdrop="static"
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Add Your Test</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <div className="row gy-4 ">
               <div className="col-lg-12">
                 <TextField
                   id="standard-basic"
@@ -308,35 +270,32 @@ export default function AddAssesmentFormFile({
                 />
               </div>
 
-              {age && (
-                <div className="col-lg-12">
-                  <Autocomplete
-                    id="answer-select"
-                    value={answerValue}
-                    options={answerOptions}
-                    disabled={!allOptionsFilled()}
-                    onChange={(event, newValue) => {
-                      setAnswerValue(newValue);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Add Your Answer"
-                        variant="standard"
-                      />
-                    )}
-                  />
-                </div>
-              )}
+              <div className="col-lg-12">
+                <Autocomplete
+                  id="answer-select"
+                  value={answerValue}
+                  options={answerOptions}
+                  disabled={!allOptionsFilled()}
+                  onChange={(event, newValue) => {
+                    setAnswerValue(newValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Add Your Answer"
+                      variant="standard"
+                    />
+                  )}
+                />
+              </div>
             </div>
-
             <div className="mt-3">
               <Button
                 variant="contained"
                 color={editingIndex !== null ? "warning" : "primary"}
                 className="rounded-4"
                 onClick={addQuestionToList}
-                disabled={!question || !answerValue || !allOptionsFilled()}
+                disabled={!allOptionsFilled()}
                 startIcon={
                   editingIndex !== null ? (
                     <SystemUpdateAltIcon />
@@ -363,66 +322,296 @@ export default function AddAssesmentFormFile({
                 </Button>
               )}
             </div>
-          </>
-        )}
-
-        {questionsList.length > 0 && (
-          <div className="mt-3">
-            <h6>Questions to be added ({questionsList.length}):</h6>
-            <List dense={true} style={{ maxHeight: "200px", overflow: "auto" }}>
-              {questionsList.map((q, index) => (
-                <ListItem
-                  key={index}
-                  secondaryAction={
-                    <>
-                      <IconButton
-                        edge="end"
-                        onClick={() => editQuestion(index)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        onClick={() => removeQuestion(index)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </>
-                  }
+            {questionsList.length > 0 && (
+              <div className="mt-3">
+                <h6>Questions to be added ({questionsList.length}):</h6>
+                <List
+                  dense={true}
+                  style={{ maxHeight: "200px", overflow: "auto" }}
                 >
-                  <ListItemText
-                    primary={`Q${index + 1}: ${q.question}`}
-                    secondary={`Answer: ${q.answer}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </div>
-        )}
+                  {questionsList.map((q, index) => (
+                    <ListItem
+                      key={index}
+                      secondaryAction={
+                        <>
+                          <IconButton
+                            edge="end"
+                            onClick={() => editQuestion(index)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            edge="end"
+                            onClick={() => removeQuestion(index)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </>
+                      }
+                    >
+                      <ListItemText
+                        primary={`Q${index + 1}: ${q.question}`}
+                        secondary={`Answer: ${q.answer}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </div>
+            )}
+            <div className="kb-buttons-box d-flex justify-content-end gap-2 mt-3">
+              <Button
+                variant="contained"
+                color="error"
+                className="rounded-4"
+                onClick={() => modalClose()}
+              >
+                Reset
+              </Button>
 
-        <div className="kb-buttons-box d-flex justify-content-end gap-2 mt-3">
-          <Button
-            variant="contained"
-            color="error"
-            className="rounded-4"
-            onClick={() => modalClose()}
-          >
-            Reset
-          </Button>
+              <Button
+                variant="contained"
+                color="success"
+                className="rounded-4"
+                onClick={handleSubmit}
+                disabled={
+                  questionsList.length === 0 || editingIndex !== null || loading
+                }
+              >
+                {loading ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </Offcanvas.Body>
+        </Offcanvas>
+      ) : (
+        <Offcanvas
+          show={show}
+          onHide={handleClose}
+          placement={"end"}
+          backdrop="static"
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Add Your Test</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <div className="col-lg-12 me-auto">
+              <FormControl size="small" className="w-100" variant="standard">
+                <InputLabel id="demo-simple-select-label">
+                  Select Section
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={age}
+                  label="Select Section"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={1}>Section1</MenuItem>
+                  <MenuItem value={2}>Section2</MenuItem>
+                  <MenuItem value={3}>Section3</MenuItem>
+                  <MenuItem value={4}>Section4</MenuItem>
+                  <MenuItem value={5}>Section5</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
 
-          <Button
-            variant="contained"
-            color="success"
-            className="rounded-4"
-            onClick={handleSubmit}
-            disabled={
-              questionsList.length === 0 || editingIndex !== null || loading
-            }
-          >
-            {loading ? "Saving..." : "Save"}
-          </Button>
-        </div>
-      </Offcanvas.Body>
-    </Offcanvas>
+            {age && videoOptions.length > 0 && (
+              <div className="col-lg-12 mt-4">
+                <Autocomplete
+                  id="video-select"
+                  value={selectedVideo}
+                  options={videoOptions}
+                  getOptionLabel={(option) => option.title}
+                  onChange={(event, newValue) => {
+                    setSelectedVideo(newValue);
+                    setQuestionsList([]);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Video"
+                      variant="standard"
+                    />
+                  )}
+                />
+              </div>
+            )}
+
+            {selectedVideo && (
+              <>
+                <div className="row gy-4 mt-4">
+                  <div className="col-lg-12">
+                    <TextField
+                      id="standard-basic"
+                      label="Add Your Question Here"
+                      variant="standard"
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      className="w-100"
+                    />
+                  </div>
+
+                  <div className="col-lg-6">
+                    <TextField
+                      id="option1"
+                      label="Option 1"
+                      variant="standard"
+                      className="w-100"
+                      value={options.option1}
+                      onChange={handleOptionChange}
+                    />
+                  </div>
+                  <div className="col-lg-6">
+                    <TextField
+                      id="option2"
+                      label="Option 2"
+                      variant="standard"
+                      className="w-100"
+                      value={options.option2}
+                      onChange={handleOptionChange}
+                    />
+                  </div>
+
+                  <div className="col-lg-6">
+                    <TextField
+                      id="option3"
+                      label="Option 3"
+                      variant="standard"
+                      className="w-100"
+                      value={options.option3}
+                      onChange={handleOptionChange}
+                    />
+                  </div>
+                  <div className="col-lg-6">
+                    <TextField
+                      id="option4"
+                      label="Option 4"
+                      variant="standard"
+                      className="w-100"
+                      value={options.option4}
+                      onChange={handleOptionChange}
+                    />
+                  </div>
+
+                  {age && (
+                    <div className="col-lg-12">
+                      <Autocomplete
+                        id="answer-select"
+                        value={answerValue}
+                        options={answerOptions}
+                        disabled={!allOptionsFilled()}
+                        onChange={(event, newValue) => {
+                          setAnswerValue(newValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Add Your Answer"
+                            variant="standard"
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3">
+                  <Button
+                    variant="contained"
+                    color={editingIndex !== null ? "warning" : "primary"}
+                    className="rounded-4"
+                    onClick={addQuestionToList}
+                    disabled={!question || !answerValue || !allOptionsFilled()}
+                    startIcon={
+                      editingIndex !== null ? (
+                        <SystemUpdateAltIcon />
+                      ) : (
+                        <AddCircleOutlineIcon />
+                      )
+                    }
+                  >
+                    {editingIndex !== null ? "Update" : "Add"} (
+                    {questionsList.length}/10)
+                  </Button>
+
+                  {editingIndex !== null && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      className="rounded-4 ms-2"
+                      onClick={() => {
+                        resetForm();
+                        setEditingIndex(null);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              </>
+            )}
+
+            {questionsList.length > 0 && (
+              <div className="mt-3">
+                <h6>Questions to be added ({questionsList.length}):</h6>
+                <List
+                  dense={true}
+                  style={{ maxHeight: "200px", overflow: "auto" }}
+                >
+                  {questionsList.map((q, index) => (
+                    <ListItem
+                      key={index}
+                      secondaryAction={
+                        <>
+                          <IconButton
+                            edge="end"
+                            onClick={() => editQuestion(index)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            edge="end"
+                            onClick={() => removeQuestion(index)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </>
+                      }
+                    >
+                      <ListItemText
+                        primary={`Q${index + 1}: ${q.question}`}
+                        secondary={`Answer: ${q.answer}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </div>
+            )}
+
+            <div className="kb-buttons-box d-flex justify-content-end gap-2 mt-3">
+              <Button
+                variant="contained"
+                color="error"
+                className="rounded-4"
+                onClick={() => modalClose()}
+              >
+                Reset
+              </Button>
+
+              <Button
+                variant="contained"
+                color="success"
+                className="rounded-4"
+                onClick={handleSubmit}
+                disabled={
+                  questionsList.length === 0 || editingIndex !== null || loading
+                }
+              >
+                {loading ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </Offcanvas.Body>
+        </Offcanvas>
+      )}
+    </>
   );
 }

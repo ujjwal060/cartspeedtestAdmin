@@ -48,6 +48,7 @@ const sectionStyles = {
   section3: { backgroundColor: "#dcfce7", color: "#15803d" },
   section4: { backgroundColor: "#fdecea", color: "#b91c1c" },
   section5: { backgroundColor: "#ede9fe", color: "#6b21a8" },
+  // superadmin: { backgroundColor: "#f3e8ff", color: "#7c3aed" },
 };
 
 const sectionOptions = [
@@ -56,6 +57,7 @@ const sectionOptions = [
   { label: "Section 3", key: "section3", value: "3" },
   { label: "Section 4", key: "section4", value: "4" },
   { label: "Section 5", key: "section5", value: "5" },
+  // { label: "SuperAdmin", key: "superadmin", value: "6" },
 ];
 
 const AssessmentDashboard = () => {
@@ -71,7 +73,6 @@ const AssessmentDashboard = () => {
   const [sectionNumber, setSectionNumber] = useState("");
   const location = useLocation();
   const { title: initialTitle, videoId, adminName } = location.state || {};
-  console.log(adminName, "..assesment page admin");
   const [title, setTitle] = useState(initialTitle || "");
   const [editData, setEditData] = useState(null);
   const [data, setData] = useState([]);
@@ -115,15 +116,29 @@ const AssessmentDashboard = () => {
       clearSectionFilter();
     } else {
       setSectionNumber(sectionValue);
-      setFilters((prev) => ({ ...prev, sectionNumber: sectionValue }));
-      setCurrentPage(0)
+
+      // Special handling for Super Admin (value "6")
+      if (sectionValue === "6") {
+        setFilters((prev) => ({
+          ...prev,
+          adminName: "Super Admin",
+          sectionNumber: undefined, // Remove sectionNumber filter if it exists
+        }));
+      } else {
+        setFilters((prev) => ({
+          ...prev,
+          sectionNumber: sectionValue,
+          adminName: undefined, // Remove adminName filter if it exists
+        }));
+      }
+      setCurrentPage(0);
     }
   };
 
   const clearSectionFilter = () => {
     setSectionNumber("");
     setFilters((prev) => {
-      const { sectionNumber, ...rest } = prev;
+      const { sectionNumber, adminName, ...rest } = prev;
       return rest;
     });
   };
@@ -197,6 +212,10 @@ const AssessmentDashboard = () => {
     setEditId(null);
     setEditForm({ question: "", options: [] });
   };
+
+  const filteredSectionOptions = sectionOptions.filter(
+    (option) => role === "superAdmin" || option.value !== "6"
+  );
 
   const dialogClose = () => setOpen(false);
   const dialogOpen = (id) => {
@@ -445,7 +464,7 @@ const AssessmentDashboard = () => {
             >
               <div className="d-flex justify-content-between align-items-center w-100">
                 <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-                  {sectionOptions.map((section) => (
+                  {filteredSectionOptions.map((section) => (
                     <Box key={section.key} textAlign="center">
                       <Tooltip title={section.label} arrow>
                         <Box
@@ -522,14 +541,14 @@ const AssessmentDashboard = () => {
                   </Tooltip>
 
                   {/* {role === "admin" && ( */}
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      startIcon={<AddCircleOutlineIcon />}
-                      onClick={handleShow}
-                    >
-                      Assessment
-                    </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddCircleOutlineIcon />}
+                    onClick={handleShow}
+                  >
+                    Assessment
+                  </Button>
                   {/* )} */}
                 </div>
               </div>
@@ -623,10 +642,14 @@ const AssessmentDashboard = () => {
                     <div className="row gy-4 ">
                       <div className="col-lg-12">
                         <div className="d-flex flex-row justify-content-between align-items-center">
-                          <p>
-                            <LocationPinIcon />
-                            {item?.locationName}
-                          </p>
+                          {role === "admin" && (
+                            <>
+                              <p>
+                                <LocationPinIcon /> {item?.locationName}{" "}
+                              </p>
+                            </>
+                          )}
+
                           {role !== "admin" && (
                             <p>
                               <SupervisorAccountIcon />

@@ -546,11 +546,12 @@ const VideoDashboard = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={handleClickOpen}
+                    onClick={handleSafetyVideoClickOpen}
                     className="rounded-4 d-flex gap-1 flex-row"
+                    style={{ backgroundColor: "#4caf50" }}
                   >
-                    <AddCircleOutlineIcon />
-                    Add Video
+                    <SafetyCheckIcon />
+                    Add Safety Video
                   </Button>
                 )}
                 {userRole === "admin" &&

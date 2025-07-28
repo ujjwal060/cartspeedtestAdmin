@@ -82,10 +82,10 @@ export const addQA = async (
       question,
       options: formattedOptions,
       sectionNumber: sectionName,
-      videoId,
-      locationId,
-      sectionId,
       adminId,
+      ...(videoId && { videoId }),
+      ...(locationId && { locationId }),
+      ...(sectionId && { sectionId }),
     };
 
     const response = await axios.post("/admin/QA/add", data, {
