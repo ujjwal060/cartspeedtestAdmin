@@ -12,6 +12,7 @@ export default function AddAdminForm({
   setOpen,
   handleClose,
   handleAdmin,
+  filters
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
@@ -45,58 +46,6 @@ export default function AddAdminForm({
     setLocationNames([]);
   };
 
-  // const fetchBoundariesData = async (zipCodesString) => {
-  //   try {
-  //     const response = await fetch(
-  //       `https://vanitysoft-boundaries-io-v1.p.rapidapi.com/reaperfire/rest/v1/public/boundary?zipcode=${zipCodesString}`,
-  //       {
-  //         headers: {
-  //           'x-rapidapi-host': 'vanitysoft-boundaries-io-v1.p.rapidapi.com',
-  //           // 'x-rapidapi-key': 'e163d0e06amshc17b5bebe33fa65p18635ejsncf9f11d9cf1a',
-  //           'x-rapidapi-key': '6b2095e1b8msh39fd101b0770949p19ca7fjsn7becf7fcb69f'
-  //         }
-  //       }
-  //     );
-  //     const data = await response.json();
-
-  //     if (data && data.features) {
-  //       const paths = [];
-  //       const names = [];
-
-  //       data.features.forEach(feature => {
-  //         const coordinates = feature.geometry.coordinates[0].map(coord => ({
-  //           lat: coord[1],
-  //           lng: coord[0],
-  //         }));
-  //         paths.push(coordinates);
-
-  //         const locationName = `${feature.properties.city}, ${feature.properties.state} (${feature.properties.zipCode})`;
-  //         names.push(locationName);
-  //       });
-
-  //       setBoundaryPaths(paths);
-  //       setLocationNames(names);
-  //       setGeoJsonData(data);
-  //       setLocation(names.join(', '));
-
-  //       if (paths.length > 0) {
-  //         const firstPath = paths[0];
-  //         const center = firstPath.reduce(
-  //           (acc, point) => ({
-  //             lat: acc.lat + point.lat / firstPath.length,
-  //             lng: acc.lng + point.lng / firstPath.length,
-  //           }),
-  //           { lat: 0, lng: 0 }
-  //         );
-  //         setMapCenter(center);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching boundaries:", error);
-  //     toast.error("Error fetching boundaries data");
-  //   }
-  // };
-
   const fetchBoundariesData = async (zipCodesString) => {
     try {
       const response = await fetch(
@@ -104,21 +53,19 @@ export default function AddAdminForm({
         {
           headers: {
             'x-rapidapi-host': 'vanitysoft-boundaries-io-v1.p.rapidapi.com',
-            'x-rapidapi-key': '6b2095e1b8msh39fd101b0770949p19ca7fjsn7becf7fcb69f'
+            'x-rapidapi-key': 'e938c4ae82mshf6e7c5368beb212p173544jsnc3ec5cd571df'
           }
         }
       );
       const data = await response.json();
-      debugger;
 
-      if (data && data.features) {
+      if (data && Array.isArray(data.features)) {
         const paths = [];
         const names = [];
 
         data.features.forEach((feature) => {
           const geometry = feature.geometry;
 
-          // Handle both Polygon and MultiPolygon
           if (geometry.type === "Polygon") {
             geometry.coordinates.forEach((ring) => {
               const path = ring.map(coord => ({
@@ -174,6 +121,7 @@ export default function AddAdminForm({
       toast.error("Error fetching boundaries data");
     }
   };
+  
   const handleZipCodeChange = (e) => {
     const value = e.target.value;
     setZipCode(value);
@@ -234,7 +182,7 @@ export default function AddAdminForm({
         handleClose();
         handleReset();
         toast.success("User registered successfully");
-        handleAdmin();
+        await handleAdmin({ filters });
         setIsSubmitting(false);
       }
     } catch (error) {

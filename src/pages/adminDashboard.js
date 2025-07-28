@@ -33,32 +33,35 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "name",
+    disableSort: true,
   },
   {
     id: "Email",
     numeric: false,
     disablePadding: false,
     label: "email",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "locationName",
     numeric: false,
     disablePadding: false,
     label: "locationName",
-    disableSort: false,
+    disableSort: true,
   },
   {
     id: "Number",
     numeric: false,
     disablePadding: false,
     label: "Number",
+    disableSort: true,
   },
   {
     id: "Status",
     numeric: false,
     disablePadding: false,
     label: "Status",
+    disableSort: true,
   },
 ];
 
@@ -119,7 +122,7 @@ export default function AdminDashboard() {
   const [open, setOpen] = useState(false);
   const [startDate, endDate] = dateRange;
   const [data, setData] = useState([]);
-
+  const [displayedFilters, setDisplayedFilters] = useState({});
   const handleAdmin = async ({ filters }) => {
     setLoading(true);
     try {
@@ -186,17 +189,52 @@ export default function AdminDashboard() {
         ...prevFilters,
         [key]: value,
       }));
+      setDisplayedFilters((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    }, 2000),
+    []
+  );
+
+  const debouncedEmalilFilters = useCallback(
+    debounce((key, value) => {
+      if (key === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value) && value !== "") {
+          toast.warning("Please enter a valid email address");
+          return;
+        }
+      }
+      setFilters((prev) => ({ ...prev, [key]: value }));
+      setDisplayedFilters((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
     }, 2000),
     []
   );
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
   useEffect(() => {}, [currentPage]);
@@ -204,7 +242,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     setCurrentPage(0);
   }, [filters, order, orderBy]);
-  console.log(filters);
+  console.log(displayedFilters);
   return (
     <Box>
       <Box>
@@ -245,37 +283,54 @@ export default function AdminDashboard() {
               setOpen={setOpen}
               handleClose={handleClose}
               handleAdmin={handleAdmin}
+              filters={filters}
               selectedVideos={[]}
             />
           </div>
         </div>
-        {(inputValue.name ||
-          inputValue.email ||
-          inputValue.locationName ||
-          inputValue.Number) && (
+        {(displayedFilters.name ||
+          displayedFilters.email ||
+          displayedFilters.locationName ||
+          displayedFilters.number) && (
           <Stack direction="row" spacing={1} className="p-3">
-            {inputValue.name && (
+            {displayedFilters.name && (
               <Chip
-                label={`name: ${inputValue?.name}`}
-                onDelete={() => handleFilterChange("name", "")}
+                label={`name: ${displayedFilters?.name}`}
+                onDelete={() => {
+                  handleFilterChange("name", "");
+                  setDisplayedFilters((prev) => ({ ...prev, name: "" }));
+                  setFilters((prev) => ({ ...prev, name: undefined }));
+                }}
               />
             )}
-            {inputValue.email && (
+            {displayedFilters.email && (
               <Chip
-                label={`email: ${inputValue?.email}`}
-                onDelete={() => handleFilterChange("email", "")}
+                label={`email: ${displayedFilters?.email}`}
+                onDelete={() => {
+                  handleFilterChange("email", "");
+                  setDisplayedFilters((prev) => ({ ...prev, email: "" }));
+                  setFilters((prev) => ({ ...prev, email: undefined }));
+                }}
               />
             )}
-            {inputValue.locationName && (
+            {displayedFilters.locationName && (
               <Chip
-                label={`location: ${inputValue?.locationName}`}
-                onDelete={() => handleFilterChange("locationName", "")}
+                label={`location: ${displayedFilters?.locationName}`}
+                onDelete={() => {
+                  handleFilterChange("locationName", "");
+                  setDisplayedFilters((prev) => ({ ...prev, locationName: "" }));
+                  setFilters((prev) => ({ ...prev, locationName: undefined }));
+                }}
               />
             )}
-            {inputValue.Number && (
+            {displayedFilters.number && (
               <Chip
-                label={`Uploaded By: ${inputValue?.Number}`}
-                onDelete={() => handleFilterChange("Number", "")}
+                label={`Number: ${displayedFilters?.number}`}
+               onDelete={() => {
+                  handleFilterChange("number", "");
+                  setDisplayedFilters((prev) => ({ ...prev, number: "" }));
+                  setFilters((prev) => ({ ...prev, number: undefined }));
+                }}
               />
             )}
           </Stack>
@@ -312,9 +367,13 @@ export default function AdminDashboard() {
                         placeholder="Filter Email"
                         value={inputValue?.email || ""}
                         className="rounded-0 custom-input"
-                        onChange={(e) =>
-                          handleFilterChange("email", e.target.value)
-                        }
+                        onChange={(e) => {
+                          setInputValue((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }));
+                          debouncedEmalilFilters("email", e.target.value);
+                        }}
                       />
                     </TableCell>
 

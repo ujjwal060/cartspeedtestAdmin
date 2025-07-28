@@ -47,7 +47,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import { fetchCertificates } from "../api/certificate";
 import TableSortLabel from "@mui/material/TableSortLabel";
-
+import { toast } from "react-toastify";
 export default function CertificateDashboard() {
   const rowsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(0);
@@ -77,13 +77,13 @@ export default function CertificateDashboard() {
 
   const HeadCell = [
     {
-      id: "Certificate ID",
+      id: "certificateNumber",
       numeric: false,
       disablePadding: false,
       label: "Certificate ID",
     },
     {
-      id: "Name",
+      id: "Certificate Name",
       numeric: false,
       disablePadding: false,
       label: "Name",
@@ -93,7 +93,7 @@ export default function CertificateDashboard() {
       id: "Email",
       numeric: false,
       disablePadding: false,
-      label: "Recipient",
+      label: "Email",
       disableSort: true,
     },
     ...(userRole === "superAdmin"
@@ -102,20 +102,20 @@ export default function CertificateDashboard() {
             id: "Location",
             numeric: false,
             disablePadding: false,
-            label: "Recipient Location",
+            label: " Location",
             disableSort: true,
           },
         ]
       : []),
 
     {
-      id: "Issue Date",
+      id: "issueDate",
       numeric: false,
       disablePadding: false,
       label: "Issue Date",
     },
     {
-      id: "Expiry Date",
+      id: "validUntil",
       numeric: false,
       disablePadding: false,
       label: "Expiry Date",
@@ -205,6 +205,20 @@ export default function CertificateDashboard() {
     }
   };
 
+  const debouncedEmalilFilters = useCallback(
+    debounce((key, value) => {
+      if (key === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value) && value !== "") {
+          toast.warning("Please enter a valid email address");
+          return;
+        }
+      }
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    }, 2000),
+    []
+  );
+
   const handleTotalClick = () => {
     // Remove status filter when Total is clicked
     if (filters.status) {
@@ -231,6 +245,7 @@ export default function CertificateDashboard() {
       const offset = currentPage * rowsPerPage;
       const limit = rowsPerPage;
       const [sortBy, sortField] = [order === "asc" ? 1 : -1, orderBy];
+
       const response = await fetchCertificates(
         token,
         filters,
@@ -264,14 +279,27 @@ export default function CertificateDashboard() {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
-  console.log(inputValue);
+  console.log(inputValue.certificateNumber);
 
   return (
     <>
@@ -284,17 +312,15 @@ export default function CertificateDashboard() {
           >
             {inputValue.certificateNumber && (
               <Chip
-                label={`Certificate: CERT-${inputValue.certificateNumber}`}
+                label={`Certificate: ${inputValue.certificateNumber}`}
                 onDelete={() => handleFilterChange("certificateNumber", "")}
-                
                 variant="outlined"
               />
             )}
             {inputValue.certificateName && (
               <Chip
-                label={`Name: ${inputValue.certificateName}`}
+                label={`Certificate: ${inputValue.certificateNumber}`}
                 onDelete={() => handleFilterChange("certificateName", "")}
-                
                 variant="outlined"
               />
             )}
@@ -302,7 +328,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Email: ${inputValue.email}`}
                 onDelete={() => handleFilterChange("email", "")}
-                
                 variant="outlined"
               />
             )}
@@ -310,7 +335,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Location: ${inputValue.locationName}`}
                 onDelete={() => handleFilterChange("locationName", "")}
-                
                 variant="outlined"
               />
             )}
@@ -318,7 +342,6 @@ export default function CertificateDashboard() {
               <Chip
                 label={`Status: ${inputValue.status}`}
                 onDelete={() => handleFilterChange("status", "")}
-                
                 variant="outlined"
               />
             )}
@@ -338,7 +361,6 @@ export default function CertificateDashboard() {
                   handleFilterChange("startDate", "");
                   handleFilterChange("endDate", "");
                 }}
-                
                 variant="outlined"
               />
             )}
@@ -461,15 +483,23 @@ export default function CertificateDashboard() {
                           placeholder="Certificate Number"
                           value={
                             inputValue?.certificateNumber
-                              ? `CERT-${inputValue.certificateNumber}`
+                              ? inputValue.certificateNumber.startsWith("CERT-")
+                                ? inputValue.certificateNumber
+                                : `CERT-${inputValue.certificateNumber}`
                               : "CERT-"
                           }
                           className="rounded-0 custom-input"
                           onChange={(e) => {
-                            const rawValue = e.target.value
-                              .replace(/^CERT-/, "")
-                              .replace(/[^0-9]/g, "");
-                            handleFilterChange("certificateNumber", rawValue);
+                            // Remove all "CERT-" prefixes to get the raw number
+                            const rawValue = e.target.value.replace(
+                              /^CERT-/,
+                              ""
+                            );
+                            // Store just the number part in state
+                            handleFilterChange(
+                              "certificateNumber",
+                              `CERT-${rawValue}`
+                            );
                           }}
                         />
                       </TableCell>
@@ -491,15 +521,19 @@ export default function CertificateDashboard() {
                           placeholder="Email"
                           value={inputValue?.email || ""}
                           className="rounded-0 custom-input"
-                          onChange={(e) =>
-                            handleFilterChange("email", e.target.value)
-                          }
+                          onChange={(e) => {
+                            setInputValue((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }));
+                            debouncedEmalilFilters("email", e.target.value);
+                          }}
                         />
                       </TableCell>
                       {userRole === "superAdmin" && (
                         <TableCell>
                           <Form.Control
-                            placeholder="Reciepient Location"
+                            placeholder=" Location"
                             value={inputValue?.locationName || ""}
                             className="rounded-0 custom-input"
                             onChange={(e) =>

@@ -230,7 +230,7 @@ const Dashboard = () => {
                           },
                           label: function(context) {
                             return `Users: ${context.raw}`;
-                          }
+                          },
                         }
                       }
                     }

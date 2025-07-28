@@ -299,6 +299,7 @@ code {
   cursor: pointer;
 }
 .max-full-height {
+  min-height: calc(100vh - 30vh);
   max-height: calc(100vh - 30vh);
   /* height: 100%; */
   overflow: auto;
@@ -308,6 +309,7 @@ code {
   width: 100%;
   overflow-x: auto;
   /* height: inherit; */
+  min-height: calc(100vh - 30vh);
   max-height: calc(100vh - 30vh);
 }
 .max-full-height tbody {
@@ -322,6 +324,10 @@ code {
   height: 100%;
   overflow: auto;
   overflow-x: hidden;
+}
+.react-datepicker-popper {
+  z-index: 9999 !important;
+  line-height: 0;
 }
 .max-full-height-2 .MuiTableContainer-root {
   width: 100%;

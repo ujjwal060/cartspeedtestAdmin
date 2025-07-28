@@ -65,7 +65,7 @@ export const isActiveVideos = async (id, token) => {
 
 export const isActiveSafetyVideos = async (id, token) => {
   const response = await axios.patch(
-    `http://18.209.91.97:9090/api/admin/video/saftyStatus/${id}`,
+    `/admin/video/saftyStatus/${id}`,
     {},
     {
       headers: {
@@ -115,7 +115,7 @@ export const getSafetyVideos = async (
 ) => {
   try {
     const response = await axios.post(
-      "http://18.209.91.97:9090/api/admin/video/getSeftyVideo",
+      "/admin/video/getSeftyVideo",
       {
         offset,
         limit,
@@ -140,7 +140,7 @@ export const getSafetyVideos = async (
 // For safety videos (assuming similar endpoint structure)
 export const deleteSafetyVideos = async (videoId, token) => {
   const response = await axios.delete(
-    `http://18.209.91.97:9090/api/admin/video/deleteSaftyVideo/${videoId}`,
+    `/admin/video/deleteSaftyVideo/${videoId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

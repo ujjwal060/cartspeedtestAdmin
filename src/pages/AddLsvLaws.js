@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Button,
   Modal,
-  Table,
   Container,
   Form,
   Row,
   Col,
   Card,
+  Accordion,
   Badge,
 } from "react-bootstrap";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import DialogBox from "../components/deleteDialog";
+
 import "react-toastify/dist/ReactToastify.css";
 import {
   FaPlus,
@@ -24,16 +26,42 @@ import {
   FaImage,
   FaEye,
 } from "react-icons/fa";
-import axios from "axios";
+import axios from "../api/axios";
+import {
+  Box,
+  CardContent,
+  Grid,
+  InputAdornment,
+  MenuItem,
+  Paper,
+  Stack,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  CircularProgress,
+  TablePagination,
+  Chip,
+  LinearProgress,
+  IconButton,
+} from "@mui/material";
 
 const AddLsvLaws = () => {
   const [showModal, setShowModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalData, setTotalData] = useState([]);
   const [sectionType, setSectionType] = useState("driver");
   const [laws, setLaws] = useState([{ id: 1, content: "" }]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [DialogOpen, setDialogOpen] = useState(false);
+  const [currentId, setCurrentId] = useState(null);
   const [guidelines, setGuidelines] = useState([
     {
       id: 1,
@@ -50,6 +78,13 @@ const AddLsvLaws = () => {
   const [isLoading, setIsLoading] = useState(false);
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
+  const fileInputRefs = useRef({});
+  const dialogClose = () => setDialogOpen(false);
+  const [loading, setLoading] = useState(false);
+  const dialogOpen = (id) => {
+    setDialogOpen(true);
+    setCurrentId(id);
+  };
 
   const staticHeadings = {
     caring:
@@ -72,6 +107,7 @@ const AddLsvLaws = () => {
       setLaws(laws.filter((law) => law.id !== id));
     }
   };
+  const handleChangePage = (_, newPage) => setCurrentPage(newPage);
 
   const handleAddGuideline = () => {
     setGuidelines([
@@ -86,7 +122,38 @@ const AddLsvLaws = () => {
     ]);
   };
 
+  // const handleGuidelineImageChange = (guidelineId, e) => {
+  //   const files = Array.from(e.target.files);
+  //   if (files.length > 0) {
+  //     setGuidelines(
+  //       guidelines.map((guideline) => {
+  //         if (guideline.id === guidelineId) {
+  //           const newImages = [...guideline.images];
+  //           const newPreviews = [...guideline.imagePreviews];
+
+  //           files.forEach((file) => {
+  //             newImages.push(file);
+  //             const reader = new FileReader();
+  //             reader.onloadend = () => {
+  //               newPreviews.push(reader.result);
+  //             };
+  //             reader.readAsDataURL(file);
+  //           });
+
+  //           return {
+  //             ...guideline,
+  //             images: newImages,
+  //             imagePreviews: newPreviews,
+  //           };
+  //         }
+  //         return guideline;
+  //       })
+  //     );
+  //   }
+  // };
+
   const handleGuidelineImageChange = (guidelineId, e) => {
+    setLoading(true);
     const files = Array.from(e.target.files);
     if (files.length > 0) {
       setGuidelines(
@@ -95,11 +162,19 @@ const AddLsvLaws = () => {
             const newImages = [...guideline.images];
             const newPreviews = [...guideline.imagePreviews];
 
+            // Process each file with a delay to simulate loading
             files.forEach((file) => {
               newImages.push(file);
               const reader = new FileReader();
               reader.onloadend = () => {
                 newPreviews.push(reader.result);
+                // Update the state after all images are loaded
+                if (
+                  newPreviews.length ===
+                  guideline.imagePreviews.length + files.length
+                ) {
+                  setLoading(false);
+                }
               };
               reader.readAsDataURL(file);
             });
@@ -113,9 +188,13 @@ const AddLsvLaws = () => {
           return guideline;
         })
       );
+
+      // Fallback in case the onloadend doesn't trigger
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
     }
   };
-
   const removeGuidelineImage = (guidelineId, index) => {
     setGuidelines(
       guidelines.map((guideline) => {
@@ -216,16 +295,12 @@ const AddLsvLaws = () => {
 
       const token = localStorage.getItem("token");
 
-      const response = await axios.put(
-        "http://localhost:9090/api/admin/lsv/editGLSVRules",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.put("/admin/lsv/editGLSVRules", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200) {
         toast.success("Law section updated successfully!");
@@ -293,16 +368,12 @@ const AddLsvLaws = () => {
 
       const token = localStorage.getItem("token");
 
-      const response = await axios.post(
-        "http://18.209.91.97:9090/api/admin/lsv/addRRLSVR",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post("/admin/lsv/addRRLSVR", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Law section added successfully!");
@@ -323,6 +394,7 @@ const AddLsvLaws = () => {
 
         // setTableData([...tableData, newSection]);
         resetForm();
+        handleGetData(); // Refresh the data
         setShowModal(false);
       }
     } catch (error) {
@@ -350,13 +422,17 @@ const AddLsvLaws = () => {
 
   useEffect(() => {
     handleGetData();
-  }, []);
+  }, [currentPage]);
 
   const handleGetData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://18.209.91.97:9090/api/admin/lsv/getGLSV",
+      const response = await axios.post(
+        "/admin/lsv/getRRLSV",
+        {
+          offset: currentPage * 10,
+          limit: 10,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -364,11 +440,28 @@ const AddLsvLaws = () => {
         }
       );
       setTableData(response?.data?.data);
+      setTotalData(response?.data?.total);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
+  const deleteData = async () => {
+    const response = await axios.delete(`/admin/lsv/deleteRRLSV/${currentId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    if (response.status === 200) {
+      toast.success("Law section deleted successfully!");
+      handleGetData(); // Refresh the data
+      setDialogOpen(false);
+      resetForm();
+    } else {
+      toast.error("Failed to delete section.");
+      setDialogOpen(false);
+    }
+  };
   const getBadgeColor = (type) => {
     return "secondary";
   };
@@ -389,7 +482,6 @@ const AddLsvLaws = () => {
   return (
     <>
       <ToastContainer position="top-right" newestOnTop />
-
       <Card className="shadow-sm mb-4">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -414,7 +506,6 @@ const AddLsvLaws = () => {
           </div>
         </Card.Body>
       </Card>
-
       <Modal
         show={showModal}
         onHide={() => {
@@ -569,12 +660,21 @@ const AddLsvLaws = () => {
                           />
                         </div>
                       </Form.Group>
-
                       {/* Image Upload Section inside each Guideline */}
                       <Form.Group className="mt-3">
                         <Form.Label>Images</Form.Label>
                         <div className="d-flex flex-wrap gap-2 mb-3">
-                          {guideline.imagePreviews.length > 0 ? (
+                          {loading ? (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                width: "100%",
+                              }}
+                            >
+                              <CircularProgress size={24} />
+                            </Box>
+                          ) : guideline.imagePreviews.length > 0 ? (
                             guideline.imagePreviews.map((preview, imgIndex) => (
                               <div key={imgIndex} className="position-relative">
                                 <img
@@ -607,23 +707,34 @@ const AddLsvLaws = () => {
                         <Button
                           variant="outline-primary"
                           onClick={() =>
-                            document
-                              .getElementById(`image-upload-${guideline.id}`)
-                              .click()
+                            fileInputRefs.current[guideline.id]?.click()
                           }
                           className="d-flex align-items-center"
+                          disabled={loading}
                         >
-                          <FaPlus className="me-1" /> Add Images
+                          {loading ? (
+                            <>
+                              <CircularProgress size={16} className="me-2" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <FaPlus className="me-1" /> Add Images
+                            </>
+                          )}
                         </Button>
                         <input
                           type="file"
-                          id={`image-upload-${guideline.id}`}
+                          ref={(el) =>
+                            (fileInputRefs.current[guideline.id] = el)
+                          }
                           accept="image/*"
                           onChange={(e) =>
                             handleGuidelineImageChange(guideline.id, e)
                           }
                           multiple
                           style={{ display: "none" }}
+                          disabled={loading}
                         />
                       </Form.Group>
                     </Card.Body>
@@ -702,7 +813,6 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal
         show={viewModal}
         onHide={() => setViewModal(false)}
@@ -718,99 +828,112 @@ const AddLsvLaws = () => {
         <Modal.Body>
           {selectedSection && (
             <div className="p-3">
-              <Card className="mb-4 border-0 shadow-sm">
-                <Card.Header className="bg-primary text-white">
-                  <h4 className="mb-0">{selectedSection.sections[0].title}</h4>
-                </Card.Header>
-                <Card.Body>
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Description
-                    </h5>
+              <Accordion defaultActiveKey="0" className="mb-4">
+                {/* Section Description Accordion */}
+                <Accordion.Item
+                  eventKey="0"
+                  className="border-0 shadow-sm mb-3"
+                >
+                  <Accordion.Header className="bg-primary text-white">
+                    <h4 className="mb-0 d-flex align-items-center">
+                      <FaInfoCircle className="me-2" />
+                      {selectedSection.sections[0].title}
+                    </h4>
+                  </Accordion.Header>
+                  <Accordion.Body>
                     <div
                       className="p-3 bg-light rounded"
                       dangerouslySetInnerHTML={{
                         __html: selectedSection.sections[0].description,
                       }}
                     />
-                  </div>
+                  </Accordion.Body>
+                </Accordion.Item>
 
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
+                {/* Guidelines Accordion */}
+                <Accordion.Item
+                  eventKey="1"
+                  className="border-0 shadow-sm mb-3"
+                >
+                  <Accordion.Header className="bg-light">
+                    <h5 className="mb-0 d-flex align-items-center">
                       <FaBook className="me-2 text-info" /> Guidelines
                     </h5>
+                  </Accordion.Header>
+                  <Accordion.Body>
                     {selectedSection.guidelines.map((guideline, index) => (
-                      <Card key={index} className="mb-3 border-0 shadow-sm">
-                        <Card.Header className="bg-light">
-                          <h6 className="mb-0">
-                            {guideline.title || `Guideline ${index + 1}`}
-                          </h6>
-                        </Card.Header>
-                        <Card.Body>
-                          <div
-                            className="mb-3"
-                            dangerouslySetInnerHTML={{
-                              __html: guideline.description,
-                            }}
-                          />
-                          {guideline.imagePreviews?.length > 0 && (
-                            <div>
-                              <h6 className="d-flex align-items-center mb-2">
-                                <FaImage className="me-2 text-primary" /> Images
-                              </h6>
-                              <div className="d-flex flex-wrap gap-3">
-                                {guideline.imagePreviews.map(
-                                  (preview, imgIndex) => (
-                                    <img
-                                      key={imgIndex}
-                                      src={preview}
-                                      alt={`Guideline ${index + 1} - Image ${
-                                        imgIndex + 1
-                                      }`}
-                                      className="img-thumbnail"
-                                      style={{
-                                        maxWidth: "200px",
-                                        maxHeight: "200px",
-                                      }}
-                                    />
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </Card.Body>
-                      </Card>
+                      <Accordion key={index} className="mb-3">
+                        <Accordion.Item eventKey={`guideline-${index}`}>
+                          <Accordion.Header>
+                            <strong>
+                              {guideline.title || `Guideline ${index + 1}`}
+                            </strong>
+                          </Accordion.Header>
+                          <Accordion.Body>
+                            <div
+                              className="mb-3"
+                              dangerouslySetInnerHTML={{
+                                __html: guideline.description,
+                              }}
+                            />
+                            {guideline.imageUrl && (
+                              <>
+                                <h6 className="d-flex align-items-center mb-2 mt-3">
+                                  <FaImage className="me-2 text-primary" />{" "}
+                                  Images
+                                </h6>
+                                <div className="d-flex flex-wrap gap-3">
+                                  <img
+                                    src={guideline.imageUrl}
+                                    alt={`Guideline`}
+                                    className="img-thumbnail"
+                                    style={{
+                                      maxWidth: "200px",
+                                      maxHeight: "200px",
+                                    }}
+                                  />
+                                </div>
+                              </>
+                            )}
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      </Accordion>
                     ))}
-                  </div>
+                  </Accordion.Body>
+                </Accordion.Item>
 
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> What is LSV
+                {/* Sections Accordion */}
+                <Accordion.Item eventKey="2" className="border-0 shadow-sm">
+                  <Accordion.Header className="bg-light">
+                    <h5 className="mb-0 d-flex align-items-center">
+                      <FaInfoCircle className="me-2 text-info" /> Sections
                     </h5>
+                  </Accordion.Header>
+                  <Accordion.Body>
                     <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.whatIsLSV}
+                      {selectedSection.sections.map((section, index) => (
+                        <Accordion key={index} className="mb-3">
+                          <Accordion.Item eventKey={`section-${index}`}>
+                            <Accordion.Header>
+                              <strong>
+                                {section.title || `Section ${index + 1}`}
+                              </strong>
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              <div
+                                className="mb-3"
+                                dangerouslySetInnerHTML={{
+                                  __html: section.description,
+                                }}
+                              />
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        </Accordion>
+                      ))}
                     </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Importance
-                    </h5>
-                    <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.importance}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="d-flex align-items-center mb-3">
-                      <FaInfoCircle className="me-2 text-info" /> Safety
-                    </h5>
-                    <div className="p-3 bg-light rounded">
-                      {selectedSection.questions?.safety}
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
             </div>
           )}
         </Modal.Body>
@@ -820,7 +943,6 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       <Modal
         show={editModal}
         onHide={() => {
@@ -1108,148 +1230,96 @@ const AddLsvLaws = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
       {tableData.length > 0 ? (
-        <Card className="shadow-sm">
-          <Card.Header className="bg-light">
-            <h5 className="mb-0">Saved Law Sections</h5>
-          </Card.Header>
-          <Card.Body className="p-0">
-            <div className="table-responsive">
-              <Table hover className="mb-0" stickyHeader aria-label="sticky table">
-                <thead className="table-light">
-                  <tr>
-                    <th>#</th>
-
-                    <th>Title</th>
-                    <th>Description</th>
-
-                    <th>Guidelines</th>
-                    <th>What is LSV</th>
-
-                    <th>Importance</th>
-                    <th>Safety</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+        <>
+          <Paper elevation={3} className="mt-3 max-full-height-2">
+            <TableContainer>
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                    <TableCell>#</TableCell>
+                    <TableCell>Title</TableCell>
+                    {/* <TableCell>Description</TableCell> */}
+                    <TableCell>Guidelines</TableCell>
+                    <TableCell>Section</TableCell>
+                    {/* <TableCell>Importance</TableCell>
+                    <TableCell>Safety</TableCell> */}
+                    <TableCell>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   {tableData.map((section, index) => (
-                    <tr key={section.id}>
-                      <td className="fw-bold">{index + 1}</td>
-                      <td>
-                        <Badge bg={getBadgeColor(section.type)}>
-                          {section?.sections[0].title}
-                        </Badge>
-                      </td>
-
-                      <td>
-                        {section.sections.map((data) => {
-                          return (
-                            <div key={data.id} className="mb-2">
-                              <small className="text-muted d-block text-truncate">
-                                <div
-                                  dangerouslySetInnerHTML={{
-                                    __html: data.description,
-                                  }}
-                                  className="text-muted"
-                                />
-                              </small>
-                            </div>
-                          );
-                        })}
-                        {/* <div
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              section.description.substring(0, 60) +
-                              (section.description.length > 60 ? "..." : ""),
-                          }}
-                          className="text-muted"
-                        /> */}
-                      </td>
-
-                      <td style={{ maxWidth: "200px" }}>
-                        {section.guidelines.map((g, i) => (
-                          <div key={i} className="mb-2">
-                            <small className="fw-bold d-block">{g.title}</small>
-                            <small className="text-muted d-block text-truncate">
-                              {g.description
-                                .replace(/<[^>]+>/g, "")
-                                .substring(0, 30)}
-                              ...
-                            </small>
-                            {g.imagePreviews?.length > 0 && (
-                              <small className="d-flex align-items-center mt-1">
-                                <FaImage className="me-1 text-primary" />
-                                {g.imagePreviews.length} image(s)
-                              </small>
-                            )}
-                          </div>
+                    <TableRow key={section.id} hover>
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        {index + 1}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={section?.sections[0].title}
+                          color={getBadgeColor(section.type)}
+                          size="small"
+                        />
+                      </TableCell>
+                      {/* <TableCell>
+                        {section.sections.map((data) => (
+                          <Box key={data.id} sx={{ mb: 1 }}>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              component="div"
+                            >
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: data.description,
+                                }}
+                              />
+                            </Typography>
+                          </Box>
                         ))}
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section?.questions?.whatIsLSV}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted  text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section.questions?.importance}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
-                        <div className="static-content-cell">
-                          <div className="mb-1 d-flex flex-row gap-2 align-items-center">
-                            <small
-                              className="text-muted text-truncate"
-                              style={{ maxWidth: "100px" }}
-                            >
-                              {section?.questions?.safety}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: "200px" }}>
+                      </TableCell> */}
+                      <TableCell sx={{ maxWidth: 150 }}>
+                        <Badge bg="primary">
+                          {section?.guidelines?.length}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell sx={{ maxWidth: 150 }}>
+                        <Badge bg="primary">{section?.sections?.length}</Badge>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 150 }}>
                         <Button
-                          variant="outline-success"
-                          size="sm"
-                          className="me-2"
+                          className="btn btn-success me-2"
+                          size="small"
                           onClick={() => handleViewSection(section)}
                         >
                           <FaEye />
                         </Button>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="me-2"
-                           onClick={() => handleEditSection(section)}
-                        >
-                          <FaEdit />
-                        </Button>
-                        <Button variant="outline-danger" size="sm">
-                          <FaTrash />
-                        </Button>
-                      </td>
-                    </tr>
+                        {role === "admin" && (
+                          <Button
+                            className="btn btn-danger"
+                            size="small"
+                            onClick={() => dialogOpen(section._id)}
+                          >
+                            <FaTrash />
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
+                </TableBody>
               </Table>
-            </div>
-          </Card.Body>
-        </Card>
+            </TableContainer>
+          </Paper>
+          <TablePagination
+            rowsPerPageOptions={[10]}
+            component="div"
+            className="paginated-custom"
+            count={totalData}
+            rowsPerPage={10}
+            page={currentPage}
+            onPageChange={handleChangePage}
+          />
+        </>
       ) : (
         <Card className="shadow-sm text-center py-5">
           <Card.Body>
@@ -1273,6 +1343,11 @@ const AddLsvLaws = () => {
           </Card.Body>
         </Card>
       )}
+      <DialogBox
+        open={DialogOpen}
+        onClose={dialogClose}
+        onDelete={deleteData}
+      />
     </>
   );
 };

@@ -116,6 +116,7 @@ const AssessmentDashboard = () => {
     } else {
       setSectionNumber(sectionValue);
       setFilters((prev) => ({ ...prev, sectionNumber: sectionValue }));
+      setCurrentPage(0)
     }
   };
 
@@ -147,11 +148,24 @@ const AssessmentDashboard = () => {
 
   const handleDateChange = (update) => {
     setDateRange(update);
-    setFilters((prev) => ({
-      ...prev,
-      startDate: update[0],
-      endDate: update[1],
-    }));
+
+    // Only update filters if BOTH dates are selected
+    if (update[0] && update[1]) {
+      setFilters((prev) => ({
+        ...prev,
+        startDate: update[0],
+        endDate: update[1],
+      }));
+    }
+    // If either date is missing, remove them from filters
+    else if (filters.startDate || filters.endDate) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+        return newFilters;
+      });
+    }
   };
 
   const fetchQA = async () => {
@@ -314,7 +328,28 @@ const AssessmentDashboard = () => {
           </Link>
         )}
 
-        {selectedSection && (
+        {selectedSection && !adminName && (
+          <Chip
+            label={selectedSection.label.replace("Section ", "section")}
+            sx={{
+              backgroundColor: "#2E5AAC",
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.875rem",
+              textTransform: "lowercase",
+              maxWidth: 150,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              padding: "0 20px",
+              height: "32px",
+              "& .MuiChip-label": {
+                padding: "0 8px",
+              },
+            }}
+          />
+        )}
+
+        {selectedSection && adminName && (
           <Chip
             label={selectedSection.label.replace("Section ", "section")}
             className="custom-design-chip"
@@ -439,19 +474,27 @@ const AssessmentDashboard = () => {
                   {openFilter && (
                     <>
                       <TextField
-                        label="Search by Location"
+                        label="Search by PinCode"
                         variant="outlined"
                         size="small"
-                        value={inputValue.location}
-                        onChange={(e) =>
-                          // setFilters((prev) => ({
-                          //   ...prev,
-                          //   location: e.target.value,
-                          // }))
-                          handleFilterChange("location", e.target.value)
+                        value={inputValue.location || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Only allow numbers and max 6 digits
+                          if (/^\d{0,5}$/.test(value)) {
+                            handleFilterChange("location", value);
+                          }
+                        }}
+                        inputProps={{
+                          inputMode: "numeric", // Shows numeric keyboard on mobile
+                          pattern: "[0-9]{5}", // HTML5 validation pattern
+                          maxLength: 5, // Hard limit on input length
+                        }}
+                        error={
+                          inputValue.location &&
+                          inputValue.location.length !== 5
                         }
                       />
-
                       <Box className="custom-picker date-picker-custom-design">
                         <CalendarMonthIcon className="svg-custom" />
                         <DatePicker
@@ -478,7 +521,7 @@ const AssessmentDashboard = () => {
                     </Box>
                   </Tooltip>
 
-                  {role === "admin" && (
+                  {/* {role === "admin" && ( */}
                     <Button
                       variant="contained"
                       color="primary"
@@ -487,7 +530,7 @@ const AssessmentDashboard = () => {
                     >
                       Assessment
                     </Button>
-                  )}
+                  {/* )} */}
                 </div>
               </div>
             </Box>
@@ -746,6 +789,8 @@ const AssessmentDashboard = () => {
         show={show}
         onVideoUploaded={fetchQA}
         editData={editData}
+        loading={loading}
+        setLoading={setLoading}
       />
 
       <DialogBox open={open} onClose={dialogClose} onDelete={handleDelete} />
