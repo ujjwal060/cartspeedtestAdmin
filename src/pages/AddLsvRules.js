@@ -274,7 +274,7 @@ const AddLsvRules = () => {
                 Manage Low-Speed Vehicle regulations and guidelines
               </p>
             </div>
-            {role === "admin" && (
+            {/* {role === "admin" && ( */}
               <Button
                 variant="primary"
                 onClick={() => setShowModal(true)}
@@ -282,7 +282,7 @@ const AddLsvRules = () => {
               >
                 <FaPlus className="me-2" /> Add New Rules
               </Button>
-            )}
+            {/* )} */}
           </div>
         </Card.Body>
       </Card>
