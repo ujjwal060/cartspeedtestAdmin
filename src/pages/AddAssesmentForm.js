@@ -24,6 +24,7 @@ export default function AddAssesmentFormFile({
   onVideoUploaded,
   setLoading,
   loading,
+  fetchQA,
 }) {
   const [answerValue, setAnswerValue] = React.useState(null);
   const [age, setAge] = React.useState("");
@@ -181,6 +182,7 @@ export default function AddAssesmentFormFile({
 
       handleClose();
       modalClose();
+      fetchQA();
       if (userType === "admin") {
         onVideoUploaded();
       }

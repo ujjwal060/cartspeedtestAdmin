@@ -814,6 +814,7 @@ const AssessmentDashboard = () => {
         editData={editData}
         loading={loading}
         setLoading={setLoading}
+        fetchQA={fetchQA}
       />
 
       <DialogBox open={open} onClose={dialogClose} onDelete={handleDelete} />
