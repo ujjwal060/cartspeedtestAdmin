@@ -323,12 +323,12 @@ const VideoDashboard = () => {
                         placeholder="Email"
                         value={inputValue.email}
                         className="rounded-0 custom-input"
-                          onChange={(e) => {
-                            setInputValue((prev) => ({
-                              ...prev,
-                              email: e.target.value,
-                            }));
-                            debouncedEmalilFilters("email", e.target.value);
+                        onChange={(e) => {
+                          setInputValue((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }));
+                          debouncedEmalilFilters("email", e.target.value);
                         }}
                       />
                     </TableCell>
@@ -357,20 +357,31 @@ const VideoDashboard = () => {
                     <TableCell></TableCell>
                   </TableRow>
                 )}
-                {getVideo.map((video, index) => (
-                  <TableRow key={video._id || index}>
-                    <TableCell>
-                      {currentPage * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell>{video.name}</TableCell>
-                    <TableCell>{video.email}</TableCell>
-                    <TableCell>{video.mobile}</TableCell>
-                    <TableCell>{video.address}</TableCell>
-                    <TableCell>
-                      {new Date(video.updatedAt).toLocaleDateString()}
+                {getVideo.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <p className="text-secondary text-center mt-5">
+                        No Data Available Right Now
+                      </p>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  getVideo.map((video, index) => (
+                    <TableRow key={video._id || index}>
+                      <TableCell>
+                        {currentPage * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell>{video.name}</TableCell>
+                      <TableCell>{video.email}</TableCell>
+                      <TableCell>{video.mobile}</TableCell>
+                      <TableCell>{video.address}</TableCell>
+                      <TableCell>
+                        {new Date(video.updatedAt).toLocaleDateString()}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+                {}
               </TableBody>
             </Table>
           </TableContainer>

@@ -764,8 +764,17 @@ const VideoDashboard = () => {
                       </TableRow>
                     )}
 
-                    {viewType === "videos"
-                      ? getVideo.map((item, index) => (
+                    {viewType === "videos" ? (
+                      getVideo.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6}>
+                            <p className="text-secondary text-center mt-5">
+                              No Data Available Right Now
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        getVideo.map((item, index) => (
                           <TableRow key={item.video._id || index}>
                             <TableCell
                               onClick={() =>
@@ -881,88 +890,97 @@ const VideoDashboard = () => {
                             </TableCell>
                           </TableRow>
                         ))
-                      : getSafetyVideo.map((item, index) => (
-                          <TableRow key={item._id || index}>
-                            <TableCell
-                              style={{
-                                cursor: "pointer",
-                                color: "#1976d2",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              {item.title.length > 30 ? (
-                                <>
-                                  {expandedStates.safetyVideos[item._id]?.title
-                                    ? item.title
-                                    : `${item.title.substring(0, 30)}...`}
-                                  <Button
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleExpand(
-                                        "safetyVideos",
-                                        item._id,
-                                        "title"
-                                      );
-                                    }}
-                                    sx={
-                                      {
-                                        /* ... your button styles ... */
-                                      }
+                      )
+                    ) : getSafetyVideo.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6}>
+                          <p className="text-secondary text-center mt-5">
+                            No Data Available Right Now
+                          </p>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      getSafetyVideo.map((item, index) => (
+                        <TableRow key={item._id || index}>
+                          <TableCell
+                            style={{
+                              cursor: "pointer",
+                              color: "#1976d2",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            {item.title.length > 30 ? (
+                              <>
+                                {expandedStates.safetyVideos[item._id]?.title
+                                  ? item.title
+                                  : `${item.title.substring(0, 30)}...`}
+                                <Button
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleExpand(
+                                      "safetyVideos",
+                                      item._id,
+                                      "title"
+                                    );
+                                  }}
+                                  sx={
+                                    {
+                                      /* ... your button styles ... */
                                     }
-                                  >
-                                    {expandedStates.safetyVideos[item._id]
-                                      ?.title
-                                      ? "Show less"
-                                      : "Show more"}
-                                  </Button>
-                                </>
-                              ) : (
-                                item.title
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {item.description &&
-                              item.description.length > 50 ? (
-                                <>
+                                  }
+                                >
+                                  {expandedStates.safetyVideos[item._id]?.title
+                                    ? "Show less"
+                                    : "Show more"}
+                                </Button>
+                              </>
+                            ) : (
+                              item.title
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {item.description &&
+                            item.description.length > 50 ? (
+                              <>
+                                {expandedStates.safetyVideos[item._id]
+                                  ?.description
+                                  ? item.description
+                                  : `${item.description.substring(0, 50)}...`}
+                                <Button
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleExpand(
+                                      "safetyVideos",
+                                      item._id,
+                                      "description"
+                                    );
+                                  }}
+                                  sx={
+                                    {
+                                      /* ... your button styles ... */
+                                    }
+                                  }
+                                >
                                   {expandedStates.safetyVideos[item._id]
                                     ?.description
-                                    ? item.description
-                                    : `${item.description.substring(0, 50)}...`}
-                                  <Button
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleExpand(
-                                        "safetyVideos",
-                                        item._id,
-                                        "description"
-                                      );
-                                    }}
-                                    sx={
-                                      {
-                                        /* ... your button styles ... */
-                                      }
-                                    }
-                                  >
-                                    {expandedStates.safetyVideos[item._id]
-                                      ?.description
-                                      ? "Show less"
-                                      : "Show more"}
-                                  </Button>
-                                </>
-                              ) : (
-                                item.description
-                              )}
-                            </TableCell>
-                            <TableCell>{item.locationName}</TableCell>
-                            {userRole === "superAdmin" && (
-                              <>
-                                <TableCell>{item.adminName}</TableCell>
+                                    ? "Show less"
+                                    : "Show more"}
+                                </Button>
                               </>
+                            ) : (
+                              item.description
                             )}
-                            <TableCell>{item.durationTime}</TableCell>
-                            {/* <TableCell>
+                          </TableCell>
+                          <TableCell>{item.locationName}</TableCell>
+                          {userRole === "superAdmin" && (
+                            <>
+                              <TableCell>{item.adminName}</TableCell>
+                            </>
+                          )}
+                          <TableCell>{item.durationTime}</TableCell>
+                          {/* <TableCell>
                               <Switch
                                 checked={item.isActive}
                                 disabled={userRole === "superAdmin"}
@@ -973,20 +991,21 @@ const VideoDashboard = () => {
                                 }}
                               />
                             </TableCell> */}
-                            <TableCell>
-                              <PlayArrowIcon
-                                color="success"
-                                onClick={() => handlePlayOpen(item.url)}
-                                style={{ cursor: "pointer" }}
-                              />
-                              <DeleteIcon
-                                color="error"
-                                style={{ cursor: "pointer" }}
-                                onClick={() => dialogOpen(item._id)}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                          <TableCell>
+                            <PlayArrowIcon
+                              color="success"
+                              onClick={() => handlePlayOpen(item.url)}
+                              style={{ cursor: "pointer" }}
+                            />
+                            <DeleteIcon
+                              color="error"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => dialogOpen(item._id)}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>

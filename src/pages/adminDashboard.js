@@ -318,7 +318,10 @@ export default function AdminDashboard() {
                 label={`location: ${displayedFilters?.locationName}`}
                 onDelete={() => {
                   handleFilterChange("locationName", "");
-                  setDisplayedFilters((prev) => ({ ...prev, locationName: "" }));
+                  setDisplayedFilters((prev) => ({
+                    ...prev,
+                    locationName: "",
+                  }));
                   setFilters((prev) => ({ ...prev, locationName: undefined }));
                 }}
               />
@@ -326,7 +329,7 @@ export default function AdminDashboard() {
             {displayedFilters.number && (
               <Chip
                 label={`Number: ${displayedFilters?.number}`}
-               onDelete={() => {
+                onDelete={() => {
                   handleFilterChange("number", "");
                   setDisplayedFilters((prev) => ({ ...prev, number: "" }));
                   setFilters((prev) => ({ ...prev, number: undefined }));
@@ -410,37 +413,47 @@ export default function AdminDashboard() {
                     <TableCell></TableCell>
                   </TableRow>
                 )}
-                {data.map((video, index) => (
-                  <TableRow key={video._id || index}>
-                    {/* <TableCell>{video.name}</TableCell> */}
-                    <TableCell
-                      style={{ cursor: "pointer", color: "blue" }}
-                      onClick={() => {
-                        navigate("/videos", {
-                          state: { adminName: video.name },
-                        });
-                      }}
-                    >
-                      {video?.name}
-                    </TableCell>
-                    <TableCell>{video?.email}</TableCell>
-                    <TableCell>{video?.locationDetails?.name}</TableCell>
-                    <TableCell>{video?.mobile}</TableCell>
-                    <TableCell>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={video?.isActive}
-                              onChange={() => handleToggleStatus(video._id)}
-                            />
-                          }
-                          label={video?.isActive ? "Active" : "Inactive"}
-                        />
-                      </FormGroup>
+                {data.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <p className="text-secondary text-center mt-5">
+                        No Data Available Right Now
+                      </p>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  data.map((video, index) => (
+                    <TableRow key={video._id || index}>
+                      {/* <TableCell>{video.name}</TableCell> */}
+                      <TableCell
+                        style={{ cursor: "pointer", color: "blue" }}
+                        onClick={() => {
+                          navigate("/videos", {
+                            state: { adminName: video.name },
+                          });
+                        }}
+                      >
+                        {video?.name}
+                      </TableCell>
+                      <TableCell>{video?.email}</TableCell>
+                      <TableCell>{video?.locationDetails?.name}</TableCell>
+                      <TableCell>{video?.mobile}</TableCell>
+                      <TableCell>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={video?.isActive}
+                                onChange={() => handleToggleStatus(video._id)}
+                              />
+                            }
+                            label={video?.isActive ? "Active" : "Inactive"}
+                          />
+                        </FormGroup>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
