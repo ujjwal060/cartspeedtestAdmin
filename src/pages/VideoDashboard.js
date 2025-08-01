@@ -470,8 +470,8 @@ const VideoDashboard = () => {
         <>
           {" "}
           <Box>
-            <div className="d-flex justify-content-between align-items-center pad-root mb-3">
-              <Box
+            <div className="d-flex justify-content-end align-items-center pad-root mb-3">
+              {/* <Box
                 sx={{
                   backgroundColor: "#f4f6f8",
                   borderRadius: "16px",
@@ -519,7 +519,7 @@ const VideoDashboard = () => {
                     Safety Videos
                   </Button>
                 )}
-              </Box>
+              </Box> */}
               <div className="d-flex gap-2 align-items-center">
                 <div className="custom-picker date-picker-custom-design">
                   <CalendarMonthIcon className="svg-custom" />
@@ -554,7 +554,7 @@ const VideoDashboard = () => {
                     Add Safety Video
                   </Button>
                 )}
-                {userRole === "admin" &&
+                {/* {userRole === "admin" &&
                   (viewType === "safetyVideos" ? (
                     <Button
                       variant="contained"
@@ -576,7 +576,7 @@ const VideoDashboard = () => {
                       <AddCircleOutlineIcon />
                       Add Video
                     </Button>
-                  ))}
+                  ))} */}
               </div>
             </div>
             {(inputValue.title ||
@@ -774,34 +774,144 @@ const VideoDashboard = () => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        getVideo.map((item, index) => (
-                          <TableRow key={item.video._id || index}>
+                        // getVideo.map((item, index) => (
+                        //   <TableRow key={item.video._id || index}>
+                        //     <TableCell
+                        //       onClick={() =>
+                        //         navigate("/assessment", {
+                        //           state: {
+                        //             adminName: location.state?.adminName,
+                        //           },
+                        //         })
+                        //       }
+                        //       style={{
+                        //         cursor: "pointer",
+                        //         color: "#1976d2",
+                        //         textDecoration: "underline",
+                        //       }}
+                        //     >
+                        //       {item.video.title.length > 30 ? (
+                        //         <>
+                        //           {expandedStates.videos[item.video._id]?.title
+                        //             ? item.video.title
+                        //             : `${item.video.title.substring(0, 30)}...`}
+                        //           <Button
+                        //             size="small"
+                        //             onClick={(e) => {
+                        //               e.stopPropagation();
+                        //               toggleExpand(
+                        //                 "videos",
+                        //                 item.video._id,
+                        //                 "title"
+                        //               );
+                        //             }}
+                        //             sx={
+                        //               {
+                        //                 /* ... your button styles ... */
+                        //               }
+                        //             }
+                        //           >
+                        //             {expandedStates.videos[item.video._id]
+                        //               ?.title
+                        //               ? "Show less"
+                        //               : "Show more"}
+                        //           </Button>
+                        //         </>
+                        //       ) : (
+                        //         item.video.title
+                        //       )}
+                        //     </TableCell>
+
+                        //     <TableCell>
+                        //       {item.video.description &&
+                        //       item.video.description.length > 50 ? (
+                        //         <>
+                        //           {expandedStates.videos[item.video._id]
+                        //             ?.description
+                        //             ? item.video.description
+                        //             : `${item.video.description.substring(
+                        //                 0,
+                        //                 40
+                        //               )}...`}
+                        //           <Button
+                        //             size="small"
+                        //             onClick={(e) => {
+                        //               e.stopPropagation();
+                        //               toggleExpand(
+                        //                 "videos",
+                        //                 item.video._id,
+                        //                 "description"
+                        //               );
+                        //             }}
+                        //             sx={
+                        //               {
+                        //                 /* ... your button styles ... */
+                        //               }
+                        //             }
+                        //           >
+                        //             {expandedStates.videos[item.video._id]
+                        //               ?.description
+                        //               ? "Show less"
+                        //               : "Show more"}
+                        //           </Button>
+                        //         </>
+                        //       ) : (
+                        //         item.video.description
+                        //       )}
+                        //     </TableCell>
+                        //     <TableCell>{item.section}</TableCell>
+                        //     <TableCell>{item.sectionTitle}</TableCell>
+                        //     <TableCell>{item.locationName}</TableCell>
+                        //     <TableCell>{item.video.durationTime}</TableCell>
+                        //     <TableCell>
+                        //       <Switch
+                        //         checked={item.video.isActive}
+                        //         onChange={() =>
+                        //           handleToggleStatus(item.video._id)
+                        //         }
+                        //         disabled={userRole === "superAdmin"}
+                        //         color="primary"
+                        //         inputProps={{
+                        //           "aria-label": "toggle video status",
+                        //         }}
+                        //       />
+                        //     </TableCell>
+                        //     <TableCell>
+                        //       <PlayArrowIcon
+                        //         color="success"
+                        //         onClick={() => handlePlayOpen(item.video.url)}
+                        //         style={{ cursor: "pointer" }}
+                        //       />
+                        //       <DeleteIcon
+                        //         color="error"
+                        //         style={{ cursor: "pointer" }}
+                        //         onClick={() => dialogOpen(item.video._id)}
+                        //       />
+                        //     </TableCell>
+                        //   </TableRow>
+                        // ))
+
+                        getSafetyVideo.map((item, index) => (
+                          <TableRow key={item._id || index}>
                             <TableCell
-                              onClick={() =>
-                                navigate("/assessment", {
-                                  state: {
-                                    adminName: location.state?.adminName,
-                                  },
-                                })
-                              }
                               style={{
                                 cursor: "pointer",
                                 color: "#1976d2",
                                 textDecoration: "underline",
                               }}
                             >
-                              {item.video.title.length > 30 ? (
+                              {item.title.length > 30 ? (
                                 <>
-                                  {expandedStates.videos[item.video._id]?.title
-                                    ? item.video.title
-                                    : `${item.video.title.substring(0, 30)}...`}
+                                  {expandedStates.safetyVideos[item._id]?.title
+                                    ? item.title
+                                    : `${item.title.substring(0, 30)}...`}
                                   <Button
                                     size="small"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       toggleExpand(
-                                        "videos",
-                                        item.video._id,
+                                        "safetyVideos",
+                                        item._id,
                                         "title"
                                       );
                                     }}
@@ -811,35 +921,31 @@ const VideoDashboard = () => {
                                       }
                                     }
                                   >
-                                    {expandedStates.videos[item.video._id]
+                                    {expandedStates.safetyVideos[item._id]
                                       ?.title
                                       ? "Show less"
                                       : "Show more"}
                                   </Button>
                                 </>
                               ) : (
-                                item.video.title
+                                item.title
                               )}
                             </TableCell>
-
                             <TableCell>
-                              {item.video.description &&
-                              item.video.description.length > 50 ? (
+                              {item.description &&
+                              item.description.length > 50 ? (
                                 <>
-                                  {expandedStates.videos[item.video._id]
+                                  {expandedStates.safetyVideos[item._id]
                                     ?.description
-                                    ? item.video.description
-                                    : `${item.video.description.substring(
-                                        0,
-                                        40
-                                      )}...`}
+                                    ? item.description
+                                    : `${item.description.substring(0, 50)}...`}
                                   <Button
                                     size="small"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       toggleExpand(
-                                        "videos",
-                                        item.video._id,
+                                        "safetyVideos",
+                                        item._id,
                                         "description"
                                       );
                                     }}
@@ -849,43 +955,44 @@ const VideoDashboard = () => {
                                       }
                                     }
                                   >
-                                    {expandedStates.videos[item.video._id]
+                                    {expandedStates.safetyVideos[item._id]
                                       ?.description
                                       ? "Show less"
                                       : "Show more"}
                                   </Button>
                                 </>
                               ) : (
-                                item.video.description
+                                item.description
                               )}
                             </TableCell>
-                            <TableCell>{item.section}</TableCell>
-                            <TableCell>{item.sectionTitle}</TableCell>
                             <TableCell>{item.locationName}</TableCell>
-                            <TableCell>{item.video.durationTime}</TableCell>
-                            <TableCell>
+                            {userRole === "superAdmin" && (
+                              <>
+                                <TableCell>{item.adminName}</TableCell>
+                              </>
+                            )}
+                            <TableCell>{item.durationTime}</TableCell>
+                            {/* <TableCell>
                               <Switch
-                                checked={item.video.isActive}
-                                onChange={() =>
-                                  handleToggleStatus(item.video._id)
-                                }
+                                checked={item.isActive}
                                 disabled={userRole === "superAdmin"}
+                                onChange={() => handleToggleStatus(item._id)}
                                 color="primary"
                                 inputProps={{
-                                  "aria-label": "toggle video status",
+                                  "aria-label": "toggle safety video status",
                                 }}
                               />
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell>
                               <PlayArrowIcon
                                 color="success"
-                                onClick={() => handlePlayOpen(item.video.url)}
+                                onClick={() => handlePlayOpen(item.url)}
                                 style={{ cursor: "pointer" }}
                               />
                               <DeleteIcon
                                 color="error"
                                 style={{ cursor: "pointer" }}
-                                onClick={() => dialogOpen(item.video._id)}
+                                onClick={() => dialogOpen(item._id)}
                               />
                             </TableCell>
                           </TableRow>

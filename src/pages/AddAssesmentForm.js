@@ -395,7 +395,7 @@ export default function AddAssesmentFormFile({
             <Offcanvas.Title>Add Your Test</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
-            <div className="col-lg-12 me-auto">
+            {/* <div className="col-lg-12 me-auto">
               <FormControl size="small" className="w-100" variant="standard">
                 <InputLabel id="demo-simple-select-label">
                   Select Section
@@ -436,11 +436,11 @@ export default function AddAssesmentFormFile({
                   )}
                 />
               </div>
-            )}
+            )} */}
 
-            {selectedVideo && (
+            {/* {selectedVideo && ( */}
               <>
-                <div className="row gy-4 mt-4">
+                <div className="row gy-4">
                   <div className="col-lg-12">
                     <TextField
                       id="standard-basic"
@@ -550,9 +550,9 @@ export default function AddAssesmentFormFile({
                   )}
                 </div>
               </>
-            )}
+            {/* )} */}
 
-            {questionsList.length > 0 && (
+            {/* {questionsList.length > 0 && ( */}
               <div className="mt-3">
                 <h6>Questions to be added ({questionsList.length}):</h6>
                 <List
@@ -587,7 +587,7 @@ export default function AddAssesmentFormFile({
                   ))}
                 </List>
               </div>
-            )}
+            {/* )} */}
 
             <div className="kb-buttons-box d-flex justify-content-end gap-2 mt-3">
               <Button
