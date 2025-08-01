@@ -284,22 +284,22 @@ const VideoDashboard = () => {
     try {
       setLoading(true);
 
-      if (viewType === "videos") {
-        const response = await getVideos(
-          token,
-          offset,
-          limit,
-          sortBy,
-          sortField,
-          filters
-        );
+      // if (viewType === "videos") {
+      //   const response = await getVideos(
+      //     token,
+      //     offset,
+      //     limit,
+      //     sortBy,
+      //     sortField,
+      //     filters
+      //   );
 
-        if (response.status === 200) {
-          setGetVideo(response?.data);
-          setTotalData(response?.total);
-        }
-      } else {
-        setLoading(true);
+      //   if (response.status === 200) {
+      //     setGetVideo(response?.data);
+      //     setTotalData(response?.total);
+      //   }
+      // } else {
+      //   setLoading(true);
         const response = await getSafetyVideos(
           token,
           offset,
@@ -310,11 +310,12 @@ const VideoDashboard = () => {
         );
 
         if (response.status === 200) {
+          console.log(response?.data)
           setGetSafetyVideo(response?.data);
           setTotalData(response?.total);
           setLoading(false);
         }
-      }
+      
     } catch (error) {
       toast.error(error?.response?.data?.message?.[0]);
       setLoading(false);
@@ -765,7 +766,7 @@ const VideoDashboard = () => {
                     )}
 
                     {viewType === "videos" ? (
-                      getVideo.length === 0 ? (
+                      getSafetyVideo.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={8}>
                             <p className="text-secondary text-center mt-5">
