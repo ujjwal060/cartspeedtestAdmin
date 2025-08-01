@@ -542,7 +542,7 @@ const VideoDashboard = () => {
                     style={{ cursor: "pointer" }}
                   />
                 </Tooltip>
-                {userRole === "superAdmin" && viewType === "safetyVideos" && (
+                {/* {userRole === "superAdmin" && ( */}
                   <Button
                     variant="contained"
                     color="primary"
@@ -553,7 +553,7 @@ const VideoDashboard = () => {
                     <SafetyCheckIcon />
                     Add Safety Video
                   </Button>
-                )}
+                {/* )} */}
                 {/* {userRole === "admin" &&
                   (viewType === "safetyVideos" ? (
                     <Button
@@ -767,7 +767,7 @@ const VideoDashboard = () => {
                     {viewType === "videos" ? (
                       getVideo.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={6}>
+                          <TableCell colSpan={8}>
                             <p className="text-secondary text-center mt-5">
                               No Data Available Right Now
                             </p>
@@ -1000,7 +1000,7 @@ const VideoDashboard = () => {
                       )
                     ) : getSafetyVideo.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6}>
+                        <TableCell colSpan={8}>
                           <p className="text-secondary text-center mt-5">
                             No Data Available Right Now
                           </p>
