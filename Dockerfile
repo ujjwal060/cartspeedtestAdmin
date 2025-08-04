@@ -3,10 +3,18 @@ FROM node:20 AS build
 
 WORKDIR /usr/src/app
 
+# Clean npm cache before install to save space
+RUN npm cache clean --force
+
 COPY package*.json ./
-RUN npm install
+
+# Use max-old-space-size to reduce memory usage
+ENV NODE_OPTIONS="--max-old-space-size=512"
+
+RUN npm install --legacy-peer-deps
 
 COPY . .
+
 RUN npm run build
 
 # Stage 2: Serve with Nginx
