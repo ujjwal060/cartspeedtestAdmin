@@ -3,11 +3,11 @@ FROM node:20 AS build
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package*.json 
 RUN npm install
 
 COPY . .
-RUN npm run build --legacy-peer-deps
+RUN npm run build 
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
