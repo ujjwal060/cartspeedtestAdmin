@@ -494,7 +494,7 @@ export default function AddAssesmentFormFile({
                     />
                   </div>
 
-                  {age && (
+               
                     <div className="col-lg-12">
                       <Autocomplete
                         id="answer-select"
@@ -513,7 +513,7 @@ export default function AddAssesmentFormFile({
                         )}
                       />
                     </div>
-                  )}
+                  
                 </div>
 
                 <div className="mt-3">
