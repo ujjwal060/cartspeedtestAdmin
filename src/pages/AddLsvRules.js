@@ -181,7 +181,63 @@ const AddLsvRules = () => {
     }
   };
 
+  const validateForm = () => {
+    // Validate basic content
+    if (!content.whatIsLSV.trim()) {
+      toast.error("Please provide 'What is LSV?' content");
+      return false;
+    }
+
+    if (!content.importance.trim()) {
+      toast.error("Please provide importance content");
+      return false;
+    }
+
+    if (!content.safety.trim()) {
+      toast.error("Please provide safety content");
+      return false;
+    }
+
+    // Validate sections
+    if (sectionData.length === 0) {
+      toast.error("Please add at least one section");
+      return false;
+    }
+
+    for (let i = 0; i < sectionData.length; i++) {
+      const section = sectionData[i];
+      if (!section.title.trim()) {
+        toast.error(`Please provide a title for Section ${i + 1}`);
+        return false;
+      }
+      if (!section.description.trim()) {
+        toast.error(`Please provide content for Section ${i + 1}`);
+        return false;
+      }
+    }
+
+    // Validate guidelines
+    if (guidelines.length === 0) {
+      toast.error("Please add at least one guideline");
+      return false;
+    }
+
+    for (let i = 0; i < guidelines.length; i++) {
+      const guideline = guidelines[i];
+      if (!guideline.title.trim()) {
+        toast.error(`Please provide a title for Guideline ${i + 1}`);
+        return false;
+      }
+      if (!guideline.description.trim()) {
+        toast.error(`Please provide content for Guideline ${i + 1}`);
+        return false;
+      }
+    }
+
+    return true;
+  };
   const handleSave = async () => {
+    if (!validateForm()) return;
     try {
       setIsLoading(true);
 
@@ -275,13 +331,13 @@ const AddLsvRules = () => {
               </p>
             </div>
             {/* {role === "admin" && ( */}
-              <Button
-                variant="primary"
-                onClick={() => setShowModal(true)}
-                className="ms-auto d-flex align-items-center"
-              >
-                <FaPlus className="me-2" /> Add New Rules
-              </Button>
+            <Button
+              variant="primary"
+              onClick={() => setShowModal(true)}
+              className="ms-auto d-flex align-items-center"
+            >
+              <FaPlus className="me-2" /> Add New Rules
+            </Button>
             {/* )} */}
           </div>
         </Card.Body>
@@ -650,13 +706,10 @@ const AddLsvRules = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Paper
-        elevation={3}
-        className="mt-3 max-full-height-2"
-      >
+      <Paper elevation={3} className="mt-3 max-full-height-2">
         <TableContainer>
           <Table stickyHeader aria-label="sticky table">
-            <TableHead >
+            <TableHead>
               <TableRow>
                 <TableCell>#</TableCell>
                 <TableCell>What Is LSV?</TableCell>

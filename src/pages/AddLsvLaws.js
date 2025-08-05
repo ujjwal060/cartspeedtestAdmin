@@ -248,7 +248,46 @@ const AddLsvLaws = () => {
     setEditModal(true);
   };
 
+  const validateForm = () => {
+  // Check if title is provided
+  if (!title.trim()) {
+    toast.error("Please provide a title for the section");
+    return false;
+  }
+
+  // Check if at least one guideline has content
+  const hasGuidelineContent = guidelines.some(
+    (g) => g.title.trim() || g.description.trim() || g.imagePreviews.length > 0
+  );
+
+  if (!hasGuidelineContent) {
+    toast.error("Please add at least one guideline with content");
+    return false;
+  }
+
+  // Check if all guidelines with titles have descriptions
+  const incompleteGuidelines = guidelines.some(
+    (g) => g.title.trim() && !g.description.trim()
+  );
+
+  if (incompleteGuidelines) {
+    toast.error("Please provide descriptions for all titled guidelines");
+    return false;
+  }
+
+  // Check if at least one law has content
+  const hasLawContent = laws.some((law) => law.content.trim());
+
+  if (!hasLawContent) {
+    toast.error("Please add at least one law");
+    return false;
+  }
+
+  return true;
+};
+
   const handleUpdate = async () => {
+    if (!validateForm()) return;
     try {
       setIsLoading(true);
 
@@ -323,6 +362,7 @@ const AddLsvLaws = () => {
   };
 
   const handleSave = async () => {
+    if (!validateForm()) return;
     try {
       setIsLoading(true);
 
