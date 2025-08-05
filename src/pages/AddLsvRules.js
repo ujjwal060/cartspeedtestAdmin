@@ -236,6 +236,44 @@ const AddLsvRules = () => {
 
     return true;
   };
+
+  const isFormValid = () => {
+    // Check basic content
+    if (
+      !content.whatIsLSV.trim() ||
+      !content.importance.trim() ||
+      !content.safety.trim()
+    ) {
+      return false;
+    }
+
+    // Check sections
+    if (sectionData.length === 0) return false;
+
+    for (const section of sectionData) {
+      if (!section.title.trim() || !section.description.trim()) {
+        return false;
+      }
+    }
+
+    // Check guidelines
+    if (guidelines.length === 0) return false;
+
+    for (const guideline of guidelines) {
+      if (
+        !guideline.title.trim() ||
+        !guideline.description.trim() ||
+        guideline.images.length === 0
+      ) {
+        // Add this check
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  
   const handleSave = async () => {
     if (!validateForm()) return;
     try {
@@ -701,7 +739,11 @@ const AddLsvRules = () => {
           >
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={isLoading}>
+          <Button
+            variant="primary"
+            onClick={handleSave}
+            disabled={isLoading || !isFormValid()}
+          >
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>
         </Modal.Footer>

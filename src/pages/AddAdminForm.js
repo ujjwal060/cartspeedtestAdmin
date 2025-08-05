@@ -134,18 +134,6 @@ export default function AddAdminForm({
     }
   };
 
-  const handleReset = () => {
-    setName("");
-    setEmail("");
-    setLocation("");
-    setPassword("");
-    setMobile("");
-    setZipCode("");
-    setGeoJsonData(null);
-    setBoundaryPaths([]);
-    setLocationNames([]);
-    setMapCenter({ lat: 37.0902, lng: -95.7129 });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -180,7 +168,7 @@ export default function AddAdminForm({
       const response = await registerUser(data, token);
       if (response.status === 201) {
         handleClose();
-        handleReset();
+        ResetForm();
         toast.success("User registered successfully");
         await handleAdmin({ filters });
         setIsSubmitting(false);

@@ -229,6 +229,27 @@ const AddLsvLaws = () => {
     setViewModal(true);
   };
 
+
+  const isFormValid = () => {
+  // Basic checks
+  if (!title.trim()) return false;
+  
+  // Check guidelines
+  if (guidelines.length === 0) return false;
+  
+  for (const guideline of guidelines) {
+    if (!guideline.title.trim() || 
+        !guideline.description.trim() || 
+        guideline.images.length === 0) {
+      return false;
+    }
+  }
+  
+  // Check laws
+  if (!laws.some(law => law.content.trim())) return false;
+  
+  return true;
+};
   const handleEditSection = (section) => {
     setEditingSection(section);
     setTitle(section.sections[0].title);
@@ -249,42 +270,43 @@ const AddLsvLaws = () => {
   };
 
   const validateForm = () => {
-  // Check if title is provided
-  if (!title.trim()) {
-    toast.error("Please provide a title for the section");
-    return false;
-  }
+    // Check if title is provided
+    if (!title.trim()) {
+      toast.error("Please provide a title for the section");
+      return false;
+    }
 
-  // Check if at least one guideline has content
-  const hasGuidelineContent = guidelines.some(
-    (g) => g.title.trim() || g.description.trim() || g.imagePreviews.length > 0
-  );
+    // Check if at least one guideline has content
+    const hasGuidelineContent = guidelines.some(
+      (g) =>
+        g.title.trim() || g.description.trim() || g.imagePreviews.length > 0
+    );
 
-  if (!hasGuidelineContent) {
-    toast.error("Please add at least one guideline with content");
-    return false;
-  }
+    if (!hasGuidelineContent) {
+      toast.error("Please add at least one guideline with content");
+      return false;
+    }
 
-  // Check if all guidelines with titles have descriptions
-  const incompleteGuidelines = guidelines.some(
-    (g) => g.title.trim() && !g.description.trim()
-  );
+    // Check if all guidelines with titles have descriptions
+    const incompleteGuidelines = guidelines.some(
+      (g) => g.title.trim() && !g.description.trim()
+    );
 
-  if (incompleteGuidelines) {
-    toast.error("Please provide descriptions for all titled guidelines");
-    return false;
-  }
+    if (incompleteGuidelines) {
+      toast.error("Please provide descriptions for all titled guidelines");
+      return false;
+    }
 
-  // Check if at least one law has content
-  const hasLawContent = laws.some((law) => law.content.trim());
+    // Check if at least one law has content
+    const hasLawContent = laws.some((law) => law.content.trim());
 
-  if (!hasLawContent) {
-    toast.error("Please add at least one law");
-    return false;
-  }
+    if (!hasLawContent) {
+      toast.error("Please add at least one law");
+      return false;
+    }
 
-  return true;
-};
+    return true;
+  };
 
   const handleUpdate = async () => {
     if (!validateForm()) return;
@@ -535,13 +557,13 @@ const AddLsvLaws = () => {
               </p>
             </div>
             {/* {role === "admin" && ( */}
-              <Button
-                variant="primary"
-                onClick={() => setShowModal(true)}
-                className="d-flex align-items-center"
-              >
-                <FaPlus className="me-2" /> Add New Section
-              </Button>
+            <Button
+              variant="primary"
+              onClick={() => setShowModal(true)}
+              className="d-flex align-items-center"
+            >
+              <FaPlus className="me-2" /> Add New Section
+            </Button>
             {/* )} */}
           </div>
         </Card.Body>
@@ -848,7 +870,12 @@ const AddLsvLaws = () => {
           >
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSave} className="px-4">
+          <Button
+            variant="primary"
+            onClick={handleSave}
+            className="px-4"
+            disabled={isLoading || !isFormValid()}
+          >
             Save Section
           </Button>
         </Modal.Footer>
