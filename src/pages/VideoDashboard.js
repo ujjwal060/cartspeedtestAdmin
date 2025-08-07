@@ -55,6 +55,7 @@ import "react-datepicker/dist/react-datepicker.css";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+const userRole = localStorage.getItem("role");
 
 const rowsPerPage = 10;
 
@@ -72,6 +73,17 @@ const videoHeadCells = [
     label: "Description",
     disableSort: true,
   },
+  ...(userRole === "superAdmin"
+    ? [
+        {
+          id: "adminName",
+          numeric: false,
+          disablePadding: false,
+          label: "Admin Name",
+          disableSort: true,
+        },
+      ]
+    : []),
   // {
   //   id: "section",
   //   numeric: false,
@@ -116,7 +128,6 @@ const videoHeadCells = [
   },
 ];
 
-const userRole = localStorage.getItem("role");
 const safetyVideoHeadCells = [
   {
     id: "title",
@@ -300,22 +311,21 @@ const VideoDashboard = () => {
       //   }
       // } else {
       //   setLoading(true);
-        const response = await getSafetyVideos(
-          token,
-          offset,
-          limit,
-          sortBy,
-          sortField,
-          requestData
-        );
+      const response = await getSafetyVideos(
+        token,
+        offset,
+        limit,
+        sortBy,
+        sortField,
+        requestData
+      );
 
-        if (response.status === 200) {
-          console.log(response?.data)
-          setGetSafetyVideo(response?.data);
-          setTotalData(response?.total);
-          setLoading(false);
-        }
-      
+      if (response.status === 200) {
+        console.log(response?.data);
+        setGetSafetyVideo(response?.data);
+        setTotalData(response?.total);
+        setLoading(false);
+      }
     } catch (error) {
       toast.error(error?.response?.data?.message?.[0]);
       setLoading(false);
@@ -544,16 +554,16 @@ const VideoDashboard = () => {
                   />
                 </Tooltip>
                 {/* {userRole === "superAdmin" && ( */}
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSafetyVideoClickOpen}
-                    className="rounded-4 d-flex gap-1 flex-row"
-                    style={{ backgroundColor: "#4caf50" }}
-                  >
-                    <SafetyCheckIcon />
-                    Add Safety Video
-                  </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSafetyVideoClickOpen}
+                  className="rounded-4 d-flex gap-1 flex-row"
+                  style={{ backgroundColor: "#4caf50" }}
+                >
+                  <SafetyCheckIcon />
+                  Add Safety Video
+                </Button>
                 {/* )} */}
                 {/* {userRole === "admin" &&
                   (viewType === "safetyVideos" ? (
@@ -697,7 +707,7 @@ const VideoDashboard = () => {
 
                         {viewType === "videos" && (
                           <>
-                            <TableCell>
+                            {/*   <TableCell> 
                               <FormControl
                                 size="small"
                                 style={{ width: "120px" }}
@@ -730,7 +740,7 @@ const VideoDashboard = () => {
                                   </MenuItem>
                                 </Select>
                               </FormControl>
-                            </TableCell>
+                            </TableCell>*/}
                             <TableCell>
                               <Form.Control
                                 placeholder="Section Title"
